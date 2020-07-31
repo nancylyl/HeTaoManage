@@ -5,8 +5,13 @@ import 'antd/dist/antd.css'
 import store from './store'
 import { Provider } from 'mobx-react'
 import './assets/style.scss'
+
+import moment from 'moment'; 
+import 'moment/locale/zh-cn'; 
+moment.locale('zh-cn');
+
 ReactDOM.render(
-  <Provider {...store}>
+  <Provider  {...store}>
     <App />
   </Provider>,
   document.getElementById('root')
