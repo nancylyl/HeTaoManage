@@ -1,5 +1,5 @@
 import React, { Component } from 'react'
-import { Layout, Breadcrumb } from 'antd'
+import { Layout } from 'antd'
 import LeftMenu from '../../components/LeftMenu'
 const { Header, Content, Sider, Footer } = Layout
 
@@ -27,7 +27,7 @@ export default class Index extends Component {
           onCollapse={this.onCollapse}
         >
           <div className={this.state.logo}>
-            <img src={require('../../assets/images/logo.png')}></img>
+            <img src={require('../../assets/images/logo.png')} alt=''></img>
           </div>
           <LeftMenu />
         </Sider>
@@ -36,7 +36,7 @@ export default class Index extends Component {
           <Content style={{ margin: '0 16px' }}>
             <div className='showUser'>
             您好！Admin
-              
+
             </div>
             <div
               className="site-layout-background"
