@@ -1,0 +1,56 @@
+.search {
+  
+  // border: 1px solid red;
+  // .search_title{
+  //   text-align: right;
+  //   line-height: 32px;
+  //   color: #6b6b6d;
+  //   padding-right: 5px;
+  // }
+  // .select{
+  //   width: 100%;
+  //   text-align: left;
+  // }
+  Button{
+    margin: 0 10px;
+    border-radius: 5px;
+    -webkit-border-radius: 5px;
+    -moz-border-radius: 5px;
+    -ms-border-radius: 5px;
+    -o-border-radius: 5px;
+  }
+}
+.discussList{
+  .listTitle{
+    text-align: left;
+    margin: 50px 0 30px;
+    h1{
+      display: inline-block;
+      font-weight: 700;
+      font-size: 25px;
+    }
+    span{
+      color: rgb(27, 24, 24);
+      font-weight: 700;
+      font-size: 14px;
+    }
+  }
+  table{
+    tr{
+      th{
+        text-align: center;
+      }
+      td{
+        text-overflow:ellipsis;
+        overflow:hidden;      
+        white-space:nowrap;
+        text-align: center;
+      }
+      a{
+        display: inline-block;
+        margin: 0 5px;
+        font-weight: 400;
+      }
+    }
+  }
+}
