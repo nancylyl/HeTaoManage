@@ -1,5 +1,5 @@
 import React, { Component } from 'react'
-import { Layout, Breadcrumb } from 'antd'
+import { Layout, Breadcrumb,DatePicker } from 'antd'
 import LeftMenu from '../../components/LeftMenu'
 const { Header, Content, Sider, Footer } = Layout
 
@@ -9,7 +9,9 @@ export default class Index extends Component {
     logo: 'logo',
 
   }
-
+   onChange(date, dateString) {
+    console.log(date, dateString);
+  }
   onCollapse = (collapsed) => {
     this.setState({ collapsed })
     if (collapsed) {
@@ -18,6 +20,7 @@ export default class Index extends Component {
       this.setState({ logo: 'logo' })
     }
   }
+  
   render() {
     return (
       <Layout style={{ minHeight: '100vh' }}>
