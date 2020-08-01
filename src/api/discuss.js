@@ -1,0 +1,1 @@
+export default { getDiscussList: '/api/index/discuss' }

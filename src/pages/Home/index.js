@@ -1,5 +1,7 @@
 import React, { Component } from 'react'
-import { Layout, Breadcrumb,DatePicker } from 'antd'
+
+import { Layout, Breadcrumb, DatePicker } from 'antd'
+
 import LeftMenu from '../../components/LeftMenu'
 const { Header, Content, Sider, Footer } = Layout
 
@@ -9,7 +11,7 @@ export default class Index extends Component {
     logo: 'logo',
 
   }
-   onChange(date, dateString) {
+  onChange(date, dateString) {
     console.log(date, dateString);
   }
   onCollapse = (collapsed) => {
@@ -20,7 +22,7 @@ export default class Index extends Component {
       this.setState({ logo: 'logo' })
     }
   }
-  
+
   render() {
     return (
       <Layout style={{ minHeight: '100vh' }}>
@@ -30,7 +32,7 @@ export default class Index extends Component {
           onCollapse={this.onCollapse}
         >
           <div className={this.state.logo}>
-            <img src={require('../../assets/images/logo.png')}></img>
+            <img src={require('../../assets/images/logo.png')} alt=''></img>
           </div>
           <LeftMenu />
         </Sider>
@@ -38,8 +40,8 @@ export default class Index extends Component {
           <Header className="site-layout-background" style={{ padding: 0 }} />
           <Content style={{ margin: '0 16px' }}>
             <div className='showUser'>
-            您好！Admin
-              
+              您好！Admin
+
             </div>
             <div
               className="site-layout-background"

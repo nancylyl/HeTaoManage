@@ -73,6 +73,8 @@ export default class Addcase extends PureComponent {
     });
   };
   handleZdShow = e => {
+    console.log(this.state.selectVisible.zdVisible);
+
     this.setState({
       zdVisible: false
     });
