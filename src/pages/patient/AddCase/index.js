@@ -1,11 +1,32 @@
 import React, { PureComponent } from 'react'
-import { Form, Input, Button, Card, Row, Col, Select, Typography, Divider, Modal } from 'antd';
+import { Form, Input, Button, Card, Row, Col, Select, Typography, Divider, Modal, Tabs, Menu, Layout, Checkbox } from 'antd';
+import Axios from '../../../util/axios'
+import Api from '../../../api/index'
 import styles from './style.module.scss'
 const { Title } = Typography;
 const { Option } = Select;
-
+const { TabPane } = Tabs;
+const { SubMenu } = Menu;
+const { Header, Content, Sider } = Layout;
+const CheckboxGroup = Checkbox.Group;
 const options = new Array(20).fill('null').map((item, index) => <Option key={index + 1} value={index + 1}>{`${index + 1}`}</Option>)
+//#region /* 弹出框内容 */
+let optionJzx = []
+let optionQmx = [
+  { label: '全面性1', value: 1 },
+  { label: '全面性2(听，味，嗅等)', value: 2 },
+  { label: '全面性3(幻觉或错局)', value: 3 },
+  { label: '全面性33334', value: 4 },
+  { label: '全面性33335', value: 5 },
+  { label: '全面性3336', value: 6 },
+]
+let optionFzbwd = []
+let optionSfwdxfz = []
+let optionContet = []
+//综合症状
+const optionXseq = []
 
+//#endregion
 const col_1 = 3;
 const col_2 = 8
 const col_3 = 13
@@ -34,10 +55,76 @@ export default class Addcase extends PureComponent {
       familyDisease: "",//是否有家族病
       whetherToMarry: "",//是否结婚
       whetherToGiveBirth: "",//是否生育
-      historyOfChronicDisease: ""
+      historyOfChronicDisease: "",
+      immunityTherapy: "",//免疫治疗
+      jzxItems: [],//局灶性
+      qmxItems: [],//全面性
+      fzlxbwdItems: [],//发作类型不稳定
+      sfwdxfzItem: [],//是否为癫痫发作
+
     }, //表单初始数据
-    selectVisible: {
-      zdVisible: false,//诊断
+
+    zdVisible: true,//诊断
+    jzxVisible: true,
+    qmxVisible: false,
+    typeLoaded: false,//弹出信息加载
+    diagnosticTypeList: [],//弹出层的数据
+
+  }
+
+  componentDidMount() {
+    Axios({
+      url: Api.addCase.getDiagnosticType,
+    })
+      .then((res) => {
+        if (res.data.success)
+          this.setState({ diagnosticTypeList: res.data.data })
+        this.setState({ typeLoaded: true })
+
+      })
+      .finally(() => {
+        this.typeLoaded = false
+      })
+  }
+  //弹出层菜单
+  renderTypeMenu(type) {
+    if (this.state.typeLoaded) {
+      let menueAll = this.state.diagnosticTypeList[type].childs;
+      let menuArr = menueAll.map((item) => {
+        return (
+          <Menu.Item key={item.key} type={item.type} title={item.value}>
+            {item.value}
+          </Menu.Item>
+        )
+      })
+      return menuArr
+    }
+  }
+  onClickTypeMenu = ((item, key, keyPath, selectedKeys, domEvent) => {
+    // console.log(item, key, keyPath, selectedKeys, domEvent);
+
+    if (this.state.typeLoaded) {
+      // console.log(this.state.diagnosticTypeList.childs);
+      let index = item.key - 1;
+      let childList = this.state.diagnosticTypeList[0].childs[index];
+      console.log(childList.childs);
+      this.optionContet = childList.childs;
+      console.log(this.optionContet);
+
+
+    }
+  })
+  renderTypeContent(type, key) {
+    if (this.state.typeLoaded) {
+      let menueAll = this.state.diagnosticTypeList[0].childs;
+      let menuArr = menueAll.map((item) => {
+        return (
+          <Menu.Item key={item.key} type={item.type} title={item.value}>
+            {item.value}
+          </Menu.Item>
+        )
+      })
+      return menuArr
     }
   }
 
@@ -58,12 +145,16 @@ export default class Addcase extends PureComponent {
     console.log(key, value)
     this.formRef.current.setFieldsValue({ [key]: value })
   }
+  onChangeMessage = (value) => {
+
+    this.formRef.current.setFieldsValue({ jzxItems: value })
+  }
 
   //#region   /* 诊断 */
   handleZdOk = () => {
     console.log('ok');
     this.setState({
-      zdVisible: true
+      zdVisible: false
     });
 
   }
@@ -73,24 +164,24 @@ export default class Addcase extends PureComponent {
     });
   };
   handleZdShow = e => {
-    console.log(this.state.selectVisible.zdVisible);
 
     this.setState({
-      zdVisible: false
+      zdVisible: true
     });
   };
   //#endregion
 
   render() {
-    const { initFormData, selectVisible } = this.state;
-    const { zdVisible } = selectVisible
+    const { initFormData, zdVisible, qmxVisible } = this.state;
+    // const { zdVisible } = selectVisible
 
     console.log(initFormData)
 
     return (
       <>
+
         <div className={styles.addcase}>
-          <Card type="inner" title={<h1>患者信息</h1>}  >
+          <Card type="inner" title={<h1 className={styles.title}>患者信息</h1>}  >
             <Row gutter={16}>
               <Col span={6}>
                 <div className={styles.showdiv}>姓名：张三</div>
@@ -116,7 +207,7 @@ export default class Addcase extends PureComponent {
             onFinish={this.onFinish}
             onFinishFailed={this.onFinishFailed}
           >
-            <Card type="inner" title={<h1>现病史</h1>}  >
+            <Card type="inner" title={<h1 className={styles.title}>现病史</h1>}  >
               <Row gutter={16}>
                 <Col span={col_1}>
                 </Col>
@@ -148,7 +239,7 @@ export default class Addcase extends PureComponent {
               </Row>
               <Row gutter={16}>
                 <Col span={col_1}>
-                  <Title level={4}>辅助检查</Title>
+                  <Title level={4} >辅助检查</Title>
                 </Col>
                 <Col span={col_2}>
                   <Form.Item
@@ -363,7 +454,7 @@ export default class Addcase extends PureComponent {
               </Row>
 
             </Card>
-            <Card type="inner" title={<h1>既往史</h1>}  >
+            <Card type="inner" title={<h1 className={styles.title}>既往史</h1>}  >
 
               <Row gutter={16}>
                 <Col span={col_1}>
@@ -517,7 +608,7 @@ export default class Addcase extends PureComponent {
                 </Col>
               </Row>
             </Card>
-            <Card type="inner" title={<h1>既往史</h1>}  >
+            <Card type="inner" title={<h1 className={styles.title}>家族史</h1>}  >
 
               <Row gutter={16}>
                 <Col span={col_1}>
@@ -596,17 +687,92 @@ export default class Addcase extends PureComponent {
 
         <div>
 
+
           <Modal
             title="诊断"
             visible={zdVisible}
+            okText="确认"
+            width={540}
+            cancelText="取消"
             onOk={this.handleZdOk}
-            onCancel={this.handleCancel}
+            onCancel={this.handleZdCancel}
           >
-            <p>Some contents...</p>
-            <p>Some contents...</p>
-            <p>Some contents...</p>
+            <Tabs defaultActiveKey="1" >
+              <TabPane tab="发作类型" key="1" >
+                <Layout>
+                  <Sider width={200} className="site-layout-background">
+
+                    <Menu
+                      mode="inline"
+                      defaultSelectedKeys={['1']}
+                      onClick={this.onClickTypeMenu}
+                      defaultOpenKeys={['sub1']}
+                      style={{ height: '100%', borderRight: 0 }}>
+
+                      {
+                        this.state.typeLoaded && this.renderTypeMenu(0)
+                      }
+                    </Menu>
+                  </Sider>
+                  <Layout style={{ padding: '0', lineHeight: "30px" }}>
+                    <Content
+                      className="site-layout-background">
+                      <Card name="jzx"  >
+                        <Checkbox.Group
+                          options={this.optionContet}
+                          // onChange={() => {
+                          //   this.onChangeMessage(this, 'dd');
+                          // }}
+                          onChange={this.onChangeMessage}
+                        />
+                      </Card>
+                      <Card name="qmx" visible={qmxVisible.toString()}>
+                        <Checkbox.Group
+                          options={optionQmx}
+                          styles={{ width: "100%" }}
+                          onChange={this.onChange}
+                        />
+                      </Card>
+                    </Content>
+                  </Layout>
+                </Layout>
+              </TabPane>
+              <TabPane tab="综合症" key="2">
+                <Layout>
+                  <Sider width={200} className="site-layout-background">
+                    <Menu
+                      mode="inline"
+                      defaultSelectedKeys={['1']}
+                      defaultOpenKeys={['sub1']}
+                      style={{ height: '100%', borderRight: 0 }}>
+                      {
+                        this.state.typeLoaded && this.renderTypeMenu(1)
+                      }
+                    </Menu>
+                  </Sider>
+                  <Layout style={{ padding: '0', lineHeight: "30px" }}>
+                    <Content
+                      className="site-layout-background">
+                      <Card name="jzx"  >
+                        <Checkbox.Group
+                          options={optionContet}
+                          onChange={this.onChangeMessage}
+                        />
+
+                      </Card>
+
+                    </Content>
+                  </Layout>
+                </Layout>
+              </TabPane>
+
+            </Tabs>
           </Modal>
+
+
         </div>
+
+
       </>
     )
   }

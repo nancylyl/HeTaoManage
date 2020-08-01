@@ -1,0 +1,1 @@
+export default { getDiagnosticType: '/api/getDiagnosticType' }
