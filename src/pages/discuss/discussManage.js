@@ -4,7 +4,8 @@ import locale from 'antd/lib/date-picker/locale/zh_CN';
 import styles from './style.module.scss'
 import Axios from '../../util/axios'
 import Api from '../../api/index'
-import PropTypes from 'prop-types';
+import AddDiscuss from './AddDiscuss';
+
 
 
 class discussManage extends PureComponent {
@@ -24,11 +25,12 @@ class discussManage extends PureComponent {
       method: 'post',
     })
       .then((res) => {
-        console.log(res.data.data)
+        // console.log(res.data.data)
         if (res.data.success) {
-          this.state.loaded = true
+          // this.setState.loaded = true
           this.setState({
-            discussLists:res.data.data
+            discussLists:res.data.data,
+            loaded: true,
           })
         } else {   
         }
@@ -37,22 +39,37 @@ class discussManage extends PureComponent {
   UNSAFE_componentWillMount(){
     this.getDiscussList();
 }
+// 提交搜索信息
   onFinish = values => {
     this.getDiscussList(values);
     // const {form} = this.props;
-    // console.log(form);
+    console.log(values);
     // this.props.form.resetFields();
 
   };
-
+// 重置搜索框
   delSearch = () => {
     // console.log(this.from);
     // this.props.form.resetFields();
     // this.form.setFieldsValue()
     // console.log('Failed:', errorInfo);
   };
-  
-
+  // 新增探讨
+  addDiscuss= () => {
+    
+  };
+  // 查看探讨
+  checkDiscuss= () => {
+    
+  };
+  // 编辑探讨
+  editDiscuss= () => {
+    
+  };
+  // 取消探讨
+  cancle= () => {
+    
+  };
   render() {
     // const { getFieldDecorator } = this.props.form;
     const { discussLists } = this.state;
@@ -139,7 +156,7 @@ class discussManage extends PureComponent {
         key: 'operation',
         fixed: 'right',
         width: 150,
-        render: () => <span><a>查看</a><a>编辑</a><a>取消</a></span>,
+        render: () => <span><a onClick={this.checkDiscuss}>查看</a><a onClick={this.editDiscuss}>编辑</a><a onClick={this.cancle}>取消</a></span>,
       },
     ];   
     const data = [];
@@ -245,7 +262,9 @@ class discussManage extends PureComponent {
           {/* 探讨列表 */}
           <div className = {styles.discussList}>
             <div className = {styles.listTitle}>
-              <h1>探讨列表</h1> <span className = {styles.select}>(共<span></span>条记录)</span>
+              <h1>探讨列表</h1> 
+              <span className = {styles.select}>(共<span>{discussLists.length}</span>条记录)</span>
+              <Button type="primary" onClick={this.addDiscuss}>新增探讨</Button>
             </div>
             {this.state.loaded && (
             <Table
@@ -257,9 +276,10 @@ class discussManage extends PureComponent {
               />
             )}
           </div>
+          <AddDiscuss></AddDiscuss>
         </div>
     )
 }
 }
-
+// discussManage = Form.active({name:"basic"})(discussManage)
 export default discussManage
