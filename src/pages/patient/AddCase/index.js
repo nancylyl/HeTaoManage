@@ -76,25 +76,10 @@ export default class Addcase extends PureComponent {
 
 
   componentDidMount() {
+    const { type } = this.state;
     const { match: { params: { id } } } = this.props;
-    console.log(id)
-    this.getCaseDetail(id)
+    type === 'edit' && this.getCaseDetail(id)
   }
-
-  // componentDidMount() {
-  //   Axios({
-  //     url: Api.addCase.getDiagnosticType,
-  //   })
-  //   .then((res) => {
-  //     if (res.data.success)
-  //     this.setState({ diagnosticTypeList: res.data.data })
-  //     this.setState({ typeLoaded: true })
-
-  //   })
-  //   .finally(() => {
-  //     this.typeLoaded = false
-  //   })
-  // }
 
   //弹出层菜单
   renderTypeMenu(childs) {
@@ -177,7 +162,6 @@ export default class Addcase extends PureComponent {
       return
     }
     const extendData = { diagnosisContent, encephlogramContent };
-
     const result = Object.assign(values, extendData)
     Axios({
       url: Api.addCase.addcase,
@@ -186,79 +170,128 @@ export default class Addcase extends PureComponent {
         caseList: result
       }
     })
-      .then((res) => {
-        console.log(res)
+    .then((res) => {
+      console.log(res)
 
-      })
-      .finally(() => {
-      })
+    })
+    .finally(() => {
+    })
   };
 
-  // parseModalData = (data) => {
+  // 将接口数据中的弹层数据merge到state中的modalData里去
+  parseModalData = (data) => {
 
-  //   const { modalData } = this.getModalDataModal();
+    // 这个时候的modalData未改变，直接从state中获取性能更高。
+    const {modalData} = this.state;
 
-  //   const parseList = [
-  //     {
-  //       modalDataKey: 'diagnosis',
-  //       dataKey: 'diagnosisContent',
-  //       title: '诊断'
-  //     }
-  //   ];
+    // 需要解析的数据列表
+    const parseList = [
+      {
+        // 诊断内容
+        modalDataKey: 'diagnosis',
+        dataKey: 'diagnosisContent'
+      },
+      {
+        // 脑电图异常内容
+        modalDataKey: 'encephlogram',
+        dataKey: 'encephlogramContent'
+      },
+    ];
 
-  //   // parseList.forEach(item => {
-  //   //   const modal = modalData[item.modalDataKey];
-  //   //   const processDataModel = data[item.dataKey];
-  //   //   const processDataTabs = processDataModel.tabs;
-  //   //   modal.tabs.forEach((tab, tabIndex) => {
-  //   //     // 找到需要处理的tab
-  //   //     const processTab = processDataTabs.find(processDataTab => {
-  //   //       processDataTab.value === tab.value
-  //   //     });
+    parseList.forEach(item => {
+      const modal = modalData[item.modalDataKey]; // modal默认数据
+      const processDataTabs = data[item.dataKey]; // 接口中的tabs数据
 
-  //   //     if (processTab) {
-  //   //       const processMenus = processTab.menus; //接口中的数据
-  //   //       const initMenus = tab.menus; // 初始数据
+      if (processDataTabs === null) {
+        // 如果该字段没值，不merge
+        return 
+      }
 
-  //   //       const processMenu = processMenus.find(processMenu => {
-  //   //         processMenu.value === processMenu.value
-  //   //       });
+      modal.tabs.forEach(tab => {
+        // 找到需要处理的tab
+        const processTab = processDataTabs.find(processDataTab => {
+          return  processDataTab.value === tab.value
+        });
 
-  //   //       if (processMenu) {
-  //   //         const processChilds = processMenu.childs; //接口中的数据
-  //   //         const initMenus = tab.menus; // 初始数据
-  //   //       }
+        if (processTab && processTab.menus.length > 0) {
+          // 找到需要处理的tab节点
+          const processMenus = processTab.menus; 
+          tab.menus.forEach(menu => {
+            const processMenu = processMenus.find(processMenu => processMenu.key === menu.key);
+            this.recursionChilds(processMenu,menu);
+            // if (processMenu && processMenu.childs.length > 0) {
+            //   // 找到需要处理的menu数据节点
+            //   const processChilds = processMenu.childs;
+            //   menu.childs.forEach(child => {
+            //     const processChild = processChilds.find(processChild => child.value === processChild.value);
+            //     if (processChild) {
+            //       // 找到需要处理的checkbox节点
+            //       const processSubChilds = processChild.childs;
+            //       if (!processSubChilds) {
+            //         // 没有子节点
+            //         child = Object.assign(child, processChild)
+            //         return 
+            //       }
+            //     } 
+            //   })
+            // }
+          })
+        }
+      })
+    });
 
-  //   //     }
-  //   //   })
-  //   // });
+    return modalData
+  }
 
-  //   modalData.diagnosis = {
-  //     title: '诊断',
-  //     tabs: data.diagnosisContent
-  //   };
-
-  // }
+ 
+  /**
+   * desc: 递归合并节点数据，currentChild 合并 到 initChild中。
+   * @param {*} currentChild 接口获取的数据节点，
+   * @param {*} initChild  初始化数据节点
+   */
+  recursionChilds = (currentChild,initChild) => {
+    if (currentChild && currentChild.childs.length > 0) {
+      // 找到需要处理的数据节点
+      const processChilds = currentChild.childs;
+      initChild.childs.forEach(child => {
+        const processChild = processChilds.find(processChild => child.value === processChild.value);
+        if (processChild) {
+          // 找到需要处理的checkbox节点
+          const processSubChilds = processChild.childs;
+          if (!processSubChilds) {
+            // 没有子节点
+            child = Object.assign(child, processChild)
+            return
+          }
+          // 有子节点时递归处理
+          this.recursionChilds(processChild, child)
+        }
+      })
+    }
+  }
 
   getCaseDetail = ((id) => {
-    console.log('数据');
-    console.log(id)
+    // 获取case数据，根据id
 
     Axios({
       url: Api.addCase.getCaseDetail,
     })
       .then((res) => {
         const data = res.data.data.addcaseList;
+        console.log(data)
+        // 将接口中弹层数据merge到弹层中
+        const modalData =this.parseModalData(data);
         this.setState({
           initFormData: data,
           initDataLoaded: true,
-          // modalData
+          modalData
         })
       })
       .finally(() => {
       })
   })
-  // 对弹层数据做必填校验
+
+  // 获取弹层数据，根据key。 未填写的弹层返回null
   getModalDataByKey = (value, compareValue, modal) => {
     // 值绝对等于对比值的时候，做必填校验
     if (value === compareValue) {
@@ -289,7 +322,6 @@ export default class Addcase extends PureComponent {
             if (child.childs && child.childs.length > 0) {
               return child
             }
-
             return false
           })
           if (menu.childs && menu.childs.length > 0) {
