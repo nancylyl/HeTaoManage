@@ -27,6 +27,7 @@ const defalutfamilyhistory = require('./data/cdisease.json');//请选择家族�
 export default class Addcase extends PureComponent {
   formRef = React.createRef()
   state = {
+    type: this.props.match.params.id ? 'edit' : 'create',
     initFormData: {
       diagnosis: "",//诊断
       computer: "",//电脑图
@@ -70,7 +71,14 @@ export default class Addcase extends PureComponent {
     currentModalDataCache: null, // 当前打开窗口数据缓存
     visibleModalName: null, // 当前显示哪个modal的key值，为false，不显示modal
     typeLoaded: false,//弹出信息加载
+    initDataLoaded: false, // 展示编辑时，标识数据是否加载完成
+  }
 
+
+  componentDidMount() {
+    const { match: { params: { id } } } = this.props;
+    console.log(id)
+    this.getCaseDetail(id)
   }
 
   // componentDidMount() {
@@ -132,6 +140,7 @@ export default class Addcase extends PureComponent {
     })
   }
 
+
   renderTypeContent(type, key) {
     if (this.state.typeLoaded) {
       let menueAll = this.state.diagnosticTypeList[0].childs;
@@ -149,16 +158,16 @@ export default class Addcase extends PureComponent {
   onFinish = (values) => {
     console.log('Received values of form: ', values);
     const modalData = _.cloneDeep(this.state.modalData);
-    const { 
+    const {
       diagnosis,
       computer,
     } = values;
 
     // 诊断内容
     const diagnosisContent = this.getModalDataByKey(diagnosis, 1, modalData['diagnosis']);
-    if (diagnosisContent===false) {
+    if (diagnosisContent === false) {
       message.error('请填写诊断内容');
-      return 
+      return
     }
 
     // 脑电图异常内容
@@ -169,7 +178,7 @@ export default class Addcase extends PureComponent {
     }
     const extendData = { diagnosisContent, encephlogramContent };
 
-    const result = Object.assign(values, extendData) 
+    const result = Object.assign(values, extendData)
     Axios({
       url: Api.addCase.addcase,
       method: 'POST',
@@ -177,31 +186,95 @@ export default class Addcase extends PureComponent {
         caseList: result
       }
     })
-    .then((res) => {
-      console.log(res)
+      .then((res) => {
+        console.log(res)
 
-    })
-    .finally(() => {
-    })
+      })
+      .finally(() => {
+      })
   };
 
+  parseModalData = (data) => {
+
+    const { modalData } = this.getModalDataModal();
+
+    const parseList = [
+      {
+        modalDataKey: 'diagnosis',
+        dataKey: 'diagnosisContent',
+        title: '诊断'
+      }
+    ];
+
+    parseList.forEach(item => {
+      const modal = modalData[item.modalDataKey];
+      const processDataModel = data[item.dataKey];
+      const processDataTabs = processDataModel.tabs;
+      modal.tabs.forEach((tab, tabIndex) => {
+        // 找到需要处理的tab
+        const processTab = processDataTabs.find(processDataTab => {
+          processDataTab.value === tab.value
+        });
+
+        if (processTab) {
+          const processMenus = processTab.menus; //接口中的数据
+          const initMenus = tab.menus; // 初始数据
+
+          const processMenu = processMenus.find(processMenu => {
+            processMenu.value === processMenu.value
+          });
+
+          if (processMenu) {
+            const processChilds = processMenu.childs; //接口中的数据
+            const initMenus = tab.menus; // 初始数据
+          }
+
+        }
+      })
+    });
+
+    modalData.diagnosis = {
+      title: '诊断',
+      tabs: data.diagnosisContent
+    };
+
+  }
+
+  getCaseDetail = ((id) => {
+    console.log('数据');
+    console.log(id)
+
+    Axios({
+      url: Api.addCase.getCaseDetail,
+    })
+      .then((res) => {
+        const data = res.data.data.addcaseList;
+        this.setState({
+          initFormData: data,
+          initDataLoaded: true,
+          modalData
+        })
+      })
+      .finally(() => {
+      })
+  })
   // 对弹层数据做必填校验
-  getModalDataByKey = (value,compareValue,modal) => {
+  getModalDataByKey = (value, compareValue, modal) => {
     // 值绝对等于对比值的时候，做必填校验
     if (value === compareValue) {
       let tabs = modal.tabs;
       let checked = false;
-      
+
       tabs = tabs.filter(tab => {
         tab.menus = tab.menus.filter(menu => {
           menu.childs = menu.childs.filter(child => {
-            if(!child.childs && child.checked) {
+            if (!child.childs && child.checked) {
               // 没有子节点，且被选中的节点，直接返回
               checked = true;
               return true
             }
 
-            if(child.childs ) {
+            if (child.childs) {
               // 有子节点，过滤选中的子节点
               child.childs = child.childs.filter(subChild => {
                 if (!child.subChild && subChild.checked) {
@@ -211,21 +284,21 @@ export default class Addcase extends PureComponent {
                 return false
               })
             }
-            
+
             // 过滤后的子节点有值，返回该节点。或者返回false
-            if (child.childs && child.childs.length>0) {
+            if (child.childs && child.childs.length > 0) {
               return child
             }
 
             return false
           })
-          if(menu.childs && menu.childs.length > 0) {
+          if (menu.childs && menu.childs.length > 0) {
             return true
           }
           return false
         })
 
-        if (tab.menus && tab.menus.length >0 ) {
+        if (tab.menus && tab.menus.length > 0) {
           return true
         }
 
@@ -233,7 +306,7 @@ export default class Addcase extends PureComponent {
       })
 
       return checked ? tabs : checked
-    }else{
+    } else {
       return null
     }
   }
@@ -334,669 +407,665 @@ export default class Addcase extends PureComponent {
   }
 
   render() {
-    const { initFormData, visibleModalName } = this.state;
+    const { initFormData, visibleModalName, type, initDataLoaded } = this.state;
     const { modal, selectedTabs } = this.getModalDataModal();
-    let  tabs = [];
+    let tabs = [];
     if (modal && modal.tabs) {
       tabs = modal.tabs
     }
-
     const tabsLength = tabs.length;
 
-    return (
-      <>
+    return (type === 'create' || initDataLoaded) && <>
 
-        <div className={styles.addcase}>
-          <Card type="inner" title={<h1 className={styles.title}>患者信息</h1>}  >
+      <div className={styles.addcase}>
+        <Card type="inner" title={<h1 className={styles.title}>患者信息</h1>}  >
+          <Row gutter={16}>
+            <Col span={6}>
+              <div className={styles.showdiv}>姓名：张三</div>
+            </Col>
+            <Col span={6}>
+              <div className={styles.showdiv} >性别：女</div>
+            </Col>
+            <Col span={6}>
+              <div className={styles.showdiv}>患病年龄：30岁</div>
+            </Col>
+            <Col span={6}>
+              <div className={styles.showdiv}>现居住地:北京市海定区</div>
+            </Col>
+          </Row>
+        </Card>
+        <Form
+          name="basic"
+          labelCol={{ span: 8 }}
+          wrapperCol={{ span: 16 }}
+          initialValues={initFormData}
+          onValuesChange={this.onValuesChange}
+          ref={this.formRef}
+          onFinish={this.onFinish}
+          onFinishFailed={this.onFinishFailed}
+          scrollToFirstError={true}
+        >
+          <Card type="inner" title={<h1 className={styles.title}>现病史</h1>}  >
             <Row gutter={16}>
-              <Col span={6}>
-                <div className={styles.showdiv}>姓名：张三</div>
+              <Col span={col_1}>
               </Col>
-              <Col span={6}>
-                <div className={styles.showdiv} >性别：女</div>
+              <Col span={col_2}>
+                <Form.Item
+                  label="诊断"
+                  rules={[{ required: true, message: "必填" }]}
+                  name="diagnosis" >
+                  <Select style={{ width: 120 }}>
+                    <Option value={""}>请选择</Option>
+                    <Option value={0}>否</Option>
+                    <Option value={1}>是</Option>
+                  </Select>
+                </Form.Item>
               </Col>
-              <Col span={6}>
-                <div className={styles.showdiv}>患病年龄：30岁</div>
+              <Col span={col_2}>
+                <Form.Item
+                  label="诊断内容"
+                  dependencies={['diagnosis']}
+                >
+                  {
+                    ({ getFieldValue, getFieldsValue }) => {
+                      const diagnosis = getFieldValue('diagnosis')
+                      return <Button
+                        disabled={diagnosis !== 1}
+                        style={{ width: 120 }}
+                        onClick={() => {
+                          this.onShowModal('diagnosis')
+                        }}
+                      >请选择</Button>
+                    }
+                  }
+                </Form.Item>
               </Col>
-              <Col span={6}>
-                <div className={styles.showdiv}>现居住地:北京市海定区</div>
+            </Row>
+            <Row gutter={16}>
+              <Col span={col_1}>
+                <Title level={4} >辅助检查</Title>
+              </Col>
+              <Col span={col_2}>
+                <Form.Item
+                  label="电脑图"
+                  rules={[{ required: true, message: "必填" }]}
+                  name="computer" >
+                  <Select style={{ width: 120 }} >
+                    <Option value={""}>请选择</Option>
+                    <Option value={1}>正常</Option>
+                    <Option value={0}>异常</Option>
+                  </Select>
+                </Form.Item>
+              </Col>
+              <Col span={col_2}>
+                <Form.Item
+                  label="异常内容"
+                  dependencies={['computer']}>
+                  {
+                    ({ getFieldValue }) => {
+                      const diagnosis = getFieldValue('computer')
+                      return <Button disabled={diagnosis !== 0}
+                        style={{ width: 120 }}
+
+                        onClick={() => {
+                          this.onShowModal('encephlogram')
+                        }}
+                      >请选择</Button>
+                    }
+                  }
+                </Form.Item>
+              </Col>
+            </Row>
+            <Row gutter={16}>
+              <Col span={col_1}>
+
+              </Col>
+              <Col span={col_2}>
+                <Form.Item
+                  label="核磁/CT"
+                  name="NMR" >
+                  <Select style={{ width: 120 }} >
+                    <Option value={""}>请选择</Option>
+                    <Option value={0}>正常</Option>
+                    <Option value={1}>异常</Option>
+                  </Select>
+                </Form.Item>
+              </Col>
+              {/* nMRException */}
+              <Col span={col_2}>
+                <Form.Item
+                  label="异常内容"
+                  dependencies={['NMR']}  >
+                  {
+                    ({ getFieldValue }) => {
+                      const diagnosis = getFieldValue("NMR")
+                      return <Button
+                        disabled={diagnosis !== 1}
+                        style={{ width: 120 }}
+                        onClick={() => {
+                          this.onShowModal('ct')
+                        }}
+                      >请选择</Button>
+                    }
+                  }
+                </Form.Item>
+              </Col>
+            </Row>
+            <Row gutter={16}>
+              <Col span={col_1}>
+
+              </Col>
+              <Col span={col_2}>
+                <Form.Item
+                  label="基因"
+                  name="gene" >
+                  <Select style={{ width: 120 }} >
+                    <Option value={""}>请选择</Option>
+                    <Option value={0}>阴性</Option>
+                    <Option value={1}>阳性</Option>
+                  </Select>
+                </Form.Item>
+              </Col>
+            </Row>
+            <Row gutter={16}>
+              <Col span={col_1}>
+                <Title level={4}>发作频次</Title>
+              </Col>
+              <Col span={col_2}>
+                <Form.Item
+                  label="发作次数"
+                  name="numberOfEpisodes" >
+                  <Select style={{ width: 120 }} >
+                    <Option value={""}>请选择</Option>
+                    {
+                      options
+                    }
+                  </Select>
+                </Form.Item>
+              </Col>
+              <Col span={col_2}>
+                {/* numberOfEpisodesException */}
+                <Form.Item
+                  label="发作频率"
+                  dependencies={['numberOfEpisodes']}  >
+                  {
+                    ({ getFieldValue }) => {
+                      const diagnosis = getFieldValue("numberOfEpisodes")
+                      return <Button
+                        disabled={diagnosis === ""}
+                        style={{ width: 120 }}
+                        onClick={() => {
+                          this.onShowModal('numberOfEpisodes')
+                        }}
+                      >请选择</Button>
+                    }
+                  }
+                </Form.Item>
+              </Col>
+            </Row>
+
+            <Row gutter={16}>
+              <Col span={col_1}>
+                <Title level={4}>药物治疗</Title>
+              </Col>
+              <Col span={col_2}>
+                <Form.Item
+                  label="是否药物治疗"
+                  name="medication"
+                  colon={true}
+                >
+                  <Select style={{ width: 120 }} >
+                    <Option value={""}>请选择</Option>
+                    <Option value={1}>是</Option>
+                    <Option value={0}>否</Option>
+                  </Select>
+                </Form.Item>
+              </Col>
+              {/* medicationContent */}
+              <Col span={col_2}>
+                <Form.Item
+                  label="药物内容"
+                  dependencies={['medication']}  >
+                  {
+                    ({ getFieldValue }) => {
+                      const diagnosis = getFieldValue("medication")
+                      return <Button
+                        disabled={diagnosis !== 1}
+                        style={{ width: 120 }}
+                        onClick={() => {
+                          this.onShowModal('medicine')
+                        }}
+                      >请选择</Button>
+                    }
+                  }
+                </Form.Item>
+              </Col>
+            </Row>
+            <Row gutter={16}>
+              <Col span={col_1}>
+                <Title level={4}>特殊治疗</Title>
+              </Col>
+              <Col span={col_2}>
+                <Form.Item
+                  label="是否手术"
+                  name="surgery" >
+                  <Select style={{ width: 120 }} >
+                    <Option value={""}>请选择</Option>
+                    <Option value={1}>是</Option>
+                    <Option value={0}>否</Option>
+                  </Select>
+                </Form.Item>
+              </Col>
+              <Col span={col_2}>
+                <Form.Item
+                  label="手术内容"
+                  dependencies={['surgery']}  >
+                  {
+                    ({ getFieldValue }) => {
+                      const diagnosis = getFieldValue("surgery")
+                      return <Button
+                        disabled={diagnosis !== 1}
+                        style={{ width: 120 }}
+                        onClick={() => {
+                          this.onShowModal('operation')
+                        }}
+
+                      >请选择</Button>
+                    }
+                  }
+                </Form.Item>
+              </Col>
+            </Row>
+            <Row gutter={16}>
+              <Col span={col_1}>
+              </Col>
+              <Col span={col_2}>
+                <Form.Item
+                  label="甲强==激素治疗"
+                  name="hormoneTherapy">
+                  <Select style={{ width: 120 }} >
+                    <Option value={""}>请选择</Option>
+                    <Option value={1}>是</Option>
+                    <Option value={0}>否</Option>
+                  </Select>
+                </Form.Item>
+              </Col>
+              <Col span={col_2}>
+                <Form.Item
+                  label="免疫治疗"
+                  name="immunityTherapy">
+                  <Select style={{ width: 120 }} >
+                    <Option value={""}>请选择</Option>
+                    <Option value={1}>是</Option>
+                    <Option value={0}>否</Option>
+                  </Select>
+                </Form.Item>
+              </Col>
+            </Row>
+            <Row gutter={16}>
+              <Col span={col_1}>
+              </Col>
+              <Col span={col_2}>
+                <Form.Item
+                  label="生酮饮食"
+                  name="ketogenicDiet">
+                  <Select style={{ width: 120 }} >
+                    <Option value={""}>请选择</Option>
+                    <Option value={1}>是</Option>
+                    <Option value={0}>否</Option>
+                  </Select>
+                </Form.Item>
+              </Col>
+              <Col span={col_2}>
+                <Form.Item
+                  label="其他"
+                  name="other">
+                  <Select style={{ width: 120 }} >
+                    <Option value={""}>请选择</Option>
+                    <Option value={1}>是</Option>
+                    <Option value={0}>否</Option>
+                  </Select>
+                </Form.Item>
+              </Col>
+            </Row>
+
+          </Card>
+          <Card type="inner" title={<h1 className={styles.title}>既往史</h1>}  >
+
+            <Row gutter={16}>
+              <Col span={col_1}>
+              </Col>
+              <Col span={col_2}>
+                <Form.Item
+                  label="是否有药物过敏"
+                  name="drugAllergy" >
+                  <Select style={{ width: 120 }} >
+                    <Option value={""}>请选择</Option>
+                    <Option value={1}>是</Option>
+                    <Option value={0}>否</Option>
+                  </Select>
+                </Form.Item>
+              </Col>
+              {/* allergyDrugName */}
+              <Col span={col_2}>
+                <Form.Item
+                  label="过敏药物名称"
+                  dependencies={['drugAllergy']}  >
+                  {
+                    ({ getFieldValue }) => {
+                      const diagnosis = getFieldValue("drugAllergy")
+                      return <Button
+                        disabled={diagnosis !== 1}
+                        style={{ width: 120 }}
+                        onClick={() => {
+                          this.onShowModal('drugAllergy')
+                        }}
+                      >请选择</Button>
+                    }
+                  }
+                </Form.Item>
+              </Col>
+            </Row>
+            <Row gutter={16}>
+              <Col span={col_1}>
+                <Title level={4}></Title>
+              </Col>
+              <Col span={col_2}>
+                <Form.Item
+                  label="是否有外伤史"
+                  name="isHistoryOfTrauma" >
+                  <Select style={{ width: 120 }} >
+                    <Option value={""}>请选择</Option>
+                    <Option value={1}>是</Option>
+                    <Option value={0}>否</Option>
+                  </Select>
+                </Form.Item>
+              </Col>
+              {/*  historyOfChronicDisease*/}
+              <Col span={col_2}>
+                <Form.Item
+                  label="外伤史内容"
+                  valuePropName="historyOfChronicDisease"
+                  // dependencies={['isHistoryOfTrauma', 'historyOfChronicDisease']}
+                  shouldUpdate
+                >
+                  {
+                    ({ getFieldValue, setFieldsValue }) => {
+                      const diagnosis = getFieldValue("isHistoryOfTrauma")
+                      const historyOfChronicDisease = getFieldValue('historyOfChronicDisease')
+                      return <Input
+                        disabled={diagnosis !== 1}
+                        value={historyOfChronicDisease}
+                        style={{ width: 120 }}
+                        onChange={(e) => { this.onChange('historyOfChronicDisease', e.target.value) }}
+                      />
+                    }
+                  }
+
+                </Form.Item>
+              </Col>
+            </Row>
+            <Row gutter={16}>
+              <Col span={col_1}>
+
+              </Col>
+              <Col span={col_2}>
+                <Form.Item
+                  label="慢病史"
+                  name="ischronicDiseaseHistory" >
+                  <Select style={{ width: 120 }} >
+                    <Option value={""}>请选择</Option>
+                    <Option value={1}>是</Option>
+                    <Option value={0}>否</Option>
+                  </Select>
+                </Form.Item>
+              </Col>
+              {/* chronicDiseaseHistoryName */}
+              <Col span={col_2}>
+                <Form.Item
+                  label="慢病史名称："
+                  dependencies={['ischronicDiseaseHistory']} >
+                  {
+                    ({ getFieldValue }) => {
+                      const diagnosis = getFieldValue("ischronicDiseaseHistory")
+                      return <Button
+                        disabled={diagnosis !== 1}
+                        style={{ width: 120 }}
+                        onClick={() => {
+                          this.onShowModal('cdisease')
+                        }}
+                      >请选择</Button>
+                    }
+                  }
+
+                </Form.Item>
+              </Col>
+            </Row>
+            <Row gutter={16}>
+              <Col span={col_1}>
+
+              </Col>
+              <Col span={col_2}>
+                <Form.Item
+                  label="产伤"
+                  name="birthInjury" >
+                  <Select style={{ width: 120 }} >
+                    <Option value={""}>请选择</Option>
+                    <Option value={1}>是</Option>
+                    <Option value={0}>否</Option>
+                  </Select>
+                </Form.Item>
+              </Col>
+              <Col span={col_2}>
+                <Form.Item
+                  label="感染"
+                  name="infection" >
+                  <Select style={{ width: 120 }} >
+                    <Option value={""}>请选择</Option>
+                    <Option value={1}>是</Option>
+                    <Option value={0}>否</Option>
+                  </Select>
+                </Form.Item>
+              </Col>
+            </Row>
+            <Row gutter={16}>
+              <Col span={col_1}>
+
+              </Col>
+              <Col span={col_2}>
+                <Form.Item
+                  label="出血"
+                  name="bleeding" >
+                  <Select style={{ width: 120 }} >
+                    <Option value={""}>请选择</Option>
+                    <Option value={1}>是</Option>
+                    <Option value={0}>否</Option>
+                  </Select>
+                </Form.Item>
+              </Col>
+              <Col span={col_2}>
+                <Form.Item
+                  label="是否高热惊厥史"
+                  name="historyOfFebrileConvulsions" >
+                  <Select style={{ width: 120 }} >
+                    <Option value={""}>请选择</Option>
+                    <Option value={1}>是</Option>
+                    <Option value={0}>否</Option>
+                  </Select>
+                </Form.Item>
               </Col>
             </Row>
           </Card>
-          <Form
-            name="basic"
-            labelCol={{ span: 8 }}
-            wrapperCol={{ span: 16 }}
-            initialValues={initFormData}
-            onValuesChange={this.onValuesChange}
-            ref={this.formRef}
-            onFinish={this.onFinish}
-            onFinishFailed={this.onFinishFailed}
-          >
-            <Card type="inner" title={<h1 className={styles.title}>现病史</h1>}  >
-              <Row gutter={16}>
-                <Col span={col_1}>
-                </Col>
-                <Col span={col_2}>
-                  <Form.Item
-                    label="诊断"
-                    rules={[{ required: true, message: "必填" }]}
-                    name="diagnosis" >
-                    <Select style={{ width: 120 }}>
-                      <Option value={""}>请选择</Option>
-                      <Option value={0}>否</Option>
-                      <Option value={1}>是</Option>
-                    </Select>
-                  </Form.Item>
-                </Col>
-                <Col span={col_2}>
-                  <Form.Item
-                    label="诊断内容"
-                    dependencies={['diagnosis']}
-                  >
-                    {
-                      ({ getFieldValue, getFieldsValue }) => {
-                        const diagnosis = getFieldValue('diagnosis')
-                        return <Button
-                          disabled={diagnosis !== 1}
-                          style={{ width: 120 }}
-                          onClick={() => {
-                            this.onShowModal('diagnosis')
-                          }}
-                        >请选择</Button>
-                      }
+          <Card type="inner" title={<h1 className={styles.title}>家族史</h1>}  >
+
+            <Row gutter={16}>
+              <Col span={col_1}>
+              </Col>
+              <Col span={col_2}>
+                <Form.Item
+                  label="是否有家族病"
+                  name="familyDisease" >
+                  <Select style={{ width: 120 }} >
+                    <Option value={""}>请选择</Option>
+                    <Option value={1}>是</Option>
+                    <Option value={0}>否</Option>
+                  </Select>
+                </Form.Item>
+              </Col>
+              {/* familyDiseaseName */}
+              <Col span={col_2}>
+                <Form.Item
+                  label="家族病名称"
+                  dependencies={['familyDisease']} >
+                  {
+                    ({ getFieldValue }) => {
+                      const diagnosis = getFieldValue("familyDisease")
+                      return <Button
+                        disabled={diagnosis !== 1}
+                        style={{ width: 120 }}
+                        onClick={() => {
+                          this.onShowModal('familyhistory')
+                        }}
+                      >请选择</Button>
                     }
-                  </Form.Item>
-                </Col>
-              </Row>
-              <Row gutter={16}>
-                <Col span={col_1}>
-                  <Title level={4} >辅助检查</Title>
-                </Col>
-                <Col span={col_2}>
-                  <Form.Item
-                    label="电脑图"
-                    rules={[{ required: true, message: "必填" }]}
-                    name="computer" >
-                    <Select style={{ width: 120 }} >
-                      <Option value={""}>请选择</Option>
-                      <Option value={1}>正常</Option>
-                      <Option value={0}>异常</Option>
-                    </Select>
-                  </Form.Item>
-                </Col>
-                <Col span={col_2}>
-                  <Form.Item
-                    label="异常内容"
-                    dependencies={['computer']}>
-                    {
-                      ({ getFieldValue }) => {
-                        const diagnosis = getFieldValue('computer')
-                        return <Button disabled={diagnosis !== 0}
-                          style={{ width: 120 }}
+                  }
 
-                          onClick={() => {
-                            this.onShowModal('encephlogram')
-                          }}
-                        >请选择</Button>
-                      }
-                    }
-                  </Form.Item>
-                </Col>
-              </Row>
-              <Row gutter={16}>
-                <Col span={col_1}>
+                </Form.Item>
+              </Col>
+            </Row>
+            <Row gutter={16}>
+              <Col span={col_1}>
+                <Title level={4}></Title>
+              </Col>
+              <Col span={col_2}>
+                <Form.Item
+                  label="是否结婚"
+                  name="whetherToMarry" >
+                  <Select style={{ width: 120 }} >
+                    <Option value={""}>请选择</Option>
+                    <Option value={1}>是</Option>
+                    <Option value={0}>否</Option>
+                  </Select>
+                </Form.Item>
+              </Col>
+              <Col span={col_2}>
+                <Form.Item
+                  label="是否生育"
+                  name="whetherToGiveBirth" >
+                  <Select style={{ width: 120 }} >
+                    <Option value={""}>请选择</Option>
+                    <Option value={1}>是</Option>
+                    <Option value={0}>否</Option>
+                  </Select>
+                </Form.Item>
+              </Col>
+            </Row>
 
-                </Col>
-                <Col span={col_2}>
-                  <Form.Item
-                    label="核磁/CT"
-                    name="NMR" >
-                    <Select style={{ width: 120 }} >
-                      <Option value={""}>请选择</Option>
-                      <Option value={0}>正常</Option>
-                      <Option value={1}>异常</Option>
-                    </Select>
-                  </Form.Item>
-                </Col>
-                {/* nMRException */}
-                <Col span={col_2}>
-                  <Form.Item
-                    label="异常内容"
-                    dependencies={['NMR']}  >
-                    {
-                      ({ getFieldValue }) => {
-                        const diagnosis = getFieldValue("NMR")
-                        return <Button
-                          disabled={diagnosis !== 1}
-                          style={{ width: 120 }}
-                          onClick={() => {
-                            this.onShowModal('ct')
-                          }}
-                        >请选择</Button>
-                      }
-                    }
-                  </Form.Item>
-                </Col>
-              </Row>
-              <Row gutter={16}>
-                <Col span={col_1}>
-
-                </Col>
-                <Col span={col_2}>
-                  <Form.Item
-                    label="基因"
-                    name="gene" >
-                    <Select style={{ width: 120 }} >
-                      <Option value={""}>请选择</Option>
-                      <Option value={0}>阴性</Option>
-                      <Option value={1}>阳性</Option>
-                    </Select>
-                  </Form.Item>
-                </Col>
-              </Row>
-              <Row gutter={16}>
-                <Col span={col_1}>
-                  <Title level={4}>发作频次</Title>
-                </Col>
-                <Col span={col_2}>
-                  <Form.Item
-                    label="发作次数"
-                    name="numberOfEpisodes" >
-                    <Select style={{ width: 120 }} >
-                      <Option value={""}>请选择</Option>
-                      {
-                        options
-                      }
-                    </Select>
-                  </Form.Item>
-                </Col>
-                <Col span={col_2}>
-                  {/* numberOfEpisodesException */}
-                  <Form.Item
-                    label="发作频率"
-                    dependencies={['numberOfEpisodes']}  >
-                    {
-                      ({ getFieldValue }) => {
-                        const diagnosis = getFieldValue("numberOfEpisodes")
-                        return <Button
-                          disabled={diagnosis === ""}
-                          style={{ width: 120 }}
-                          onClick={() => {
-                            this.onShowModal('numberOfEpisodes')
-                          }}
-                        >请选择</Button>
-                      }
-                    }
-                  </Form.Item>
-                </Col>
-              </Row>
-
-              <Row gutter={16}>
-                <Col span={col_1}>
-                  <Title level={4}>药物治疗</Title>
-                </Col>
-                <Col span={col_2}>
-                  <Form.Item
-                    label="是否药物治疗"
-                    name="medication"
-                    colon={true}
-                  >
-                    <Select style={{ width: 120 }} >
-                      <Option value={""}>请选择</Option>
-                      <Option value={1}>是</Option>
-                      <Option value={0}>否</Option>
-                    </Select>
-                  </Form.Item>
-                </Col>
-                {/* medicationContent */}
-                <Col span={col_2}>
-                  <Form.Item
-                    label="药物内容"
-                    dependencies={['medication']}  >
-                    {
-                      ({ getFieldValue }) => {
-                        const diagnosis = getFieldValue("medication")
-                        return <Button
-                          disabled={diagnosis !== 1}
-                          style={{ width: 120 }}
-                          onClick={() => {
-                            this.onShowModal('medicine')
-                          }}
-                        >请选择</Button>
-                      }
-                    }
-                  </Form.Item>
-                </Col>
-              </Row>
-              <Row gutter={16}>
-                <Col span={col_1}>
-                  <Title level={4}>特殊治疗</Title>
-                </Col>
-                <Col span={col_2}>
-                  <Form.Item
-                    label="是否手术"
-                    name="surgery" >
-                    <Select style={{ width: 120 }} >
-                      <Option value={""}>请选择</Option>
-                      <Option value={1}>是</Option>
-                      <Option value={0}>否</Option>
-                    </Select>
-                  </Form.Item>
-                </Col>
-                <Col span={col_2}>
-                  <Form.Item
-                    label="手术内容"
-                    dependencies={['surgery']}  >
-                    {
-                      ({ getFieldValue }) => {
-                        const diagnosis = getFieldValue("surgery")
-                        return <Button
-                          disabled={diagnosis !== 1}
-                          style={{ width: 120 }}
-                          onClick={() => {
-                            this.onShowModal('operation')
-                          }}
-
-                        >请选择</Button>
-                      }
-                    }
-                  </Form.Item>
-                </Col>
-              </Row>
-              <Row gutter={16}>
-                <Col span={col_1}>
-                </Col>
-                <Col span={col_2}>
-                  <Form.Item
-                    label="甲强==激素治疗"
-                    name="hormoneTherapy">
-                    <Select style={{ width: 120 }} >
-                      <Option value={""}>请选择</Option>
-                      <Option value={1}>是</Option>
-                      <Option value={0}>否</Option>
-                    </Select>
-                  </Form.Item>
-                </Col>
-                <Col span={col_2}>
-                  <Form.Item
-                    label="免疫治疗"
-                    name="immunityTherapy">
-                    <Select style={{ width: 120 }} >
-                      <Option value={""}>请选择</Option>
-                      <Option value={1}>是</Option>
-                      <Option value={0}>否</Option>
-                    </Select>
-                  </Form.Item>
-                </Col>
-              </Row>
-              <Row gutter={16}>
-                <Col span={col_1}>
-                </Col>
-                <Col span={col_2}>
-                  <Form.Item
-                    label="生酮饮食"
-                    name="ketogenicDiet">
-                    <Select style={{ width: 120 }} >
-                      <Option value={""}>请选择</Option>
-                      <Option value={1}>是</Option>
-                      <Option value={0}>否</Option>
-                    </Select>
-                  </Form.Item>
-                </Col>
-                <Col span={col_2}>
-                  <Form.Item
-                    label="其他"
-                    name="other">
-                    <Select style={{ width: 120 }} >
-                      <Option value={""}>请选择</Option>
-                      <Option value={1}>是</Option>
-                      <Option value={0}>否</Option>
-                    </Select>
-                  </Form.Item>
-                </Col>
-              </Row>
-
-            </Card>
-            <Card type="inner" title={<h1 className={styles.title}>既往史</h1>}  >
-
-              <Row gutter={16}>
-                <Col span={col_1}>
-                </Col>
-                <Col span={col_2}>
-                  <Form.Item
-                    label="是否有药物过敏"
-                    name="drugAllergy" >
-                    <Select style={{ width: 120 }} >
-                      <Option value={""}>请选择</Option>
-                      <Option value={1}>是</Option>
-                      <Option value={0}>否</Option>
-                    </Select>
-                  </Form.Item>
-                </Col>
-                {/* allergyDrugName */}
-                <Col span={col_2}>
-                  <Form.Item
-                    label="过敏药物名称"
-                    dependencies={['drugAllergy']}  >
-                    {
-                      ({ getFieldValue }) => {
-                        const diagnosis = getFieldValue("drugAllergy")
-                        return <Button
-                          disabled={diagnosis !== 1}
-                          style={{ width: 120 }}
-                          onClick={() => {
-                            this.onShowModal('drugAllergy')
-                          }}
-                        >请选择</Button>
-                      }
-                    }
-                  </Form.Item>
-                </Col>
-              </Row>
-              <Row gutter={16}>
-                <Col span={col_1}>
-                  <Title level={4}></Title>
-                </Col>
-                <Col span={col_2}>
-                  <Form.Item
-                    label="是否有外伤史"
-                    name="isHistoryOfTrauma" >
-                    <Select style={{ width: 120 }} >
-                      <Option value={""}>请选择</Option>
-                      <Option value={1}>是</Option>
-                      <Option value={0}>否</Option>
-                    </Select>
-                  </Form.Item>
-                </Col>
-                {/*  historyOfChronicDisease*/}
-                <Col span={col_2}>
-                  <Form.Item
-                    label="外伤史内容"
-                    valuePropName="historyOfChronicDisease"
-                    // dependencies={['isHistoryOfTrauma', 'historyOfChronicDisease']}
-                    shouldUpdate
-                  >
-                    {
-                      ({ getFieldValue, setFieldsValue }) => {
-                        const diagnosis = getFieldValue("isHistoryOfTrauma")
-                        const historyOfChronicDisease = getFieldValue('historyOfChronicDisease')
-                        return <Input
-                          disabled={diagnosis !== 1}
-                          value={historyOfChronicDisease}
-                          style={{ width: 120 }}
-                          onChange={(e) => { this.onChange('historyOfChronicDisease', e.target.value) }}
-                        />
-                      }
-                    }
-
-                  </Form.Item>
-                </Col>
-              </Row>
-              <Row gutter={16}>
-                <Col span={col_1}>
-
-                </Col>
-                <Col span={col_2}>
-                  <Form.Item
-                    label="慢病史"
-                    name="ischronicDiseaseHistory" >
-                    <Select style={{ width: 120 }} >
-                      <Option value={""}>请选择</Option>
-                      <Option value={1}>是</Option>
-                      <Option value={0}>否</Option>
-                    </Select>
-                  </Form.Item>
-                </Col>
-                {/* chronicDiseaseHistoryName */}
-                <Col span={col_2}>
-                  <Form.Item
-                    label="慢病史名称："
-                    dependencies={['ischronicDiseaseHistory']} >
-                    {
-                      ({ getFieldValue }) => {
-                        const diagnosis = getFieldValue("ischronicDiseaseHistory")
-                        return <Button
-                          disabled={diagnosis !== 1}
-                          style={{ width: 120 }}
-                          onClick={() => {
-                            this.onShowModal('cdisease')
-                          }}
-                        >请选择</Button>
-                      }
-                    }
-
-                  </Form.Item>
-                </Col>
-              </Row>
-              <Row gutter={16}>
-                <Col span={col_1}>
-
-                </Col>
-                <Col span={col_2}>
-                  <Form.Item
-                    label="产伤"
-                    name="birthInjury" >
-                    <Select style={{ width: 120 }} >
-                      <Option value={""}>请选择</Option>
-                      <Option value={1}>是</Option>
-                      <Option value={0}>否</Option>
-                    </Select>
-                  </Form.Item>
-                </Col>
-                <Col span={col_2}>
-                  <Form.Item
-                    label="感染"
-                    name="infection" >
-                    <Select style={{ width: 120 }} >
-                      <Option value={""}>请选择</Option>
-                      <Option value={1}>是</Option>
-                      <Option value={0}>否</Option>
-                    </Select>
-                  </Form.Item>
-                </Col>
-              </Row>
-              <Row gutter={16}>
-                <Col span={col_1}>
-
-                </Col>
-                <Col span={col_2}>
-                  <Form.Item
-                    label="出血"
-                    name="bleeding" >
-                    <Select style={{ width: 120 }} >
-                      <Option value={""}>请选择</Option>
-                      <Option value={1}>是</Option>
-                      <Option value={0}>否</Option>
-                    </Select>
-                  </Form.Item>
-                </Col>
-                <Col span={col_2}>
-                  <Form.Item
-                    label="是否高热惊厥史"
-                    name="historyOfFebrileConvulsions" >
-                    <Select style={{ width: 120 }} >
-                      <Option value={""}>请选择</Option>
-                      <Option value={1}>是</Option>
-                      <Option value={0}>否</Option>
-                    </Select>
-                  </Form.Item>
-                </Col>
-              </Row>
-            </Card>
-            <Card type="inner" title={<h1 className={styles.title}>家族史</h1>}  >
-
-              <Row gutter={16}>
-                <Col span={col_1}>
-                </Col>
-                <Col span={col_2}>
-                  <Form.Item
-                    label="是否有家族病"
-                    name="familyDisease" >
-                    <Select style={{ width: 120 }} >
-                      <Option value={""}>请选择</Option>
-                      <Option value={1}>是</Option>
-                      <Option value={0}>否</Option>
-                    </Select>
-                  </Form.Item>
-                </Col>
-                {/* familyDiseaseName */}
-                <Col span={col_2}>
-                  <Form.Item
-                    label="家族病名称"
-                    dependencies={['familyDisease']} >
-                    {
-                      ({ getFieldValue }) => {
-                        const diagnosis = getFieldValue("familyDisease")
-                        return <Button
-                          disabled={diagnosis !== 1}
-                          style={{ width: 120 }}
-                          onClick={() => {
-                            this.onShowModal('familyhistory')
-                          }}
-                        >请选择</Button>
-                      }
-                    }
-
-                  </Form.Item>
-                </Col>
-              </Row>
-              <Row gutter={16}>
-                <Col span={col_1}>
-                  <Title level={4}></Title>
-                </Col>
-                <Col span={col_2}>
-                  <Form.Item
-                    label="是否结婚"
-                    name="whetherToMarry" >
-                    <Select style={{ width: 120 }} >
-                      <Option value={""}>请选择</Option>
-                      <Option value={1}>是</Option>
-                      <Option value={0}>否</Option>
-                    </Select>
-                  </Form.Item>
-                </Col>
-                <Col span={col_2}>
-                  <Form.Item
-                    label="是否生育"
-                    name="whetherToGiveBirth" >
-                    <Select style={{ width: 120 }} >
-                      <Option value={""}>请选择</Option>
-                      <Option value={1}>是</Option>
-                      <Option value={0}>否</Option>
-                    </Select>
-                  </Form.Item>
-                </Col>
-              </Row>
-
-              <Row>
-                <Col span={12} style={{ textAlign: "right" }}>
-                  <Button type="primary" htmlType="submit">
-                    返回
-                    </Button>
-                </Col>
-                <Col span={1} > </Col>
-                <Col span={11} >
-                  <Button type="primary" htmlType="submit">
-                    保存
-                    </Button>
-                </Col>
-              </Row>
-
-            </Card>
-          </Form>
-        </div>
-        <div>
-
-          {
-            visibleModalName && <Modal
-              visible
-              title={modal.title}
-              okText="确认"
-              width={620}
-              cancelText="取消"
-              onOk={this.onSaveModal}
-              onCancel={() => {
-                this.onCancelModal()
-              }}
-            >
-
-              <Tabs className={`${tabsLength > 1 ? '' : styles['no-tabs']}`} onChange={this.onChangeTabs} activeKey={selectedTabs.value + ''} >
+            <Row>
+              <Col span={12} style={{ textAlign: "right" }}>
+                <Button type="primary" htmlType="submit">
+                  返回
+                </Button>
+              </Col>
+              <Col span={1} > </Col>
+              <Col span={11} >
                 {
-                  tabs.map(tab => {
-                    const menus = tab.menus;
-                    const checkedMenu = menus.find(item => item.checked) || menus[0];
+                  type === 'create' && <Button type="primary" htmlType="submit">
+                    保存
+                </Button>
+                }
+              </Col>
+            </Row>
 
-                    return <TabPane tab={tab.title} key={tab.value} >
-                      <Layout>
-                        {
-                          menus.length > 1 && <Sider width={200} className="site-layout-background">
-                            <Menu
-                              mode="inline"
-                              selectedKeys={[checkedMenu.key + '']}
-                              onClick={this.onClickTypeMenu}
-                              style={{ height: '100%', borderRight: 0 }}>
-                              {
-                                this.renderTypeMenu(menus)
-                              }
-                            </Menu>
-                          </Sider>
-                        }
-                        <Layout style={{ padding: '0', lineHeight: "30px", backgroundColor: "#FFF" }}>
-                          <Content
-                            className="site-layout-background">
-                            <Card className={styles.card} name="list"  >
-                              {
-                                checkedMenu.childs.map((child, CheckboxIndex) => {
-                                  const subChilds = child.childs
-                                  if (subChilds && subChilds.length > 0) {
-                                    return <div key={CheckboxIndex} className={`${styles['checkbox-item']} ${styles['has-subitem']}`}>
-                                      <span className={styles.label}>
-                                        {child.label}
-                                      </span>
+          </Card>
+        </Form>
+      </div>
 
-                                      {
-                                        subChilds.map((subChild, subChildIndex) => <Checkbox
-                                          checked={subChild.checked}
-                                          key={subChild.value}
-                                          onChange={(e) => {
-                                            this.onSubCheckboxChange(e.target.checked, CheckboxIndex, subChildIndex)
-                                          }}
-                                        >
-                                          {subChild.label}
-                                        </Checkbox>)
-                                      }
+      {
+        visibleModalName && <Modal
+          visible
+          title={modal.title}
+          okText="确认"
+          width={620}
+          cancelText="取消"
+          onOk={this.onSaveModal}
+          onCancel={() => {
+            this.onCancelModal()
+          }}
+        >
 
-                                    </div>
-                                  }
+          <Tabs className={`${tabsLength > 1 ? '' : styles['no-tabs']}`} onChange={this.onChangeTabs} activeKey={selectedTabs.value + ''} >
+            {
+              tabs.map(tab => {
+                const menus = tab.menus;
+                const checkedMenu = menus.find(item => item.checked) || menus[0];
 
-                                  return <div key={CheckboxIndex} className={`${styles['checkbox-item']} ${styles['level-1']}`}>
-                                    <Checkbox
-                                      checked={child.checked}
+                return <TabPane tab={tab.title} key={tab.value} >
+                  <Layout>
+                    {
+                      menus.length > 1 && <Sider width={200} className="site-layout-background">
+                        <Menu
+                          mode="inline"
+                          selectedKeys={[checkedMenu.key + '']}
+                          onClick={this.onClickTypeMenu}
+                          style={{ height: '100%', borderRight: 0 }}>
+                          {
+                            this.renderTypeMenu(menus)
+                          }
+                        </Menu>
+                      </Sider>
+                    }
+                    <Layout style={{ padding: '0', lineHeight: "30px", backgroundColor: "#FFF" }}>
+                      <Content
+                        className="site-layout-background">
+                        <Card className={styles.card} name="list"  >
+                          {
+                            checkedMenu.childs.map((child, CheckboxIndex) => {
+                              const subChilds = child.childs
+                              if (subChilds && subChilds.length > 0) {
+                                return <div key={CheckboxIndex} className={`${styles['checkbox-item']} ${styles['has-subitem']}`}>
+                                  <span className={styles.label}>
+                                    {child.label}
+                                  </span>
+
+                                  {
+                                    subChilds.map((subChild, subChildIndex) => <Checkbox
+                                      checked={subChild.checked}
+                                      key={subChild.value}
                                       onChange={(e) => {
-                                        this.onCheckboxChange(e.target.checked, CheckboxIndex)
+                                        this.onSubCheckboxChange(e.target.checked, CheckboxIndex, subChildIndex)
                                       }}
                                     >
-                                      {child.label}
-                                    </Checkbox>
-                                  </div>
-                                })
+                                      {subChild.label}
+                                    </Checkbox>)
+                                  }
+
+                                </div>
                               }
-                            </Card>
-                          </Content>
-                        </Layout>
-                      </Layout>
-                    </TabPane>
-                  })
-                }
-              </Tabs>
-            </Modal>
-          }
 
-        </div>
+                              return <div key={CheckboxIndex} className={`${styles['checkbox-item']} ${styles['level-1']}`}>
+                                <Checkbox
+                                  checked={child.checked}
+                                  onChange={(e) => {
+                                    this.onCheckboxChange(e.target.checked, CheckboxIndex)
+                                  }}
+                                >
+                                  {child.label}
+                                </Checkbox>
+                              </div>
+                            })
+                          }
+                        </Card>
+                      </Content>
+                    </Layout>
+                  </Layout>
+                </TabPane>
+              })
+            }
+          </Tabs>
+        </Modal>
+      }
 
-
-      </>
-    )
+    </>
   }
 }

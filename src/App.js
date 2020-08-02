@@ -43,7 +43,9 @@ function App() {
                 <Route path="/index/patient/patientList" component={patientListManage} />
                 <Route path="/index/patient/ADRsTips" component={ADRsTipsManage} />
                 {/* 新增患者 */}
-                <Route path="/index/patient/Addcase" component={Addcase} />
+                <Route exact path="/index/patient/Addcase" component={Addcase} />
+                {/* 编辑患者 */}
+                <Route exact path="/index/patient/Addcase/:id" component={Addcase} />
                 {/* 医院信息 */}
                 <Route path="/index/hospitalInfo/hospital" component={hospitalManage} />
                 <Route path="/index/hospitalInfo/doctor" component={doctorManage} />
