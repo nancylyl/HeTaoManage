@@ -1,35 +1,23 @@
 import React, { PureComponent } from 'react'
-import { Form, Input, Button, Card, Row, Col, Select, Typography, Divider, Modal, Tabs, Menu, Layout, Checkbox } from 'antd';
+import { Form, Input, Button, Card, Row, Col, Select, Typography, Modal, Tabs, Menu, Layout, Checkbox } from 'antd';
 import Axios from '../../../util/axios'
 import Api from '../../../api/index'
 import styles from './style.module.scss'
+import _ from 'lodash';
 const { Title } = Typography;
 const { Option } = Select;
 const { TabPane } = Tabs;
-const { SubMenu } = Menu;
-const { Header, Content, Sider } = Layout;
-const CheckboxGroup = Checkbox.Group;
+const { Content, Sider } = Layout;
 const options = new Array(20).fill('null').map((item, index) => <Option key={index + 1} value={index + 1}>{`${index + 1}`}</Option>)
-//#region /* 弹出框内容 */
-let optionJzx = []
-let optionQmx = [
-  { label: '全面性1', value: 1 },
-  { label: '全面性2(听，味，嗅等)', value: 2 },
-  { label: '全面性3(幻觉或错局)', value: 3 },
-  { label: '全面性33334', value: 4 },
-  { label: '全面性33335', value: 5 },
-  { label: '全面性3336', value: 6 },
-]
-let optionFzbwd = []
-let optionSfwdxfz = []
-let optionContet = []
-//综合症状
-const optionXseq = []
+
 
 //#endregion
 const col_1 = 3;
 const col_2 = 8
 const col_3 = 13
+
+const defaultDiagnoseData = require('./data/diagnose.json'); 
+const defaultEncephlogramData = require('./data/encephlogram.json');
 
 export default class Addcase extends PureComponent {
   formRef = React.createRef()
@@ -63,7 +51,12 @@ export default class Addcase extends PureComponent {
       sfwdxfzItem: [],//是否为癫痫发作
 
     }, //表单初始数据
-
+    modalData: {
+      diagnosis: _.cloneDeep(defaultDiagnoseData),// 诊断数据
+      encephlogram: _.cloneDeep(defaultEncephlogramData), // 脑电图异常数据
+    },
+    currentModalDataCache: null, // 当前打开窗口数据缓存
+    visibleModalName: null,
     zdVisible: true,//诊断
     jzxVisible: true,
     qmxVisible: false,
@@ -76,44 +69,60 @@ export default class Addcase extends PureComponent {
     Axios({
       url: Api.addCase.getDiagnosticType,
     })
-      .then((res) => {
-        if (res.data.success)
-          this.setState({ diagnosticTypeList: res.data.data })
-        this.setState({ typeLoaded: true })
+    .then((res) => {
+      if (res.data.success)
+      this.setState({ diagnosticTypeList: res.data.data })
+      this.setState({ typeLoaded: true })
 
-      })
-      .finally(() => {
-        this.typeLoaded = false
-      })
+    })
+    .finally(() => {
+      this.typeLoaded = false
+    })
   }
   //弹出层菜单
-  renderTypeMenu(type) {
-    if (this.state.typeLoaded) {
-      let menueAll = this.state.diagnosticTypeList[type].childs;
-      let menuArr = menueAll.map((item) => {
-        return (
-          <Menu.Item key={item.key} type={item.type} title={item.value}>
-            {item.value}
-          </Menu.Item>
-        )
-      })
-      return menuArr
-    }
+  renderTypeMenu(childs) {
+    let menuArr = childs.map((item) => {
+      return (
+        <Menu.Item key={item.key} type={item.type} title={item.value}>
+          {item.value}
+        </Menu.Item>
+      )
+    })
+    return menuArr
   }
-  onClickTypeMenu = ((item, key, keyPath, selectedKeys, domEvent) => {
-    // console.log(item, key, keyPath, selectedKeys, domEvent);
 
-    if (this.state.typeLoaded) {
-      // console.log(this.state.diagnosticTypeList.childs);
-      let index = item.key - 1;
-      let childList = this.state.diagnosticTypeList[0].childs[index];
-      console.log(childList.childs);
-      this.optionContet = childList.childs;
-      console.log(this.optionContet);
+  onChangeTabs = (key) => {
 
+    let { visibleModalName } = this.state;
+    let modalData = _.cloneDeep(this.state.modalData);
+    let modal = modalData[visibleModalName];
+    modal.tabs.forEach((tab, i) => {
+      if (tab.value + '' === key) {
+        tab.selected = true;
+      } else {
+        tab.selected = false;
+      }
+    });
+    modalData[visibleModalName] = modal;
+    this.setState({
+      modalData
+    })
+  }
 
-    }
-  })
+  onClickTypeMenu = (item)=> {
+    const { modalData, selectedTabs } = this.getModalDataModal();
+    selectedTabs.menus.forEach((menu,i) => {
+      if (menu.key+'' === item.key) {
+        menu.checked = true;
+      }else{
+        menu.checked = false;
+      }
+    })
+    this.setState({
+      modalData
+    })
+  }
+
   renderTypeContent(type, key) {
     if (this.state.typeLoaded) {
       let menueAll = this.state.diagnosticTypeList[0].childs;
@@ -150,32 +159,87 @@ export default class Addcase extends PureComponent {
     this.formRef.current.setFieldsValue({ jzxItems: value })
   }
 
-  //#region   /* 诊断 */
-  handleZdOk = () => {
-    console.log('ok');
-    this.setState({
-      zdVisible: false
-    });
 
+  onSaveModal = () => {
+    this.setState({
+      visibleModalName: false
+    })
   }
-  handleZdCancel = e => {
-    this.setState({
-      zdVisible: false
-    });
-  };
-  handleZdShow = e => {
 
+  // 取消弹层，还原数据，从缓存中取读。
+  onCancelModal = () => {
+    const { currentModalDataCache, visibleModalName } = this.state;
+    let { modalData } = this.getModalDataModal();
+    // console.log(currentModalDataCache)
+    modalData[visibleModalName] = currentModalDataCache;
     this.setState({
-      zdVisible: true
-    });
-  };
-  //#endregion
+      visibleModalName: false,
+      modalData
+    })
+  }
+
+  // 打开弹层时，缓存当前状态下的弹层数据，用于取消操作时，还原数据到打开状态时。
+  onShowModal = (visibleModalName) => {
+    this.setState({
+      visibleModalName,
+      currentModalDataCache: this.state.modalData[visibleModalName]
+    })
+  }
+
+  // 选择第一层checkbox
+  onCheckboxChange = (value,index) => {
+    const { selectedTabs,modalData} = this.getModalDataModal();
+    const menus = selectedTabs.menus;
+    const checkedMenu = menus.find(item => item.checked) || menus[0];
+    checkedMenu.childs[index].checked = value;
+    this.setState({
+      modalData
+    })
+  }
+
+  // 选择第二层checkbox,如有更多层建议做成通用递归方法。
+  onSubCheckboxChange = (value, CheckboxIndex,subChildIndex) => {
+    const { selectedTabs, modalData } = this.getModalDataModal();
+    const menus = selectedTabs.menus;
+    const checkedMenu = menus.find(item => item.checked) || menus[0];
+    checkedMenu.childs[CheckboxIndex].childs[subChildIndex].checked = value;
+    this.setState({
+      modalData
+    })
+  }
+
+  // 获取当前弹窗的数据模型
+  getModalDataModal = () => {
+    const {visibleModalName } = this.state;
+    const modalData = _.cloneDeep(this.state.modalData);
+
+    let modal = _.cloneDeep(defaultDiagnoseData);
+    let selectedTabs = null;
+    let selectedTabsIndex = null;
+
+    // 关闭弹层时，由于visibleModalName修改为了false,modal与选中tabs数据都应该为null
+    if (visibleModalName) {
+      modal = modalData[visibleModalName];
+      selectedTabs = modal.tabs.find((tab,index) => {
+        const flag = tab.selected;
+        if(flag) {
+          selectedTabsIndex = index;
+        }
+        return flag
+      });
+    }
+
+    return {
+      modal,
+      modalData,
+      selectedTabs,
+      selectedTabsIndex
+    }
+  }
 
   render() {
-    const { initFormData, zdVisible, qmxVisible } = this.state;
-    // const { zdVisible } = selectVisible
-
-    console.log(initFormData)
+    const { initFormData,visibleModalName } = this.state;
+    const  { modal, selectedTabs } = this.getModalDataModal();
 
     return (
       <>
@@ -231,7 +295,13 @@ export default class Addcase extends PureComponent {
                     {
                       ({ getFieldValue, getFieldsValue }) => {
                         const diagnosis = getFieldValue('diagnosis')
-                        return <Button disabled={diagnosis !== 1} style={{ width: 120 }} onClick={this.handleZdShow}>请选择</Button>
+                        return <Button 
+                          disabled={diagnosis !== 1} 
+                          style={{ width: 120 }} 
+                          onClick={()=>{
+                            this.onShowModal('diagnosis')
+                          }}
+                        >请选择</Button>
                       }
                     }
                   </Form.Item>
@@ -511,7 +581,7 @@ export default class Addcase extends PureComponent {
                       ({ getFieldValue, setFieldsValue }) => {
                         const diagnosis = getFieldValue("isHistoryOfTrauma")
                         const historyOfChronicDisease = getFieldValue('historyOfChronicDisease')
-                        return <input
+                        return <Input
                           disabled={diagnosis !== 1}
                           value={historyOfChronicDisease}
                           style={{ width: 120 }}
@@ -684,91 +754,90 @@ export default class Addcase extends PureComponent {
             </Card>
           </Form>
         </div>
-
         <div>
 
-
-          <Modal
-            title="诊断"
-            visible={zdVisible}
+        {
+          visibleModalName && <Modal
+            visible
+            title={modal.title}
             okText="确认"
-            width={540}
+            width={620}
             cancelText="取消"
-            onOk={this.handleZdOk}
-            onCancel={this.handleZdCancel}
+            onOk={this.onSaveModal}
+            onCancel={()=>{
+              this.onCancelModal()
+            }}
           >
-            <Tabs defaultActiveKey="1" >
-              <TabPane tab="发作类型" key="1" >
-                <Layout>
-                  <Sider width={200} className="site-layout-background">
 
-                    <Menu
-                      mode="inline"
-                      defaultSelectedKeys={['1']}
-                      onClick={this.onClickTypeMenu}
-                      defaultOpenKeys={['sub1']}
-                      style={{ height: '100%', borderRight: 0 }}>
+            <Tabs onChange={this.onChangeTabs} activeKey={selectedTabs.value+''} >
+              {
+                modal.tabs.map(tab => {
+                  const menus = tab.menus;
+                  const checkedMenu = menus.find(item => item.checked) || menus[0];
+                  
+                  return  <TabPane tab={tab.title} key={tab.value} >
+                    <Layout>
+                      <Sider width={200} className="site-layout-background">
+                        <Menu
+                          mode="inline"
+                          selectedKeys={[checkedMenu.key+'']}
+                          onClick={this.onClickTypeMenu}
+                          style={{ height: '100%', borderRight: 0 }}>
+                          {
+                            this.renderTypeMenu(menus)
+                          }
+                        </Menu>
+                      </Sider>
+                      <Layout style={{ padding: '0', lineHeight: "30px", backgroundColor: "#FFF" }}>
+                        <Content
+                          className="site-layout-background">
+                          <Card className={styles.card} name="list"  >
+                            {
+                              checkedMenu.childs.map((child,CheckboxIndex) => {
+                                const subChilds = child.childs
+                                if (subChilds && subChilds.length >  0) {
+                                  return <div key={CheckboxIndex} className={`${styles['checkbox-item']} ${styles['has-subitem']}`}>
+                                    <span className={styles.label}>
+                                      {child.label}
+                                    </span>
 
-                      {
-                        this.state.typeLoaded && this.renderTypeMenu(0)
-                      }
-                    </Menu>
-                  </Sider>
-                  <Layout style={{ padding: '0', lineHeight: "30px" }}>
-                    <Content
-                      className="site-layout-background">
-                      <Card name="jzx"  >
-                        <Checkbox.Group
-                          options={this.optionContet}
-                          // onChange={() => {
-                          //   this.onChangeMessage(this, 'dd');
-                          // }}
-                          onChange={this.onChangeMessage}
-                        />
-                      </Card>
-                      <Card name="qmx" visible={qmxVisible.toString()}>
-                        <Checkbox.Group
-                          options={optionQmx}
-                          styles={{ width: "100%" }}
-                          onChange={this.onChange}
-                        />
-                      </Card>
-                    </Content>
-                  </Layout>
-                </Layout>
-              </TabPane>
-              <TabPane tab="综合症" key="2">
-                <Layout>
-                  <Sider width={200} className="site-layout-background">
-                    <Menu
-                      mode="inline"
-                      defaultSelectedKeys={['1']}
-                      defaultOpenKeys={['sub1']}
-                      style={{ height: '100%', borderRight: 0 }}>
-                      {
-                        this.state.typeLoaded && this.renderTypeMenu(1)
-                      }
-                    </Menu>
-                  </Sider>
-                  <Layout style={{ padding: '0', lineHeight: "30px" }}>
-                    <Content
-                      className="site-layout-background">
-                      <Card name="jzx"  >
-                        <Checkbox.Group
-                          options={optionContet}
-                          onChange={this.onChangeMessage}
-                        />
+                                   {
+                                      subChilds.map((subChild, subChildIndex) => <Checkbox
+                                        checked={subChild.checked}
+                                        key={subChild.value}
+                                        onChange={(e) => {
+                                          this.onSubCheckboxChange(e.target.checked, CheckboxIndex, subChildIndex)
+                                        }}
+                                      >
+                                        {subChild.label}
+                                      </Checkbox>)
+                                   }
+                                    
+                                  </div>
+                                }
 
-                      </Card>
-
-                    </Content>
-                  </Layout>
-                </Layout>
-              </TabPane>
-
+                                return <div key={CheckboxIndex} className={`${styles['checkbox-item']} ${styles['level-1']}`}>
+                                    <Checkbox
+                                      checked={child.checked}
+                                      onChange={(e) => {
+                                        this.onCheckboxChange(e.target.checked, CheckboxIndex)
+                                      }}
+                                    >
+                                      {child.label}
+                                    </Checkbox>
+                                  </div>
+                              })
+                            }
+                          </Card>
+                        </Content>
+                      </Layout>
+                    </Layout>
+                  </TabPane>
+                })
+              }
             </Tabs>
           </Modal>
-
+        }
 
         </div>
 

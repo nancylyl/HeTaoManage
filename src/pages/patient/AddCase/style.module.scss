@@ -30,3 +30,29 @@
       text-align: center;
     }
 }
+
+
+.checkbox-item {
+  padding: 10px 0;
+  border-bottom: 1px solid #eee;
+  &:last-child {
+    border-bottom: 0;
+  }
+}
+
+
+.card {
+  :global {
+    .ant-card-body {
+      padding: 0 15px;
+    }
+  }
+}
+
+.has-subitem {
+  display: flex;
+  .label {
+    display: inline-block;
+    flex-grow: 1;
+  }
+}
