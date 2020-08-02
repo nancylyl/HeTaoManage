@@ -1,0 +1,39 @@
+{
+    "title": "请选择慢病史",
+    "tabs": [
+        {
+            "title": "慢病史",
+            "selected": true,
+            "value": 1,
+            "menus": [
+                {
+                    "key": 1,
+                    "value": "慢病史",
+                    "checked": true,
+                    "childs": [
+                        {
+                            "value": 1,
+                            "label": "代谢综合征"
+                        },
+                        {
+                            "value": 2,
+                            "label": "高血压"
+                        },
+                        {
+                            "value": 3,
+                            "label": "高血脂"
+                        },
+                        {
+                            "value": 4,
+                            "label": "肝历史"
+                        },
+                        {
+                            "value": 5,
+                            "label": "其他"
+                        }
+                    ]
+                }
+            ]
+        }
+    ]
+}

@@ -132,7 +132,7 @@
         {
             "title": "综合症状",
             "value": 2,
-            "selected":  true,
+            "selected": true,
             "menus": [
                 {
                     "key": 1,

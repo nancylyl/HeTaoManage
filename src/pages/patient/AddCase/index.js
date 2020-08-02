@@ -16,8 +16,13 @@ const col_1 = 3;
 const col_2 = 8
 const col_3 = 13
 
-const defaultDiagnoseData = require('./data/diagnose.json'); 
+const defaultDiagnoseData = require('./data/diagnose.json');
 const defaultEncephlogramData = require('./data/encephlogram.json');
+const defaultmedicine = require('./data/medicine.json');
+const defaultct = require('./data/ct.json');
+const defaultoperation = require('./data/operation.json');//手术选项
+const defaultcdisease = require('./data/cdisease.json');//慢病史
+const defalutfamilyhistory = require('./data/cdisease.json');//请选择家族史
 
 export default class Addcase extends PureComponent {
   formRef = React.createRef()
@@ -54,31 +59,38 @@ export default class Addcase extends PureComponent {
     modalData: {
       diagnosis: _.cloneDeep(defaultDiagnoseData),// 诊断数据
       encephlogram: _.cloneDeep(defaultEncephlogramData), // 脑电图异常数据
+      medicine: _.cloneDeep(defaultmedicine), // 药物
+      ct: _.cloneDeep(defaultct), // 核磁/ct
+      operation: _.cloneDeep(defaultoperation), // 手术选项
+      cdisease: _.cloneDeep(defaultcdisease), // 慢性病
+      familyhistory: _.cloneDeep(defalutfamilyhistory), // 家族史
+      numberOfEpisodes: _.cloneDeep(defaultDiagnoseData),// 发作频率
+      drugAllergy: _.cloneDeep(defaultmedicine),// 过敏药物
     },
     currentModalDataCache: null, // 当前打开窗口数据缓存
     visibleModalName: null,
-    zdVisible: true,//诊断
-    jzxVisible: true,
-    qmxVisible: false,
+    // zdVisible: true,//诊断
+    // jzxVisible: true,
+    // qmxVisible: false,
     typeLoaded: false,//弹出信息加载
-    diagnosticTypeList: [],//弹出层的数据
+    //  diagnosticTypeList: [],//弹出层的数据
 
   }
 
-  componentDidMount() {
-    Axios({
-      url: Api.addCase.getDiagnosticType,
-    })
-    .then((res) => {
-      if (res.data.success)
-      this.setState({ diagnosticTypeList: res.data.data })
-      this.setState({ typeLoaded: true })
+  // componentDidMount() {
+  //   Axios({
+  //     url: Api.addCase.getDiagnosticType,
+  //   })
+  //   .then((res) => {
+  //     if (res.data.success)
+  //     this.setState({ diagnosticTypeList: res.data.data })
+  //     this.setState({ typeLoaded: true })
 
-    })
-    .finally(() => {
-      this.typeLoaded = false
-    })
-  }
+  //   })
+  //   .finally(() => {
+  //     this.typeLoaded = false
+  //   })
+  // }
   //弹出层菜单
   renderTypeMenu(childs) {
     let menuArr = childs.map((item) => {
@@ -109,12 +121,12 @@ export default class Addcase extends PureComponent {
     })
   }
 
-  onClickTypeMenu = (item)=> {
+  onClickTypeMenu = (item) => {
     const { modalData, selectedTabs } = this.getModalDataModal();
-    selectedTabs.menus.forEach((menu,i) => {
-      if (menu.key+'' === item.key) {
+    selectedTabs.menus.forEach((menu, i) => {
+      if (menu.key + '' === item.key) {
         menu.checked = true;
-      }else{
+      } else {
         menu.checked = false;
       }
     })
@@ -187,8 +199,8 @@ export default class Addcase extends PureComponent {
   }
 
   // 选择第一层checkbox
-  onCheckboxChange = (value,index) => {
-    const { selectedTabs,modalData} = this.getModalDataModal();
+  onCheckboxChange = (value, index) => {
+    const { selectedTabs, modalData } = this.getModalDataModal();
     const menus = selectedTabs.menus;
     const checkedMenu = menus.find(item => item.checked) || menus[0];
     checkedMenu.childs[index].checked = value;
@@ -198,7 +210,7 @@ export default class Addcase extends PureComponent {
   }
 
   // 选择第二层checkbox,如有更多层建议做成通用递归方法。
-  onSubCheckboxChange = (value, CheckboxIndex,subChildIndex) => {
+  onSubCheckboxChange = (value, CheckboxIndex, subChildIndex) => {
     const { selectedTabs, modalData } = this.getModalDataModal();
     const menus = selectedTabs.menus;
     const checkedMenu = menus.find(item => item.checked) || menus[0];
@@ -210,7 +222,7 @@ export default class Addcase extends PureComponent {
 
   // 获取当前弹窗的数据模型
   getModalDataModal = () => {
-    const {visibleModalName } = this.state;
+    const { visibleModalName } = this.state;
     const modalData = _.cloneDeep(this.state.modalData);
 
     let modal = _.cloneDeep(defaultDiagnoseData);
@@ -220,9 +232,9 @@ export default class Addcase extends PureComponent {
     // 关闭弹层时，由于visibleModalName修改为了false,modal与选中tabs数据都应该为null
     if (visibleModalName) {
       modal = modalData[visibleModalName];
-      selectedTabs = modal.tabs.find((tab,index) => {
+      selectedTabs = modal.tabs.find((tab, index) => {
         const flag = tab.selected;
-        if(flag) {
+        if (flag) {
           selectedTabsIndex = index;
         }
         return flag
@@ -238,8 +250,8 @@ export default class Addcase extends PureComponent {
   }
 
   render() {
-    const { initFormData,visibleModalName } = this.state;
-    const  { modal, selectedTabs } = this.getModalDataModal();
+    const { initFormData, visibleModalName } = this.state;
+    const { modal, selectedTabs } = this.getModalDataModal();
 
     return (
       <>
@@ -295,10 +307,10 @@ export default class Addcase extends PureComponent {
                     {
                       ({ getFieldValue, getFieldsValue }) => {
                         const diagnosis = getFieldValue('diagnosis')
-                        return <Button 
-                          disabled={diagnosis !== 1} 
-                          style={{ width: 120 }} 
-                          onClick={()=>{
+                        return <Button
+                          disabled={diagnosis !== 1}
+                          style={{ width: 120 }}
+                          onClick={() => {
                             this.onShowModal('diagnosis')
                           }}
                         >请选择</Button>
@@ -329,7 +341,13 @@ export default class Addcase extends PureComponent {
                     {
                       ({ getFieldValue }) => {
                         const diagnosis = getFieldValue('computer')
-                        return <Button disabled={diagnosis !== 1} style={{ width: 120 }}>请选择</Button>
+                        return <Button disabled={diagnosis !== 1}
+                          style={{ width: 120 }}
+
+                          onClick={() => {
+                            this.onShowModal('encephlogram')
+                          }}
+                        >请选择</Button>
                       }
                     }
                   </Form.Item>
@@ -358,7 +376,13 @@ export default class Addcase extends PureComponent {
                     {
                       ({ getFieldValue }) => {
                         const diagnosis = getFieldValue("NMR")
-                        return <Button disabled={diagnosis !== 1} style={{ width: 120 }}>请选择</Button>
+                        return <Button
+                          disabled={diagnosis !== 1}
+                          style={{ width: 120 }}
+                          onClick={() => {
+                            this.onShowModal('ct')
+                          }}
+                        >请选择</Button>
                       }
                     }
                   </Form.Item>
@@ -404,7 +428,13 @@ export default class Addcase extends PureComponent {
                     {
                       ({ getFieldValue }) => {
                         const diagnosis = getFieldValue("numberOfEpisodes")
-                        return <Button disabled={diagnosis === ""} style={{ width: 120 }}>请选择</Button>
+                        return <Button
+                          disabled={diagnosis === ""}
+                          style={{ width: 120 }}
+                          onClick={() => {
+                            this.onShowModal('numberOfEpisodes')
+                          }}
+                        >请选择</Button>
                       }
                     }
                   </Form.Item>
@@ -436,7 +466,13 @@ export default class Addcase extends PureComponent {
                     {
                       ({ getFieldValue }) => {
                         const diagnosis = getFieldValue("medication")
-                        return <Button disabled={diagnosis !== 1} style={{ width: 120 }}>请选择</Button>
+                        return <Button
+                          disabled={diagnosis !== 1}
+                          style={{ width: 120 }}
+                          onClick={() => {
+                            this.onShowModal('medicine')
+                          }}
+                        >请选择</Button>
                       }
                     }
                   </Form.Item>
@@ -464,7 +500,14 @@ export default class Addcase extends PureComponent {
                     {
                       ({ getFieldValue }) => {
                         const diagnosis = getFieldValue("surgery")
-                        return <Button disabled={diagnosis !== 1} style={{ width: 120 }}>请选择</Button>
+                        return <Button
+                          disabled={diagnosis !== 1}
+                          style={{ width: 120 }}
+                          onClick={() => {
+                            this.onShowModal('operation')
+                          }}
+
+                        >请选择</Button>
                       }
                     }
                   </Form.Item>
@@ -548,7 +591,13 @@ export default class Addcase extends PureComponent {
                     {
                       ({ getFieldValue }) => {
                         const diagnosis = getFieldValue("drugAllergy")
-                        return <Button disabled={diagnosis !== 1} style={{ width: 120 }}>请选择</Button>
+                        return <Button
+                          disabled={diagnosis !== 1}
+                          style={{ width: 120 }}
+                          onClick={() => {
+                            this.onShowModal('drugAllergy')
+                          }}
+                        >请选择</Button>
                       }
                     }
                   </Form.Item>
@@ -616,7 +665,13 @@ export default class Addcase extends PureComponent {
                     {
                       ({ getFieldValue }) => {
                         const diagnosis = getFieldValue("ischronicDiseaseHistory")
-                        return <Button disabled={diagnosis !== 1} style={{ width: 120 }}>请选择</Button>
+                        return <Button
+                          disabled={diagnosis !== 1}
+                          style={{ width: 120 }}
+                          onClick={() => {
+                            this.onShowModal('cdisease')
+                          }}
+                        >请选择</Button>
                       }
                     }
 
@@ -702,7 +757,13 @@ export default class Addcase extends PureComponent {
                     {
                       ({ getFieldValue }) => {
                         const diagnosis = getFieldValue("familyDisease")
-                        return <Button disabled={diagnosis !== 1} style={{ width: 120 }}>请选择</Button>
+                        return <Button
+                          disabled={diagnosis !== 1}
+                          style={{ width: 120 }}
+                          onClick={() => {
+                            this.onShowModal('familyhistory')
+                          }}
+                        >请选择</Button>
                       }
                     }
 
@@ -756,67 +817,67 @@ export default class Addcase extends PureComponent {
         </div>
         <div>
 
-        {
-          visibleModalName && <Modal
-            visible
-            title={modal.title}
-            okText="确认"
-            width={620}
-            cancelText="取消"
-            onOk={this.onSaveModal}
-            onCancel={()=>{
-              this.onCancelModal()
-            }}
-          >
+          {
+            visibleModalName && <Modal
+              visible
+              title={modal.title}
+              okText="确认"
+              width={620}
+              cancelText="取消"
+              onOk={this.onSaveModal}
+              onCancel={() => {
+                this.onCancelModal()
+              }}
+            >
 
-            <Tabs onChange={this.onChangeTabs} activeKey={selectedTabs.value+''} >
-              {
-                modal.tabs.map(tab => {
-                  const menus = tab.menus;
-                  const checkedMenu = menus.find(item => item.checked) || menus[0];
-                  
-                  return  <TabPane tab={tab.title} key={tab.value} >
-                    <Layout>
-                      <Sider width={200} className="site-layout-background">
-                        <Menu
-                          mode="inline"
-                          selectedKeys={[checkedMenu.key+'']}
-                          onClick={this.onClickTypeMenu}
-                          style={{ height: '100%', borderRight: 0 }}>
-                          {
-                            this.renderTypeMenu(menus)
-                          }
-                        </Menu>
-                      </Sider>
-                      <Layout style={{ padding: '0', lineHeight: "30px", backgroundColor: "#FFF" }}>
-                        <Content
-                          className="site-layout-background">
-                          <Card className={styles.card} name="list"  >
+              <Tabs onChange={this.onChangeTabs} activeKey={selectedTabs.value + ''} >
+                {
+                  modal.tabs.map(tab => {
+                    const menus = tab.menus;
+                    const checkedMenu = menus.find(item => item.checked) || menus[0];
+
+                    return <TabPane tab={tab.title} key={tab.value} >
+                      <Layout>
+                        <Sider width={200} className="site-layout-background">
+                          <Menu
+                            mode="inline"
+                            selectedKeys={[checkedMenu.key + '']}
+                            onClick={this.onClickTypeMenu}
+                            style={{ height: '100%', borderRight: 0 }}>
                             {
-                              checkedMenu.childs.map((child,CheckboxIndex) => {
-                                const subChilds = child.childs
-                                if (subChilds && subChilds.length >  0) {
-                                  return <div key={CheckboxIndex} className={`${styles['checkbox-item']} ${styles['has-subitem']}`}>
-                                    <span className={styles.label}>
-                                      {child.label}
-                                    </span>
+                              this.renderTypeMenu(menus)
+                            }
+                          </Menu>
+                        </Sider>
+                        <Layout style={{ padding: '0', lineHeight: "30px", backgroundColor: "#FFF" }}>
+                          <Content
+                            className="site-layout-background">
+                            <Card className={styles.card} name="list"  >
+                              {
+                                checkedMenu.childs.map((child, CheckboxIndex) => {
+                                  const subChilds = child.childs
+                                  if (subChilds && subChilds.length > 0) {
+                                    return <div key={CheckboxIndex} className={`${styles['checkbox-item']} ${styles['has-subitem']}`}>
+                                      <span className={styles.label}>
+                                        {child.label}
+                                      </span>
 
-                                   {
-                                      subChilds.map((subChild, subChildIndex) => <Checkbox
-                                        checked={subChild.checked}
-                                        key={subChild.value}
-                                        onChange={(e) => {
-                                          this.onSubCheckboxChange(e.target.checked, CheckboxIndex, subChildIndex)
-                                        }}
-                                      >
-                                        {subChild.label}
-                                      </Checkbox>)
-                                   }
-                                    
-                                  </div>
-                                }
+                                      {
+                                        subChilds.map((subChild, subChildIndex) => <Checkbox
+                                          checked={subChild.checked}
+                                          key={subChild.value}
+                                          onChange={(e) => {
+                                            this.onSubCheckboxChange(e.target.checked, CheckboxIndex, subChildIndex)
+                                          }}
+                                        >
+                                          {subChild.label}
+                                        </Checkbox>)
+                                      }
 
-                                return <div key={CheckboxIndex} className={`${styles['checkbox-item']} ${styles['level-1']}`}>
+                                    </div>
+                                  }
+
+                                  return <div key={CheckboxIndex} className={`${styles['checkbox-item']} ${styles['level-1']}`}>
                                     <Checkbox
                                       checked={child.checked}
                                       onChange={(e) => {
@@ -826,18 +887,18 @@ export default class Addcase extends PureComponent {
                                       {child.label}
                                     </Checkbox>
                                   </div>
-                              })
-                            }
-                          </Card>
-                        </Content>
+                                })
+                              }
+                            </Card>
+                          </Content>
+                        </Layout>
                       </Layout>
-                    </Layout>
-                  </TabPane>
-                })
-              }
-            </Tabs>
-          </Modal>
-        }
+                    </TabPane>
+                  })
+                }
+              </Tabs>
+            </Modal>
+          }
 
         </div>
 

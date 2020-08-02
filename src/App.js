@@ -3,7 +3,7 @@ import './App.css'
 import Login from './pages/Login/'
 import Index from './pages/Home/'
 // import PrivateRouter from './components/PrivateRouter'
-import mapManage from './pages/patient/mapManage'
+import mapManage from './pages/patient/map/mapManage'
 import patientListManage from './pages/patient/patientListManage'
 import ADRsTipsManage from './pages/patient/ADRsTipsManage'
 
