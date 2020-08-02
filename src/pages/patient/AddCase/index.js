@@ -194,51 +194,51 @@ export default class Addcase extends PureComponent {
       })
   };
 
-  parseModalData = (data) => {
+  // parseModalData = (data) => {
 
-    const { modalData } = this.getModalDataModal();
+  //   const { modalData } = this.getModalDataModal();
 
-    const parseList = [
-      {
-        modalDataKey: 'diagnosis',
-        dataKey: 'diagnosisContent',
-        title: '诊断'
-      }
-    ];
+  //   const parseList = [
+  //     {
+  //       modalDataKey: 'diagnosis',
+  //       dataKey: 'diagnosisContent',
+  //       title: '诊断'
+  //     }
+  //   ];
 
-    parseList.forEach(item => {
-      const modal = modalData[item.modalDataKey];
-      const processDataModel = data[item.dataKey];
-      const processDataTabs = processDataModel.tabs;
-      modal.tabs.forEach((tab, tabIndex) => {
-        // 找到需要处理的tab
-        const processTab = processDataTabs.find(processDataTab => {
-          processDataTab.value === tab.value
-        });
+  //   // parseList.forEach(item => {
+  //   //   const modal = modalData[item.modalDataKey];
+  //   //   const processDataModel = data[item.dataKey];
+  //   //   const processDataTabs = processDataModel.tabs;
+  //   //   modal.tabs.forEach((tab, tabIndex) => {
+  //   //     // 找到需要处理的tab
+  //   //     const processTab = processDataTabs.find(processDataTab => {
+  //   //       processDataTab.value === tab.value
+  //   //     });
 
-        if (processTab) {
-          const processMenus = processTab.menus; //接口中的数据
-          const initMenus = tab.menus; // 初始数据
+  //   //     if (processTab) {
+  //   //       const processMenus = processTab.menus; //接口中的数据
+  //   //       const initMenus = tab.menus; // 初始数据
 
-          const processMenu = processMenus.find(processMenu => {
-            processMenu.value === processMenu.value
-          });
+  //   //       const processMenu = processMenus.find(processMenu => {
+  //   //         processMenu.value === processMenu.value
+  //   //       });
 
-          if (processMenu) {
-            const processChilds = processMenu.childs; //接口中的数据
-            const initMenus = tab.menus; // 初始数据
-          }
+  //   //       if (processMenu) {
+  //   //         const processChilds = processMenu.childs; //接口中的数据
+  //   //         const initMenus = tab.menus; // 初始数据
+  //   //       }
 
-        }
-      })
-    });
+  //   //     }
+  //   //   })
+  //   // });
 
-    modalData.diagnosis = {
-      title: '诊断',
-      tabs: data.diagnosisContent
-    };
+  //   modalData.diagnosis = {
+  //     title: '诊断',
+  //     tabs: data.diagnosisContent
+  //   };
 
-  }
+  // }
 
   getCaseDetail = ((id) => {
     console.log('数据');
@@ -252,7 +252,7 @@ export default class Addcase extends PureComponent {
         this.setState({
           initFormData: data,
           initDataLoaded: true,
-          modalData
+          // modalData
         })
       })
       .finally(() => {
