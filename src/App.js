@@ -32,7 +32,10 @@ function App() {
           <Route
             path="/"
             exact
+            // render={() => <Redirect to={'/index/patient/Addcase'} />}
             render={() => <Redirect to={'/index/patient/Addcase'} />}
+
+
           ></Route>
           <Route path="/Login" component={Login}></Route>
           <Route

@@ -1,5 +1,5 @@
 import React, { PureComponent } from 'react'
-import { Form, Input, Button, Card, Row, Col, Select, Typography, Modal, Tabs, Menu, Layout, Checkbox, Result, message } from 'antd';
+import { Form, Input, Button, Card, Row, Col, Select, Typography, Modal, Tabs, Menu, Layout, Checkbox, message } from 'antd';
 import Axios from '../../../util/axios'
 import Api from '../../../api/index'
 import styles from './style.module.scss'
@@ -16,18 +16,21 @@ const col_1 = 3;
 const col_2 = 8
 const col_3 = 13
 
-const defaultDiagnoseData = require('./data/diagnose.json');
-const defaultEncephlogramData = require('./data/encephlogram.json');
-const defaultmedicine = require('./data/medicine.json');
-const defaultct = require('./data/ct.json');
+const defaultDiagnoseData = require('./data/diagnose.json');//诊断数据
+const defaultEncephlogramData = require('./data/encephlogram.json');//脑电图异常数据
+const defaultmedicine = require('./data/medicine.json');//药物
+const defaultct = require('./data/ct.json');//核磁/ct
 const defaultoperation = require('./data/operation.json');//手术选项
 const defaultcdisease = require('./data/cdisease.json');//慢病史
-const defalutfamilyhistory = require('./data/cdisease.json');//请选择家族史
+// const defalutfamilyhistory = require('./data/cdisease.json');//请选择家族史
+const defalutfamilyhistory = _.cloneDeep(require('./data/cdisease.json'));//请选择家族史
+defalutfamilyhistory.title = '家族病史'
+const defaultMedicineAllergy = _.cloneDeep(require('./data/medicine.json'));//过敏药物
 
 export default class Addcase extends PureComponent {
   formRef = React.createRef()
   state = {
-    type: this.props.match.params.id ? 'edit' : 'create',
+    type: this.props.match.params.id > 0 ? 'edit' : 'create',
     initFormData: {
       diagnosis: "",//诊断
       computer: "",//电脑图
@@ -51,10 +54,7 @@ export default class Addcase extends PureComponent {
       whetherToGiveBirth: "",//是否生育
       historyOfChronicDisease: "",
       immunityTherapy: "",//免疫治疗
-      jzxItems: [],//局灶性
-      qmxItems: [],//全面性
-      fzlxbwdItems: [],//发作类型不稳定
-      sfwdxfzItem: [],//是否为癫痫发作
+      numberOfEpisodesException: ""//发作频率
 
     }, //表单初始数据
     modalData: {
@@ -65,8 +65,8 @@ export default class Addcase extends PureComponent {
       operation: _.cloneDeep(defaultoperation), // 手术选项
       cdisease: _.cloneDeep(defaultcdisease), // 慢性病
       familyhistory: _.cloneDeep(defalutfamilyhistory), // 家族史
-      numberOfEpisodes: _.cloneDeep(defaultDiagnoseData),// 发作频率
-      drugAllergy: _.cloneDeep(defaultmedicine),// 过敏药物
+      // numberOfEpisodes: _.cloneDeep(defaultDiagnoseData),// 发作频率
+      drugAllergy: _.cloneDeep(defaultMedicineAllergy),// 过敏药物
     },
     currentModalDataCache: null, // 当前打开窗口数据缓存
     visibleModalName: null, // 当前显示哪个modal的key值，为false，不显示modal
@@ -140,29 +140,67 @@ export default class Addcase extends PureComponent {
     }
   }
 
-  onFinish = (values) => {
-    console.log('Received values of form: ', values);
+  getModalCheckedData = (values) => {
     const modalData = _.cloneDeep(this.state.modalData);
+    let flag = true;
+    const data = {}
     const {
       diagnosis,
       computer,
+      NMR,
+      surgery,
+      ischronicDiseaseHistory,
+      familyDisease,
+      drugAllergy,
+      medication
     } = values;
 
-    // 诊断内容
-    const diagnosisContent = this.getModalDataByKey(diagnosis, 1, modalData['diagnosis']);
-    if (diagnosisContent === false) {
-      message.error('请填写诊断内容');
+    const modalList = [
+      [diagnosis, 1, modalData['diagnosis'], 'diagnosisContent', '请填写诊断内容'],
+      [computer, 0, modalData['encephlogram'], 'encephlogramContent', '请填写脑电图异常内容'],
+      [NMR, 1, modalData['ct'], 'ctContent', '请填写核磁/CT内容'],
+      [medication, 1, modalData['medicine'], 'medicationContent', '请填写药物内容'],
+      [surgery, 1, modalData['operation'], 'operationContent', '请填手术内容'],
+      [ischronicDiseaseHistory, 1, modalData['cdisease'], 'cdiseaseContent', '请填写慢性病内容'],
+      [familyDisease, 1, modalData['familyhistory'], 'familyhistoryContent', '请填写家族史内容'],
+      [drugAllergy, 1, modalData['drugAllergy'], 'drugAllergyContent', '请填写过敏药物内容'],
+    ]
+
+    modalList.find(item => {
+      const value = item[0];
+      const compareValue = item[1];
+      const modalData = item[2];
+      const key = item[3];
+      const errMsg = item[4];
+
+      data[key] = this.getModalDataByKey(value, compareValue, modalData);
+
+      if (data[key] === false) {
+        message.error(errMsg);
+        flag = false;
+        return true
+      }
+
+      return false
+    })
+
+    if (flag) {
+      return data
+    }
+
+    return false;
+  }
+
+  onFinish = (values) => {
+    const extendData = this.getModalCheckedData(values)
+
+    if (!extendData) {
+      console.log('弹层没有数据')
       return
     }
 
-    // 脑电图异常内容
-    const encephlogramContent = this.getModalDataByKey(computer, 0, modalData['encephlogram']);
-    if (encephlogramContent === false) {
-      message.error('请填写脑电图异常内容');
-      return
-    }
-    const extendData = { diagnosisContent, encephlogramContent };
     const result = Object.assign(values, extendData)
+
     Axios({
       url: Api.addCase.addcase,
       method: 'POST',
@@ -170,19 +208,19 @@ export default class Addcase extends PureComponent {
         caseList: result
       }
     })
-    .then((res) => {
-      console.log(res)
+      .then((res) => {
+        //  console.log(res)
 
-    })
-    .finally(() => {
-    })
+      })
+      .finally(() => {
+      })
   };
 
   // 将接口数据中的弹层数据merge到state中的modalData里去
   parseModalData = (data) => {
 
     // 这个时候的modalData未改变，直接从state中获取性能更高。
-    const {modalData} = this.state;
+    const { modalData } = this.state;
 
     // 需要解析的数据列表
     const parseList = [
@@ -196,45 +234,61 @@ export default class Addcase extends PureComponent {
         modalDataKey: 'encephlogram',
         dataKey: 'encephlogramContent'
       },
+      {
+        // 药物
+        modalDataKey: 'medicine',
+        dataKey: 'medicationContent'
+      },
+      {
+        // 核磁/ct
+        modalDataKey: 'ct',
+        dataKey: 'ctContent'
+      },
+      {
+        // 手术选项
+        modalDataKey: 'operation',
+        dataKey: 'operationContent'
+      },
+      {
+        // 慢性病
+        modalDataKey: 'cdisease',
+        dataKey: 'cdiseaseContent'
+      },
+      {
+        // 家族史
+        modalDataKey: 'familyhistory',
+        dataKey: 'familyhistoryContent'
+      },
+      {
+        // 过敏药物
+        modalDataKey: 'drugAllergy',
+        dataKey: 'drugAllergyContent'
+      }
     ];
 
     parseList.forEach(item => {
+      console.log(item)
+
       const modal = modalData[item.modalDataKey]; // modal默认数据
       const processDataTabs = data[item.dataKey]; // 接口中的tabs数据
 
       if (processDataTabs === null) {
         // 如果该字段没值，不merge
-        return 
+        return
       }
 
       modal.tabs.forEach(tab => {
         // 找到需要处理的tab
         const processTab = processDataTabs.find(processDataTab => {
-          return  processDataTab.value === tab.value
+          return processDataTab.value === tab.value
         });
 
         if (processTab && processTab.menus.length > 0) {
           // 找到需要处理的tab节点
-          const processMenus = processTab.menus; 
+          const processMenus = processTab.menus;
           tab.menus.forEach(menu => {
             const processMenu = processMenus.find(processMenu => processMenu.key === menu.key);
-            this.recursionChilds(processMenu,menu);
-            // if (processMenu && processMenu.childs.length > 0) {
-            //   // 找到需要处理的menu数据节点
-            //   const processChilds = processMenu.childs;
-            //   menu.childs.forEach(child => {
-            //     const processChild = processChilds.find(processChild => child.value === processChild.value);
-            //     if (processChild) {
-            //       // 找到需要处理的checkbox节点
-            //       const processSubChilds = processChild.childs;
-            //       if (!processSubChilds) {
-            //         // 没有子节点
-            //         child = Object.assign(child, processChild)
-            //         return 
-            //       }
-            //     } 
-            //   })
-            // }
+            this.recursionChilds(processMenu, menu);
           })
         }
       })
@@ -243,13 +297,13 @@ export default class Addcase extends PureComponent {
     return modalData
   }
 
- 
+
   /**
    * desc: 递归合并节点数据，currentChild 合并 到 initChild中。
    * @param {*} currentChild 接口获取的数据节点，
    * @param {*} initChild  初始化数据节点
    */
-  recursionChilds = (currentChild,initChild) => {
+  recursionChilds = (currentChild, initChild) => {
     if (currentChild && currentChild.childs.length > 0) {
       // 找到需要处理的数据节点
       const processChilds = currentChild.childs;
@@ -272,7 +326,6 @@ export default class Addcase extends PureComponent {
 
   getCaseDetail = ((id) => {
     // 获取case数据，根据id
-
     Axios({
       url: Api.addCase.getCaseDetail,
     })
@@ -280,7 +333,7 @@ export default class Addcase extends PureComponent {
         const data = res.data.data.addcaseList;
         console.log(data)
         // 将接口中弹层数据merge到弹层中
-        const modalData =this.parseModalData(data);
+        const modalData = this.parseModalData(data);
         this.setState({
           initFormData: data,
           initDataLoaded: true,
@@ -357,13 +410,22 @@ export default class Addcase extends PureComponent {
     this.formRef.current.setFieldsValue({ [key]: value })
   }
 
-  onChangeMessage = (value) => {
-    this.formRef.current.setFieldsValue({ jzxItems: value })
-  }
 
   onSaveModal = () => {
+    const saveModal = this.getModalCheckedData(this.formRef.current.getFieldsValue([
+      'diagnosis',
+      'computer',
+      'NMR',
+      'surgery',
+      'ischronicDiseaseHistory',
+      'familyDisease',
+      'drugAllergy',
+      'medication'
+    ]));
+
     this.setState({
-      visibleModalName: false
+      visibleModalName: false,
+      saveModal
     })
   }
 
@@ -410,11 +472,15 @@ export default class Addcase extends PureComponent {
   }
 
   // 获取当前弹窗的数据模型
-  getModalDataModal = () => {
-    const { visibleModalName } = this.state;
-    const modalData = _.cloneDeep(this.state.modalData);
+  getModalDataModal = (needCloneDeep = true) => {
+    let { visibleModalName, modalData } = this.state;
 
-    let modal = _.cloneDeep(defaultDiagnoseData);
+    if (needCloneDeep) {
+      console.log('cloneDeep modalData')
+      modalData = _.cloneDeep(modalData);
+    }
+
+    let modal = null;
     let selectedTabs = null;
     let selectedTabsIndex = null;
 
@@ -440,7 +506,7 @@ export default class Addcase extends PureComponent {
 
   render() {
     const { initFormData, visibleModalName, type, initDataLoaded } = this.state;
-    const { modal, selectedTabs } = this.getModalDataModal();
+    const { modal, selectedTabs } = this.getModalDataModal(false);
     let tabs = [];
     if (modal && modal.tabs) {
       tabs = modal.tabs
@@ -484,7 +550,7 @@ export default class Addcase extends PureComponent {
               <Col span={col_2}>
                 <Form.Item
                   label="诊断"
-                  rules={[{ required: true, message: "必填" }]}
+                  // rules={[{ required: true, message: "必填" }]}
                   name="diagnosis" >
                   <Select style={{ width: 120 }}>
                     <Option value={""}>请选择</Option>
@@ -520,7 +586,7 @@ export default class Addcase extends PureComponent {
               <Col span={col_2}>
                 <Form.Item
                   label="电脑图"
-                  rules={[{ required: true, message: "必填" }]}
+                  // rules={[{ required: true, message: "必填" }]}
                   name="computer" >
                   <Select style={{ width: 120 }} >
                     <Option value={""}>请选择</Option>
@@ -619,19 +685,14 @@ export default class Addcase extends PureComponent {
                 {/* numberOfEpisodesException */}
                 <Form.Item
                   label="发作频率"
-                  dependencies={['numberOfEpisodes']}  >
-                  {
-                    ({ getFieldValue }) => {
-                      const diagnosis = getFieldValue("numberOfEpisodes")
-                      return <Button
-                        disabled={diagnosis === ""}
-                        style={{ width: 120 }}
-                        onClick={() => {
-                          this.onShowModal('numberOfEpisodes')
-                        }}
-                      >请选择</Button>
-                    }
-                  }
+                  name="numberOfEpisodesException" >
+
+                  <Select style={{ width: 120 }} >
+                    <Option value={""}>请选择</Option>
+                    <Option value={0}>日</Option>
+                    <Option value={1}>周</Option>
+                    <Option value={2}>月</Option>
+                  </Select>
                 </Form.Item>
               </Col>
             </Row>
