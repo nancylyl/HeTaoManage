@@ -64,3 +64,30 @@
     }
   }
 }
+
+.detailTabsTitle {
+  border-bottom: 1px solid #eee;
+  font-size: 14px;
+  font-weight: bold;
+}
+
+.detailMenuTitle {
+  // font-size: 16px;
+  font-size: 12px;
+  padding: 5px 0;
+  overflow: hidden;
+}
+
+.detailMenu {
+  margin-right: 10px;
+  padding: 5px 0;
+}
+
+.selectedDetail {
+  border: 1px solid #eee;
+  padding: 0 10px;
+  margin-top: 10px;
+  &:last-child {
+    margin-bottom: 10px;
+  }
+}

@@ -1,5 +1,5 @@
 import React, { PureComponent } from 'react'
-import { Form, Input, Button, Card, Row, Col, Select, Typography, Modal, Tabs, Menu, Layout, Checkbox, message } from 'antd';
+import { Form, Input, Button, Card, Row, Col, Select, Typography, Modal, Tabs, Menu, Layout, Checkbox, message, Tag } from 'antd';
 import Axios from '../../../util/axios'
 import Api from '../../../api/index'
 import styles from './style.module.scss'
@@ -30,6 +30,7 @@ const defaultMedicineAllergy = _.cloneDeep(require('./data/medicine.json'));//�
 export default class Addcase extends PureComponent {
   formRef = React.createRef()
   state = {
+    shadowModalData: {},
     type: this.props.match.params.id > 0 ? 'edit' : 'create',
     initFormData: {
       diagnosis: "",//诊断
@@ -52,7 +53,7 @@ export default class Addcase extends PureComponent {
       familyDisease: "",//是否有家族病
       whetherToMarry: "",//是否结婚
       whetherToGiveBirth: "",//是否生育
-      historyOfChronicDisease: "",
+      historyOfChronicDisease: "", // 外伤史内容
       immunityTherapy: "",//免疫治疗
       numberOfEpisodesException: ""//发作频率
 
@@ -140,7 +141,8 @@ export default class Addcase extends PureComponent {
     }
   }
 
-  getModalCheckedData = (values) => {
+  // 获取所有选中元素值
+  getModalCheckedData = (values,showError=true,needReturnData=false) => {
     const modalData = _.cloneDeep(this.state.modalData);
     let flag = true;
     const data = {}
@@ -176,15 +178,16 @@ export default class Addcase extends PureComponent {
       data[key] = this.getModalDataByKey(value, compareValue, modalData);
 
       if (data[key] === false) {
-        message.error(errMsg);
+        showError && message.error(errMsg);
         flag = false;
-        return true
+        if (!needReturnData ) {
+          return true
+        }
       }
-
       return false
     })
 
-    if (flag) {
+    if (needReturnData || flag) {
       return data
     }
 
@@ -199,7 +202,21 @@ export default class Addcase extends PureComponent {
       return
     }
 
-    const result = Object.assign(values, extendData)
+    const { isHistoryOfTrauma } = values;
+    let historyOfChronicDisease = null;
+
+    if (isHistoryOfTrauma === 1) {
+      // 有外伤史
+      historyOfChronicDisease = this.formRef.current.getFieldValue('historyOfChronicDisease');
+      if(!historyOfChronicDisease) {
+        message.error('请填写外伤史内容')
+        return
+      }
+    }
+
+    const result = Object.assign(values, extendData, {
+      historyOfChronicDisease
+    });
 
     Axios({
       url: Api.addCase.addcase,
@@ -267,7 +284,6 @@ export default class Addcase extends PureComponent {
     ];
 
     parseList.forEach(item => {
-      console.log(item)
 
       const modal = modalData[item.modalDataKey]; // modal默认数据
       const processDataTabs = data[item.dataKey]; // 接口中的tabs数据
@@ -331,13 +347,19 @@ export default class Addcase extends PureComponent {
     })
       .then((res) => {
         const data = res.data.data.addcaseList;
-        console.log(data)
         // 将接口中弹层数据merge到弹层中
         const modalData = this.parseModalData(data);
+
+        console.log(data)
+
         this.setState({
           initFormData: data,
           initDataLoaded: true,
-          modalData
+          modalData,
+        },()=>{
+          this.setState({
+            shadowModalData: this.getModalCheckedData(data, false,true)
+          })
         })
       })
       .finally(() => {
@@ -401,7 +423,66 @@ export default class Addcase extends PureComponent {
   };
 
   onValuesChange = (changedValue, allChangedValue) => {
-    console.log(allChangedValue)
+    const entries = Object.entries(changedValue)[0];
+    const key = entries[0];
+    const value = entries[1];
+    const clearModalCheckedMap = {
+      diagnosis: {
+        value: 0,
+        clearModalKey: 'diagnosis',
+        defaultModalKey: 'defaultDiagnoseData',
+      },
+      computer: {
+        value: 1,
+        clearModalKey: 'encephlogram',
+        defaultModalKey: 'defaultEncephlogramData',
+      },
+      medication: {
+        value: 0,
+        clearModalKey: 'medicine',
+        defaultModalKey: 'defaultmedicine',
+      },
+      NMR: {
+        value: 0,
+        clearModalKey: 'ct',
+        defaultModalKey: 'defaultct',
+      },
+      surgery: {
+        value: 0,
+        clearModalKey: 'operation',
+        defaultModalKey: 'defaultoperation',
+      },
+      ischronicDiseaseHistory: {
+        value: 0,
+        clearModalKey: 'cdisease',
+        defaultModalKey: 'defaultcdisease',
+      },
+      familyDisease: {
+        value: 0,
+        clearModalKey: 'familyhistory',
+        defaultModalKey: 'defalutfamilyhistory',
+      },
+      drugAllergy: {
+        value: 0,
+        clearModalKey: 'drugAllergy',
+        defaultModalKey: 'defaultMedicineAllergy',
+      }
+    }
+
+    const clearModal = clearModalCheckedMap[key];
+
+    if (clearModal && clearModal.value === value) {
+      const { modalData } = this.getModalDataModal(); 
+      modalData[clearModal.clearModalKey] = _.cloneDeep(eval(clearModal.defaultModalKey));
+      this.setState({
+        modalData,
+      },()=>{
+        this.setState({
+          shadowModalData: this.getShadowModalDataNow()
+        })
+      })
+    }
+
   }
 
   onChange = (key, value) => {
@@ -410,9 +491,8 @@ export default class Addcase extends PureComponent {
     this.formRef.current.setFieldsValue({ [key]: value })
   }
 
-
-  onSaveModal = () => {
-    const saveModal = this.getModalCheckedData(this.formRef.current.getFieldsValue([
+  getShadowModalDataNow = () => {
+    return this.getModalCheckedData(this.formRef.current.getFieldsValue([
       'diagnosis',
       'computer',
       'NMR',
@@ -421,11 +501,14 @@ export default class Addcase extends PureComponent {
       'familyDisease',
       'drugAllergy',
       'medication'
-    ]));
+    ]), false, true)
+  }
 
+  onSaveModal = () => {
+    const shadowModalData = this.getShadowModalDataNow();
     this.setState({
       visibleModalName: false,
-      saveModal
+      shadowModalData // 每次保存时，将modalData做一次映射，选中的modal添加值，没选择的modal设置为null，与提交时的数据一值
     })
   }
 
@@ -504,14 +587,58 @@ export default class Addcase extends PureComponent {
     }
   }
 
+  renderCheckedDetail = (tabs) => {
+    return tabs && tabs.map(item => {
+      return <div className={styles.selectedDetail} key={item.value}>
+        <div className={styles.detailTabsTitle}>
+          {item.title}
+        </div>
+        {
+          item.menus.map(menu=>{
+            return <div key={menu.key} className={styles.detailMenuTitle}>
+              <span className={styles.detailMenu}>{menu.value}:</span>
+              {
+                menu.childs.map(child => {
+                  const subChilds = child.childs;
+                  return <Tag key={child.value}>
+                    <>
+                      {child.label}
+                      {
+                        subChilds && ':'
+                      }
+                      {
+                        subChilds && subChilds.map(subChild => <span key={subChild.value}>{subChild.label}</span>)
+                      }
+                    </>
+                  </Tag>
+                })
+              }
+            </div>
+          })
+        }
+      </div>
+    })
+  } 
+
   render() {
-    const { initFormData, visibleModalName, type, initDataLoaded } = this.state;
+    const { initFormData, visibleModalName, type, initDataLoaded, shadowModalData } = this.state;
     const { modal, selectedTabs } = this.getModalDataModal(false);
     let tabs = [];
     if (modal && modal.tabs) {
       tabs = modal.tabs
     }
     const tabsLength = tabs.length;
+
+    const {
+      diagnosisContent, 
+      encephlogramContent, 
+      ctContent, 
+      medicationContent, 
+      operationContent, 
+      cdiseaseContent, 
+      familyhistoryContent, 
+      drugAllergyContent
+    } = shadowModalData || {}
 
     return (type === 'create' || initDataLoaded) && <>
 
@@ -559,9 +686,12 @@ export default class Addcase extends PureComponent {
                   </Select>
                 </Form.Item>
               </Col>
-              <Col span={col_2}>
+              <Col span={col_3}>
                 <Form.Item
                   label="诊断内容"
+                  help={
+                    this.renderCheckedDetail(diagnosisContent)
+                  }
                   dependencies={['diagnosis']}
                 >
                   {
@@ -573,7 +703,11 @@ export default class Addcase extends PureComponent {
                         onClick={() => {
                           this.onShowModal('diagnosis')
                         }}
-                      >请选择</Button>
+                      >
+                        {
+                          diagnosisContent ? '已选择' : "请选择"
+                        }
+                      </Button>
                     }
                   }
                 </Form.Item>
@@ -595,9 +729,12 @@ export default class Addcase extends PureComponent {
                   </Select>
                 </Form.Item>
               </Col>
-              <Col span={col_2}>
+              <Col span={col_3}>
                 <Form.Item
                   label="异常内容"
+                  help={
+                    this.renderCheckedDetail(encephlogramContent)
+                  }
                   dependencies={['computer']}>
                   {
                     ({ getFieldValue }) => {
@@ -608,7 +745,11 @@ export default class Addcase extends PureComponent {
                         onClick={() => {
                           this.onShowModal('encephlogram')
                         }}
-                      >请选择</Button>
+                      >
+                        {
+                          encephlogramContent ? '已选择' : '请选择'
+                        }
+                      </Button>
                     }
                   }
                 </Form.Item>
@@ -630,9 +771,12 @@ export default class Addcase extends PureComponent {
                 </Form.Item>
               </Col>
               {/* nMRException */}
-              <Col span={col_2}>
+              <Col span={col_3}>
                 <Form.Item
                   label="异常内容"
+                  help={
+                    this.renderCheckedDetail(ctContent)
+                  }
                   dependencies={['NMR']}  >
                   {
                     ({ getFieldValue }) => {
@@ -643,7 +787,12 @@ export default class Addcase extends PureComponent {
                         onClick={() => {
                           this.onShowModal('ct')
                         }}
-                      >请选择</Button>
+                      >
+
+                        {
+                          ctContent ? '已选择' : '请选择'
+                        }
+                      </Button>
                     }
                   }
                 </Form.Item>
@@ -681,7 +830,7 @@ export default class Addcase extends PureComponent {
                   </Select>
                 </Form.Item>
               </Col>
-              <Col span={col_2}>
+              <Col span={col_3}>
                 {/* numberOfEpisodesException */}
                 <Form.Item
                   label="发作频率"
@@ -715,9 +864,12 @@ export default class Addcase extends PureComponent {
                 </Form.Item>
               </Col>
               {/* medicationContent */}
-              <Col span={col_2}>
+              <Col span={col_3}>
                 <Form.Item
                   label="药物内容"
+                  help={
+                    this.renderCheckedDetail(medicationContent)
+                  }
                   dependencies={['medication']}  >
                   {
                     ({ getFieldValue }) => {
@@ -728,7 +880,11 @@ export default class Addcase extends PureComponent {
                         onClick={() => {
                           this.onShowModal('medicine')
                         }}
-                      >请选择</Button>
+                      >
+                        {
+                          medicationContent ? '已选择' : '请选择'
+                        }
+                      </Button>
                     }
                   }
                 </Form.Item>
@@ -749,9 +905,12 @@ export default class Addcase extends PureComponent {
                   </Select>
                 </Form.Item>
               </Col>
-              <Col span={col_2}>
+              <Col span={col_3}>
                 <Form.Item
                   label="手术内容"
+                  help={
+                    this.renderCheckedDetail(operationContent)
+                  }
                   dependencies={['surgery']}  >
                   {
                     ({ getFieldValue }) => {
@@ -763,7 +922,11 @@ export default class Addcase extends PureComponent {
                           this.onShowModal('operation')
                         }}
 
-                      >请选择</Button>
+                      >
+                        {
+                          operationContent ? '已选择' : '请选择'
+                        }
+                      </Button>
                     }
                   }
                 </Form.Item>
@@ -783,7 +946,7 @@ export default class Addcase extends PureComponent {
                   </Select>
                 </Form.Item>
               </Col>
-              <Col span={col_2}>
+              <Col span={col_3}>
                 <Form.Item
                   label="免疫治疗"
                   name="immunityTherapy">
@@ -809,7 +972,7 @@ export default class Addcase extends PureComponent {
                   </Select>
                 </Form.Item>
               </Col>
-              <Col span={col_2}>
+              <Col span={col_3}>
                 <Form.Item
                   label="其他"
                   name="other">
@@ -840,8 +1003,11 @@ export default class Addcase extends PureComponent {
                 </Form.Item>
               </Col>
               {/* allergyDrugName */}
-              <Col span={col_2}>
+              <Col span={col_3}>
                 <Form.Item
+                  help={
+                    this.renderCheckedDetail(drugAllergyContent)
+                  }
                   label="过敏药物名称"
                   dependencies={['drugAllergy']}  >
                   {
@@ -853,7 +1019,9 @@ export default class Addcase extends PureComponent {
                         onClick={() => {
                           this.onShowModal('drugAllergy')
                         }}
-                      >请选择</Button>
+                      >
+                        {drugAllergyContent ? '已选择' : '请选择'}
+                      </Button>
                     }
                   }
                 </Form.Item>
@@ -875,7 +1043,7 @@ export default class Addcase extends PureComponent {
                 </Form.Item>
               </Col>
               {/*  historyOfChronicDisease*/}
-              <Col span={col_2}>
+              <Col span={col_3}>
                 <Form.Item
                   label="外伤史内容"
                   valuePropName="historyOfChronicDisease"
@@ -914,8 +1082,11 @@ export default class Addcase extends PureComponent {
                 </Form.Item>
               </Col>
               {/* chronicDiseaseHistoryName */}
-              <Col span={col_2}>
+              <Col span={col_3}>
                 <Form.Item
+                  help={
+                    this.renderCheckedDetail(cdiseaseContent)
+                  }
                   label="慢病史名称："
                   dependencies={['ischronicDiseaseHistory']} >
                   {
@@ -927,7 +1098,11 @@ export default class Addcase extends PureComponent {
                         onClick={() => {
                           this.onShowModal('cdisease')
                         }}
-                      >请选择</Button>
+                      >
+                        {
+                          cdiseaseContent ? '已选择' : '请选择'
+                        }
+                      </Button>
                     }
                   }
 
@@ -949,7 +1124,7 @@ export default class Addcase extends PureComponent {
                   </Select>
                 </Form.Item>
               </Col>
-              <Col span={col_2}>
+              <Col span={col_3}>
                 <Form.Item
                   label="感染"
                   name="infection" >
@@ -976,7 +1151,7 @@ export default class Addcase extends PureComponent {
                   </Select>
                 </Form.Item>
               </Col>
-              <Col span={col_2}>
+              <Col span={col_3}>
                 <Form.Item
                   label="是否高热惊厥史"
                   name="historyOfFebrileConvulsions" >
@@ -1006,8 +1181,11 @@ export default class Addcase extends PureComponent {
                 </Form.Item>
               </Col>
               {/* familyDiseaseName */}
-              <Col span={col_2}>
+              <Col span={col_3}>
                 <Form.Item
+                  help={
+                    this.renderCheckedDetail(familyhistoryContent)
+                  }
                   label="家族病名称"
                   dependencies={['familyDisease']} >
                   {
@@ -1019,7 +1197,11 @@ export default class Addcase extends PureComponent {
                         onClick={() => {
                           this.onShowModal('familyhistory')
                         }}
-                      >请选择</Button>
+                      >
+                        {
+                          familyhistoryContent ? '已选择' : '请选择'
+                        }
+                      </Button>
                     }
                   }
 
@@ -1041,7 +1223,7 @@ export default class Addcase extends PureComponent {
                   </Select>
                 </Form.Item>
               </Col>
-              <Col span={col_2}>
+              <Col span={col_3}>
                 <Form.Item
                   label="是否生育"
                   name="whetherToGiveBirth" >
