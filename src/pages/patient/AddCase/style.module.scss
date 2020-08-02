@@ -56,3 +56,11 @@
     flex-grow: 1;
   }
 }
+
+.no-tabs {
+  :global {
+    .ant-tabs-nav {
+      display: none!important;
+    }
+  }
+}

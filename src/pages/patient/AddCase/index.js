@@ -1,5 +1,5 @@
 import React, { PureComponent } from 'react'
-import { Form, Input, Button, Card, Row, Col, Select, Typography, Modal, Tabs, Menu, Layout, Checkbox } from 'antd';
+import { Form, Input, Button, Card, Row, Col, Select, Typography, Modal, Tabs, Menu, Layout, Checkbox, Result, message } from 'antd';
 import Axios from '../../../util/axios'
 import Api from '../../../api/index'
 import styles from './style.module.scss'
@@ -68,12 +68,8 @@ export default class Addcase extends PureComponent {
       drugAllergy: _.cloneDeep(defaultmedicine),// 过敏药物
     },
     currentModalDataCache: null, // 当前打开窗口数据缓存
-    visibleModalName: null,
-    // zdVisible: true,//诊断
-    // jzxVisible: true,
-    // qmxVisible: false,
+    visibleModalName: null, // 当前显示哪个modal的key值，为false，不显示modal
     typeLoaded: false,//弹出信息加载
-    //  diagnosticTypeList: [],//弹出层的数据
 
   }
 
@@ -91,6 +87,7 @@ export default class Addcase extends PureComponent {
   //     this.typeLoaded = false
   //   })
   // }
+
   //弹出层菜单
   renderTypeMenu(childs) {
     let menuArr = childs.map((item) => {
@@ -149,9 +146,97 @@ export default class Addcase extends PureComponent {
     }
   }
 
-  onFinish = (values,) => {
+  onFinish = (values) => {
     console.log('Received values of form: ', values);
+    const modalData = _.cloneDeep(this.state.modalData);
+    const { 
+      diagnosis,
+      computer,
+    } = values;
+
+    // 诊断内容
+    const diagnosisContent = this.getModalDataByKey(diagnosis, 1, modalData['diagnosis']);
+    if (diagnosisContent===false) {
+      message.error('请填写诊断内容');
+      return 
+    }
+
+    // 脑电图异常内容
+    const encephlogramContent = this.getModalDataByKey(computer, 0, modalData['encephlogram']);
+    if (encephlogramContent === false) {
+      message.error('请填写脑电图异常内容');
+      return
+    }
+    const extendData = { diagnosisContent, encephlogramContent };
+
+    const result = Object.assign(values, extendData) 
+    Axios({
+      url: Api.addCase.addcase,
+      method: 'POST',
+      data: {
+        caseList: result
+      }
+    })
+    .then((res) => {
+      console.log(res)
+
+    })
+    .finally(() => {
+    })
   };
+
+  // 对弹层数据做必填校验
+  getModalDataByKey = (value,compareValue,modal) => {
+    // 值绝对等于对比值的时候，做必填校验
+    if (value === compareValue) {
+      let tabs = modal.tabs;
+      let checked = false;
+      
+      tabs = tabs.filter(tab => {
+        tab.menus = tab.menus.filter(menu => {
+          menu.childs = menu.childs.filter(child => {
+            if(!child.childs && child.checked) {
+              // 没有子节点，且被选中的节点，直接返回
+              checked = true;
+              return true
+            }
+
+            if(child.childs ) {
+              // 有子节点，过滤选中的子节点
+              child.childs = child.childs.filter(subChild => {
+                if (!child.subChild && subChild.checked) {
+                  checked = true;
+                  return true
+                }
+                return false
+              })
+            }
+            
+            // 过滤后的子节点有值，返回该节点。或者返回false
+            if (child.childs && child.childs.length>0) {
+              return child
+            }
+
+            return false
+          })
+          if(menu.childs && menu.childs.length > 0) {
+            return true
+          }
+          return false
+        })
+
+        if (tab.menus && tab.menus.length >0 ) {
+          return true
+        }
+
+        return false;
+      })
+
+      return checked ? tabs : checked
+    }else{
+      return null
+    }
+  }
 
   onFinishFailed = errorInfo => {
     console.log('Failed:', errorInfo);
@@ -166,11 +251,10 @@ export default class Addcase extends PureComponent {
     console.log(key, value)
     this.formRef.current.setFieldsValue({ [key]: value })
   }
-  onChangeMessage = (value) => {
 
+  onChangeMessage = (value) => {
     this.formRef.current.setFieldsValue({ jzxItems: value })
   }
-
 
   onSaveModal = () => {
     this.setState({
@@ -252,6 +336,12 @@ export default class Addcase extends PureComponent {
   render() {
     const { initFormData, visibleModalName } = this.state;
     const { modal, selectedTabs } = this.getModalDataModal();
+    let  tabs = [];
+    if (modal && modal.tabs) {
+      tabs = modal.tabs
+    }
+
+    const tabsLength = tabs.length;
 
     return (
       <>
@@ -326,11 +416,12 @@ export default class Addcase extends PureComponent {
                 <Col span={col_2}>
                   <Form.Item
                     label="电脑图"
+                    rules={[{ required: true, message: "必填" }]}
                     name="computer" >
                     <Select style={{ width: 120 }} >
                       <Option value={""}>请选择</Option>
-                      <Option value={0}>正常</Option>
-                      <Option value={1}>异常</Option>
+                      <Option value={1}>正常</Option>
+                      <Option value={0}>异常</Option>
                     </Select>
                   </Form.Item>
                 </Col>
@@ -341,7 +432,7 @@ export default class Addcase extends PureComponent {
                     {
                       ({ getFieldValue }) => {
                         const diagnosis = getFieldValue('computer')
-                        return <Button disabled={diagnosis !== 1}
+                        return <Button disabled={diagnosis !== 0}
                           style={{ width: 120 }}
 
                           onClick={() => {
@@ -830,25 +921,27 @@ export default class Addcase extends PureComponent {
               }}
             >
 
-              <Tabs onChange={this.onChangeTabs} activeKey={selectedTabs.value + ''} >
+              <Tabs className={`${tabsLength > 1 ? '' : styles['no-tabs']}`} onChange={this.onChangeTabs} activeKey={selectedTabs.value + ''} >
                 {
-                  modal.tabs.map(tab => {
+                  tabs.map(tab => {
                     const menus = tab.menus;
                     const checkedMenu = menus.find(item => item.checked) || menus[0];
 
                     return <TabPane tab={tab.title} key={tab.value} >
                       <Layout>
-                        <Sider width={200} className="site-layout-background">
-                          <Menu
-                            mode="inline"
-                            selectedKeys={[checkedMenu.key + '']}
-                            onClick={this.onClickTypeMenu}
-                            style={{ height: '100%', borderRight: 0 }}>
-                            {
-                              this.renderTypeMenu(menus)
-                            }
-                          </Menu>
-                        </Sider>
+                        {
+                          menus.length > 1 && <Sider width={200} className="site-layout-background">
+                            <Menu
+                              mode="inline"
+                              selectedKeys={[checkedMenu.key + '']}
+                              onClick={this.onClickTypeMenu}
+                              style={{ height: '100%', borderRight: 0 }}>
+                              {
+                                this.renderTypeMenu(menus)
+                              }
+                            </Menu>
+                          </Sider>
+                        }
                         <Layout style={{ padding: '0', lineHeight: "30px", backgroundColor: "#FFF" }}>
                           <Content
                             className="site-layout-background">

@@ -1,1 +1,4 @@
-export default { getDiagnosticType: '/api/getDiagnosticType' }
+export default { 
+    getDiagnosticType: '/api/getDiagnosticType',
+    addcase: '/api/addcase'
+}
