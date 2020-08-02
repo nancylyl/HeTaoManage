@@ -3,7 +3,7 @@ import './App.css'
 import Login from './pages/Login/'
 import Index from './pages/Home/'
 // import PrivateRouter from './components/PrivateRouter'
-import mapManage from './pages/patient/mapManage'
+import mapManage from './pages/patient/map/mapManage'
 import patientListManage from './pages/patient/patientListManage'
 import ADRsTipsManage from './pages/patient/ADRsTipsManage'
 
@@ -18,6 +18,8 @@ import dealsInfoManage from './pages/dealsInfo/dealsInfoManage'
 import bannerManage from './pages/banner/bannerManage'
 import rechargeManage from './pages/recharge/rechargeManage'
 
+import Addcase from './pages/patient/AddCase'
+
 
 //引入路由
 import { BrowserRouter as Router, Route, Redirect, Switch } from 'react-router-dom'
@@ -30,9 +32,12 @@ function App() {
           <Route
             path="/"
             exact
-            render={() => <Redirect to={'/Index'} />}
+            // render={() => <Redirect to={'/index/patient/Addcase'} />}
+            render={() => <Redirect to={'/index/patient/Addcase'} />}
+
+
           ></Route>
-          <Route exact path="/Login" component={Login}></Route>
+          <Route path="/Login" component={Login}></Route>
           <Route
             path="/index"
             render={() => (
@@ -40,6 +45,10 @@ function App() {
                 <Route path="/index/patient/map" component={mapManage} />
                 <Route path="/index/patient/patientList" component={patientListManage} />
                 <Route path="/index/patient/ADRsTips" component={ADRsTipsManage} />
+                {/* 新增患者 */}
+                <Route exact path="/index/patient/Addcase" component={Addcase} />
+                {/* 编辑患者 */}
+                <Route exact path="/index/patient/Addcase/:id" component={Addcase} />
                 {/* 医院信息 */}
                 <Route path="/index/hospitalInfo/hospital" component={hospitalManage} />
                 <Route path="/index/hospitalInfo/doctor" component={doctorManage} />
@@ -53,6 +62,7 @@ function App() {
                 <Route path="/index/banner" component={bannerManage} />
                 {/* 充值管理 */}
                 <Route path="/index/recharge" component={rechargeManage} />
+
               </Index>
             )}
           ></Route>

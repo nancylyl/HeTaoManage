@@ -1,0 +1,31 @@
+{
+    "title": "请选择家族历史",
+    "tabs": [
+        {
+            "title": "家族历史",
+            "selected": true,
+            "value": 1,
+            "menus": [
+                {
+                    "key": 1,
+                    "value": "",
+                    "checked": true,
+                    "childs": [
+                        {
+                            "value": 1,
+                            "label": "癫痫史"
+                        },
+                        {
+                            "value": 2,
+                            "label": "热性惊厥史"
+                        },
+                        {
+                            "value": 3,
+                            "label": "其它精神病史"
+                        }
+                    ]
+                }
+            ]
+        }
+    ]
+}

@@ -9,5 +9,4 @@ class map extends PureComponent {
     )
   }
 }
-
 export default map

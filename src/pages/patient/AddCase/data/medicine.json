@@ -1,0 +1,95 @@
+{
+    "title": "选择药品名称",
+    "tabs": [
+        {
+            "title": "药品",
+            "selected": true,
+            "value": 1,
+            "menus": [
+                {
+                    "key": 1,
+                    "value": "丙酸/德巴金",
+                    "checked": true,
+                    "childs": [
+                        {
+                            "label": "曲莱(150mg/片)",
+                            "value": 1
+                        },
+                        {
+                            "label": "曲莱(200mg/片)",
+                            "value": 2
+                        },
+                        {
+                            "label": "奥卡西平口服液（60mg/ml）",
+                            "value": 3
+                        },
+                        {
+                            "label": "仁奥（国产奥卡西平片）（300mg/片）",
+                            "value": 4
+                        }
+                    ]
+                },
+                {
+                    "key": 2,
+                    "value": "卡马西平/得理多",
+                    "childs": [
+                        {
+                            "label": "卡马西平全面性1",
+                            "value": 1
+                        },
+                        {
+                            "label": "卡马西平(听，味，嗅等)",
+                            "value": 2
+                        },
+                        {
+                            "label": "卡马西平(幻觉或错局)",
+                            "value": 3
+                        },
+                        {
+                            "label": "卡马西平",
+                            "value": 4
+                        },
+                        {
+                            "label": "卡马西平33",
+                            "value": 5
+                        },
+                        {
+                            "label": "卡马西平66",
+                            "value": 6
+                        }
+                    ]
+                },
+                {
+                    "key": 3,
+                    "value": "苯妥英呐/大仑丁",
+                    "childs": [
+                        {
+                            "label": "苯妥英呐1",
+                            "value": 1
+                        },
+                        {
+                            "label": "苯妥英呐2(听，味，嗅等)",
+                            "value": 2
+                        },
+                        {
+                            "label": "(苯妥英呐2)",
+                            "value": 3
+                        },
+                        {
+                            "label": "苯妥英呐4",
+                            "value": 4
+                        },
+                        {
+                            "label": "苯妥英5呐",
+                            "value": 5
+                        },
+                        {
+                            "label": "苯妥英呐6",
+                            "value": 6
+                        }
+                    ]
+                }
+            ]
+        }
+    ]
+}

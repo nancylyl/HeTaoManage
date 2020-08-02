@@ -1,0 +1,44 @@
+{
+    "title": "手术选项",
+    "tabs": [
+        {
+            "title": "手术",
+            "selected": true,
+            "value": 1,
+            "menus": [
+                {
+                    "key": 1,
+                    "value": "手术",
+                    "checked": true,
+                    "childs": [
+                        {
+                            "value": 1,
+                            "label": "质间赵切除"
+                        },
+                        {
+                            "value": 2,
+                            "label": "半球断离"
+                        },
+                        {
+                            "value": 3,
+                            "label": "并身体切开"
+                        },
+                        {
+                            "value": 4,
+                            "label": "DBS"
+                        },
+                        {
+                            "value": 5,
+                            "label": "VNS"
+                        },
+                        {
+                            "value": 6,
+                            "value": 6,
+                            "label": "其他"
+                        }
+                    ]
+                }
+            ]
+        }
+    ]
+}

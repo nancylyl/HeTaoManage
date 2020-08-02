@@ -2,43 +2,43 @@ import React, { PureComponent } from 'react'
 import { Table, Tag, Space } from 'antd';
 import Axios from '../../util/axios'
 import Api from '../../api/index'
-
+import { Link } from 'react-router-dom'
 
 class patientListManage extends PureComponent {
 
-  
-  constructor(props){
+
+  constructor(props) {
     super(props);
-    
+
     this.state = {
-      
+
     }
   }
-  
+
   getpatientList = () => {
     Axios({
       url: Api.patients.getpatientList,
     })
       .then((res) => {
         console.log(res);
-       this.setState({
-        dataSource : res.data.data.patients
+        this.setState({
+          dataSource: res.data.data.patients
+        })
+        let num = res.data.data.patients.length
       })
-      let num = res.data.data.patients.length
-    })
   }
   componentDidMount() {
-    
-    
+
+
     this.getpatientList();
     //构造一些初始数据
-    
 
-   
+
+
   }
 
   render() {
-    
+
     const columns = [
       {
         title: '患者姓名',
@@ -51,7 +51,7 @@ class patientListManage extends PureComponent {
         dataIndex: 'Sex',
         key: 'Sex',
         align: 'center',
-        render: text => text > 0 ? '男' : '女'     
+        render: text => text > 0 ? '男' : '女'
       },
       {
         title: '现居住地址',
@@ -103,20 +103,20 @@ class patientListManage extends PureComponent {
         key: 'action',
         align: 'center',
         render: (text, record) => (
-          
+
           <Space size="middle">
             <a>查看</a>
             <a>编辑</a>
             <a>更换医生</a>
-            {record.medical > 0 ? '病历' :  <a>新增病历</a>}
+            <Link to="/index/patient/Addcase/1">  {record.medical > 0 ? '病历' : <a>新增病历</a>}</Link>
           </Space>
         ),
       },
     ]
     return (
-      <div style={{textAlign:"left"}}>
-        <h3>患者列表：<span style={{fontSize:9}}>(共条记录)</span></h3>
-       <Table columns={columns} dataSource={this.state.dataSource} pagination={{ pageSize: 10 }} bordered rowKey="P_ID"></Table>
+      <div style={{ textAlign: "left" }}>
+        <h3>患者列表：<span style={{ fontSize: 9 }}>(共条记录)</span></h3>
+        <Table columns={columns} dataSource={this.state.dataSource} pagination={{ pageSize: 10 }} bordered rowKey="P_ID"></Table>
       </div>
     )
   }
