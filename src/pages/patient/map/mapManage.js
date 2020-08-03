@@ -288,7 +288,7 @@ class mapManage extends PureComponent {
           }}>查看</Button>
         </h4>
         <div className={styles.App}>
-          <div id="mainMap" style={{ width: '80vm', height: '80vh' }}></div>
+          <div id="mainMap" style={{ width: '100vm', height: '100vh', textAlign: 'center', margin: '0 atuo' }}></div>
         </div>
       </div>
 

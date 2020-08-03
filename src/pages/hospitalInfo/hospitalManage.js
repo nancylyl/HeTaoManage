@@ -1,16 +1,20 @@
-import React, { PureComponent } from 'react';
+import React, {PureComponent, useState} from 'react';
 import Axios from '../../util/axios'
 import Api from '../../api/index'
 
-import { Row, Col, Input, Select, DatePicker, Table, Button,Space,Pagination, } from 'antd';
+import {Row, Col, Input, Select, DatePicker, Table, Button, Space, Modal, Form,} from 'antd';
 import './hospitalManage.scss'
 import {action} from "mobx";
+import styles from "../discuss/style.module.scss";
+import locale from "antd/lib/date-picker/locale/zh_CN";
 
 const { Option } = Select;
 
+//选择器框获取选中
 function handleChange(value) {
   console.log(`selected ${value}`);
 }
+//日期选择框获取选中
 function onChange(date, dateString) {
   console.log(date, dateString);
 }
@@ -58,132 +62,251 @@ const columns = [
     align: 'center',
     render: () =>
         <Space size="middle">
-          <a>查看</a>
+          <CollectionsPage1 />
           <a>编辑</a>
         </Space>,
   },
 ];
 
-{/*const data = [*/}
-//   {
-//     key: '1',
-//     ID: '800702971',
-//     医院名称: '北京癫痫医院',
-//     医院别名: '北京癫痫',
-{/*    医院地址: '北京市海淀区万寿路23号院',*/}
-{/*    医院等级: '二级甲等',*/}
-{/*    创建时间: '2017-11-12',*/}
-{/*    已有医生: '11名',*/}
-//     操作: '查看     编辑',
-//   },
-//   {
-{/*    key: '1',*/}
-//     ID: '800702971',
-//     医院名称: '北京癫痫医院',
-{/*    医院别名: '北京癫痫',*/}
-{/*    医院地址: '北京市海淀区万寿路23号院',*/}
-{/*    医院等级: '二级甲等',*/}
-//     创建时间: '2017-11-12',
-//     已有医生: '11名',
-//     操作: '查看     编辑',
-//   },{
-//     key: '1',
-//     ID: '800702971',
-//     医院名称: '北京癫痫医院',
-//     医院别名: '北京癫痫',
-//     医院地址: '北京市海淀区万寿路23号院',
-//     医院等级: '二级甲等',
-//     创建时间: '2017-11-12',
-//     已有医生: '11名',
-//     操作: '查看     编辑',
-//   },{
-//     key: '1',
-//     ID: '800702971',
-//     医院名称: '北京癫痫医院',
-//     医院别名: '北京癫痫',
-//     医院地址: '北京市海淀区万寿路23号院',
-//     医院等级: '二级甲等',
-//     创建时间: '2017-11-12',
-//     已有医生: '11名',
-//     操作: '查看     编辑',
-//   },{
-//     key: '1',
-//     ID: '800702971',
-//     医院名称: '北京癫痫医院',
-//     医院别名: '北京癫痫',
-//     医院地址: '北京市海淀区万寿路23号院',
-//     医院等级: '二级甲等',
-//     创建时间: '2017-11-12',
-//     已有医生: '11名',
-//     操作: '查看     编辑',
-//   },{
-//     key: '1',
-//     ID: '800702971',
-//     医院名称: '北京癫痫医院',
-//     医院别名: '北京癫痫',
-//     医院地址: '北京市海淀区万寿路23号院',
-//     医院等级: '二级甲等',
-//     创建时间: '2017-11-12',
-//     已有医生: '11名',
-//     操作: '查看     编辑',
-//   },{
-//     key: '1',
-//     ID: '800702971',
-//     医院名称: '北京癫痫医院',
-//     医院别名: '北京癫痫',
-//     医院地址: '北京市海淀区万寿路23号院',
-//     医院等级: '二级甲等',
-//     创建时间: '2017-11-12',
-//     已有医生: '11名',
-//     操作: '查看     编辑',
-//   },{
-//     key: '1',
-//     ID: '800702971',
-//     医院名称: '北京癫痫医院',
-//     医院别名: '北京癫痫',
-//     医院地址: '北京市海淀区万寿路23号院',
-//     医院等级: '二级甲等',
-//     创建时间: '2017-11-12',
-//     已有医生: '11名',
-//     操作: '查看     编辑',
-//   },{
-//     key: '1',
-//     ID: '800702971',
-//     医院名称: '北京癫痫医院',
-//     医院别名: '北京癫痫',
-//     医院地址: '北京市海淀区万寿路23号院',
-//     医院等级: '二级甲等',
-//     创建时间: '2017-11-12',
-//     已有医生: '11名',
-//     操作: '查看     编辑',
-//   },{
-//     key: '1',
-//     ID: '800702971',
-//     医院名称: '北京癫痫医院',
-//     医院别名: '北京癫痫',
-//     医院地址: '北京市海淀区万寿路23号院',
-//     医院等级: '二级甲等',
-//     创建时间: '2017-11-12',
-//     已有医生: '11名',
-//     操作: '查看     编辑',
-//   },{
-//     key: '1',
-//     ID: '800702971',
-//     医院名称: '北京癫痫医院',
-//     医院别名: '北京癫痫',
-//     医院地址: '北京市海淀区万寿路23号院',
-//     医院等级: '二级甲等',
-//     创建时间: '2017-11-12',
-//     已有医生: '11名',
-//     操作: '查看     编辑',
-//   },
-// ];
+
+
+//新增模态框
+const layout = {
+  labelCol: { span: 6 },
+  wrapperCol: { span: 16 },
+};
+const CollectionCreateForm = ({ visible, onCreate, onCancel }) => {
+  const [form] = Form.useForm();
+  return (
+      <Modal
+          visible={visible}
+          title="新增医院"
+          okText="确定"
+          cancelText="关闭"
+          onCancel={onCancel}
+          onOk={() => {
+            form
+                .validateFields()
+                .then(values => {
+                  form.resetFields();
+                  onCreate(values);
+                })
+                .catch(info => {
+                  console.log('Validate Failed:', info);
+                });
+          }}
+      >
+        <Form
+            form={form}
+            {...layout}
+            layout="horizontal"
+            name="form_in_modal"
+            initialValues={{
+              modifier: 'public',
+            }}
+        >
+          <Form.Item name="hosName" label="医院名称" rules={[
+                {
+                  required: true,
+                  message: '内容不能为空',
+                },
+              ]}
+          >
+            <Input placeholder='请输入'/>
+          </Form.Item>
+          <Form.Item name="hosLevel" label="医院等级" rules={[
+            {
+              required: true,
+              message: '内容不能为空',
+            },
+          ]}>
+            <Input placeholder='请输入'/>
+          </Form.Item>
+          <Form.Item name="aliasName" label="医院别称" rules={[
+            {
+              required: true,
+              message: '内容不能为空',
+            },
+          ]}>
+            <Input placeholder='请输入'/>
+          </Form.Item>
+          <Form.Item name="hosNature" label="医院性质" rules={[
+            {
+              required: true,
+              message: '内容不能为空',
+            },
+          ]}>
+            <Input placeholder='请输入'/>
+          </Form.Item>
+          <Form.Item name="hosPhone" label="联系电话" rules={[
+            {
+              required: true,
+              message: '内容不能为空',
+            },
+          ]}>
+            <Input placeholder='请输入'/>
+          </Form.Item>
+          <Form.Item name="hosTel" label="服务热线" rules={[
+            {
+              required: true,
+              message: '内容不能为空',
+            },
+          ]}>
+            <Input placeholder='请输入'/>
+          </Form.Item>
+          <Form.Item name="linkman" label="医院联系人" rules={[
+            {
+              required: true,
+              message: '内容不能为空',
+            },
+          ]}>
+            <Input placeholder='请输入'/>
+          </Form.Item>
+          <Form.Item name="linkmanTel" label="联系人电话" rules={[
+            {
+              required: true,
+              message: '内容不能为空',
+            },
+          ]}>
+            <Input placeholder='请输入'/>
+          </Form.Item>
+          <Form.Item name="hosAddress" label="医院地址" rules={[
+            {
+              required: true,
+              message: '内容不能为空',
+            },
+          ]}>
+            <Input placeholder='请输入'/>
+          </Form.Item>
+        </Form>
+      </Modal>
+  );
+};
+//查看模态框
+const layout1 = {
+  labelCol: { span: 6 },
+  wrapperCol: { span: 16 },
+};
+const CollectionCreateForm1 = ({ visible, onCreate, onCancel }) => {
+  const [form] = Form.useForm();
+  return (
+      <Modal
+          visible={visible}
+          title="查看医院"
+          okText="确定"
+          cancelText="关闭"
+          onCancel={onCancel}
+          onOk={() => {
+            form
+                .validateFields()
+                .then(values => {
+                  form.resetFields();
+                  onCreate(values);
+                })
+                .catch(info => {
+                  console.log('Validate Failed:', info);
+                });
+          }}
+      >
+        <Form
+            form={form}
+            {...layout1}
+            layout="horizontal"
+            name="form_in_modal"
+            initialValues={{
+              modifier: 'public',
+            }}
+        >
+          <Form.Item name="hosName" label="医院名称">
+            <Input defaultValue='北京癫痫医院' disabled={true}/>
+          </Form.Item>
+          <Form.Item name="hosLevel" label="医院等级">
+            <Input defaultValue='二级甲等' disabled={true}/>
+          </Form.Item>
+          <Form.Item name="aliasName" label="医院别称">
+            <Input defaultValue='北京癫痫' disabled={true}/>
+          </Form.Item>
+          <Form.Item name="hosNature" label="医院性质">
+            <Input defaultValue='北京癫痫医院' disabled={true}/>
+          </Form.Item>
+          <Form.Item name="hosPhone" label="联系电话">
+            <Input defaultValue='北京癫痫医院' disabled={true}/>
+          </Form.Item>
+          <Form.Item name="hosTel" label="服务热线">
+            <Input defaultValue='北京癫痫医院' disabled={true}/>
+          </Form.Item>
+          <Form.Item name="linkman" label="医院联系人">
+            <Input defaultValue='北京癫痫医院' disabled={true}/>
+          </Form.Item>
+          <Form.Item name="linkmanTel" label="联系人电话">
+            <Input defaultValue='北京癫痫医院' disabled={true}/>
+          </Form.Item>
+          <Form.Item name="hosAddress" label="医院地址">
+            <Input defaultValue='北京市海淀区万寿路23号院' disabled={true}/>
+          </Form.Item>
+        </Form>
+      </Modal>
+  );
+};
+//新增组件
+const CollectionsPage = () => {
+  const [visible, setVisible] = useState(false);
+  const onCreate = values => {
+    console.log('获取到的值: ', values);
+    setVisible(false);
+  };
+  return (
+      <div>
+        <Button
+            type="primary"
+            onClick={() => {
+              setVisible(true);
+            }}
+        >
+          新增医院
+        </Button>
+        <CollectionCreateForm
+            visible={visible}
+            onCreate={onCreate}
+            onCancel={() => {
+              setVisible(false);
+            }}
+        />
+      </div>
+  );
+};
+//查看组件
+const CollectionsPage1 = () => {
+  const [visible, setVisible] = useState(false);
+  const onCreate = values => {
+    console.log('获取到的值: ', values);
+    setVisible(false);
+  };
+  return (
+      <div>
+        <Button
+            type="link"
+            onClick={() => {
+              setVisible(true);
+            }}
+        >
+          查看
+        </Button>
+        <CollectionCreateForm1
+            visible={visible}
+            onCreate={onCreate}
+            onCancel={() => {
+              setVisible(false);
+            }}
+        />
+      </div>
+  );
+};
 
 class hospitalManage extends PureComponent {
   constructor(props) {
     super(props);
     this.state={
-
     }
   }
 
@@ -196,8 +319,6 @@ class hospitalManage extends PureComponent {
       this.setState({
         dataSource : res.data.data.hospitalList
       })
-      console.log(res.data.data.hospitalList.length)
-      var listNum=res.data.data.hospitalList.length
     })
   }
   componentWillMount() {
@@ -207,40 +328,74 @@ class hospitalManage extends PureComponent {
   render() {
     return (
       <div>
-        <Row align='middle' justify='start'>
-          <Col span={2} align='left'>医院名称</Col>
-          <Col span={4} align='left'><Input placeholder="请输入" /></Col>
-          <Col span={2}>医院等级</Col>
-          <Col span={3}>
-            <Select defaultValue="全部" style={{ width: 120 }} onChange={handleChange}>
-              <Option value="全部">全部</Option>
-              <Option value="一级甲等">一级甲等</Option>
-              <Option value="二级甲等">二级甲等</Option>
-              <Option value="三级甲等">三级甲等</Option>
-            </Select>
-          </Col>
-          <Col span={2}>医院地址</Col>
-          <Col span={2}><Input placeholder="请输入" /></Col>
-          <Col span={2}>医院别名</Col>
-          <Col span={2}><Input placeholder="请输入" /></Col>
-          <Col span={2}>创建时间</Col>
-          <Col span={3}><DatePicker onChange={onChange} placeholder="" /></Col>
-        </Row>
-        <Row align='center' className='marginT'>
-          <Col span={2}>
-            <Button>重置</Button>
-          </Col>
-          <Col span={2}>
-            <Button type="primary">搜索</Button>
-          </Col>
-        </Row>
+        {/* 搜索栏 */}
+        <Form
+            name="basic"
+            initialValues={{ remember: true }}
+            onFinish={this.onFinish}
+            className = {styles.search}
+        >
+          <Row justify="start" gutter={[20, 20]} className = {styles.search}>
+            <Col span={8}>
+              <Form.Item
+                  label="医院名称"
+                  name="hosName"
+              >
+                <Input placeholder="请输入" />
+              </Form.Item>
+            </Col>
+            <Col span={8}>
+              <Form.Item
+                  label="医院等级"
+                  name="hosLevel"
+              >
+                <Select defaultValue="全部" onChange={handleChange}>*/}
+                  <Option value="全部">全部</Option>
+                  <Option value="一级甲等">一级甲等</Option>
+                  <Option value="二级甲等">二级甲等</Option>
+                  <Option value="三级甲等">三级甲等</Option>
+                </Select>
+              </Form.Item>
+            </Col>
+            <Col span={8}>
+              <Form.Item
+                  label="医院地址"
+                  name="hosAddress"
+              >
+                <Input placeholder="请输入" />
+              </Form.Item>
+            </Col>
+            <Col span={8}>
+              <Form.Item
+                  label="医院别名"
+                  name="aliasName"
+              >
+                <Input placeholder="请输入" />
+              </Form.Item>
+            </Col>
+            <Col span={8}>
+              <Form.Item
+                  label="创建时间"
+                  name="creatDate"
+              >
+                <DatePicker onChange={onChange} placeholder="" locale={locale} style={{width:291}}/>
+              </Form.Item>
+            </Col>
+            <Col>
+              <Form.Item >
+                <Button onClick={this.delSearch}>重置</Button>
+                <Button type="primary" htmlType="submit">搜索</Button>
+              </Form.Item>
+            </Col>
+          </Row>
+        </Form>
         <Row>
           <Col span={5} align='left' className='title'>
             <span className='titleB'>医院列表</span>
             <span className='titleS'>（共90条记录）</span>
           </Col>
           <Col span={2} offset={17} className='marginT'>
-            <Button type="primary">新增医院</Button>
+            <CollectionsPage />
           </Col>
         </Row>
         <Table
