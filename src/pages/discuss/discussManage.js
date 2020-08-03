@@ -1,5 +1,5 @@
 import React, { PureComponent } from 'react'
-import { Form, Input, DatePicker, Row, Col, Select, Button, Table} from 'antd';
+import { Modal, Form, Input, DatePicker, Row, Col, Select, Button, Table} from 'antd';
 import locale from 'antd/lib/date-picker/locale/zh_CN';
 import styles from './style.module.scss'
 import Axios from '../../util/axios'
@@ -14,9 +14,8 @@ class discussManage extends PureComponent {
     this.state={
       discussLists:[],
       loaded: false,
-      
+      visible: false
     }
-    
   } 
   getDiscussList(values){
     Axios({
@@ -55,8 +54,23 @@ class discussManage extends PureComponent {
     // console.log('Failed:', errorInfo);
   };
   // 新增探讨
-  addDiscuss= () => {
-    
+  showModal = () => {
+    this.setState({
+      visible: true,
+    });
+  };
+  handleOk = e => {
+    console.log(e);
+    this.setState({
+      visible: false,
+    });
+  };
+
+  handleCancel = e => {
+    console.log(e);
+    this.setState({
+      visible: false,
+    });
   };
   // 查看探讨
   checkDiscuss= () => {
@@ -187,74 +201,74 @@ class discussManage extends PureComponent {
             onFinish={this.onFinish}
             className = {styles.search}
           >
-            <Row justify="start" gutter={[20, 20]} className = {styles.search}>
-            <Col span={6}>
-              <Form.Item
-                label="探讨名称"
-                name="discussName"
-              >
-                <Input placeholder="请输入" />
-              </Form.Item>
+            <Row justify="start" gutter={[20, 20]}>
+              <Col span={6}>
+                <Form.Item
+                  label="探讨名称"
+                  name="discussName"
+                >
+                  <Input placeholder="请输入" />
+                </Form.Item>
               </Col>
               <Col span={6}>
-              <Form.Item
-                label="主持人"
-                name="host"
-              >
-                <Input placeholder="请输入" />
-              </Form.Item>
+                <Form.Item
+                  label="主持人"
+                  name="host"
+                >
+                  <Input placeholder="请输入" />
+                </Form.Item>
               </Col>
               <Col span={6}>
-              <Form.Item 
-                label="探讨状态"
-                name="discussState"
-              >
-                <Select defaultValue="请选择"  allowClear className = {styles.select} >
-                  <Option value="-1">请选择</Option>
-                  <Option value="0">未开始</Option>
-                  <Option value="1">已取消</Option>
-                  <Option value="2">开始中</Option>
-                  <Option value="3">已结束</Option>
-                </Select>
-              </Form.Item>
+                <Form.Item 
+                  label="探讨状态"
+                  name="discussState"
+                >
+                  <Select defaultValue="请选择"  allowClear className = {styles.select} >
+                    <Option value="-1">请选择</Option>
+                    <Option value="0">未开始</Option>
+                    <Option value="1">已取消</Option>
+                    <Option value="2">开始中</Option>
+                    <Option value="3">已结束</Option>
+                  </Select>
+                </Form.Item>
               </Col>
               <Col span={6}>
-              <Form.Item
-                label="报名开始时间"
-                name="enrollStart"
-              >
-                <DatePicker locale={locale} showTime />
-              </Form.Item>
+                <Form.Item
+                  label="报名开始时间"
+                  name="enrollStart"
+                >
+                  <DatePicker locale={locale} showTime />
+                </Form.Item>
               </Col>
               <Col span={6}>
-              <Form.Item
-                label="报名结束时间"
-                name="enrollEnd"
-              >
-                <DatePicker locale={locale} showTime />
-              </Form.Item>
+                <Form.Item
+                  label="报名结束时间"
+                  name="enrollEnd"
+                >
+                  <DatePicker locale={locale} showTime />
+                </Form.Item>
               </Col>
               <Col span={6}>
-              <Form.Item
-                label="取消时间"
-                name="cancelStart"
-              >
-                <DatePicker locale={locale} showTime />
-              </Form.Item>
+                <Form.Item
+                  label="取消时间"
+                  name="cancelStart"
+                >
+                  <DatePicker locale={locale} showTime />
+                </Form.Item>
               </Col>
               <Col span={6}>
-              <Form.Item
-                label="结束时间"
-                name="discussEnd"
-              >
-                <DatePicker locale={locale} showTime/>
-              </Form.Item>
+                <Form.Item
+                  label="结束时间"
+                  name="discussEnd"
+                >
+                  <DatePicker locale={locale} showTime/>
+                </Form.Item>
               </Col>
               <Col span={6}>
-              <Form.Item >
-                <Button onClick={this.delSearch}>重置</Button>
-                <Button type="primary" htmlType="submit">搜索</Button>
-              </Form.Item>
+                <Form.Item >
+                  <Button onClick={this.delSearch}>重置</Button>
+                  <Button type="primary" htmlType="submit">搜索</Button>
+                </Form.Item>
               </Col>
             </Row>
           </Form>
@@ -263,20 +277,28 @@ class discussManage extends PureComponent {
           <div className = {styles.discussList}>
             <div className = {styles.listTitle}>
               <h1>探讨列表</h1> 
-              <span className = {styles.select}>(共<span>{discussLists.length}</span>条记录)</span>
-              <Button type="primary" onClick={this.addDiscuss}>新增探讨</Button>
+              <span className = {styles.allNum}>(共<span>{discussLists.length}</span>条记录)</span>
+             
+              <Button type="primary" onClick={this.showModal}>新增探讨</Button>
             </div>
             {this.state.loaded && (
-            <Table
-                columns={columns}
-                dataSource={data}
-                bordered
-                size="middle"
-                scroll={{ x: 1650 }}
-              />
+            <Table columns={columns} dataSource={data} bordered size="middle" scroll={{ x: 1650 }} />
             )}
           </div>
-          <AddDiscuss></AddDiscuss>
+          {/* ================新增病例探讨弹框======================*/}
+          <Modal
+              title="新增病例探讨"
+              visible={this.state.visible}
+              onOk={this.handleOk}
+              onCancel={this.handleCancel}
+              // okButtonProps={{ disabled: true }}
+              // cancelButtonProps={{ disabled: true }}
+              footer={null}
+              className={styles.addBox}
+            >
+              <AddDiscuss ></AddDiscuss>
+          </Modal>    
+          
         </div>
     )
 }
