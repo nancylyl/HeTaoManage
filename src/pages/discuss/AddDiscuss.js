@@ -1,5 +1,5 @@
 import React, { Component } from 'react'
-import { Form, Input, DatePicker, Row, Col, Select, Button } from 'antd';
+import { Form, Input, DatePicker, Row, Col, Select, Button,TreeSelect } from 'antd';
 import moment from 'moment';
 import locale from 'antd/lib/date-picker/locale/zh_CN';
 import styles from './style.module.scss'
@@ -12,21 +12,19 @@ class  AddDiscuss extends Component {
     this.state = {
       startTime: '',
       endTime: '',
-      visible: true
+      value: ['0-0-0'],
     }
   } 
 
-
+  // ==============================日期选择器限制条件设置===========================
   changeTime =(val, dateStrings, type)=> {
     // console.log(val);
     if (type === 'startTime') {
       this.setState({startTime: dateStrings});
     } else if(type === 'endTime'){
       this.setState({endTime: dateStrings});
-  
     }
   }
-
   range = (start, end) => {
     const result = [];
     for (let i = start; i < end; i++) {
@@ -170,9 +168,73 @@ class  AddDiscuss extends Component {
       }
     }
   }
+  // ============================选择医生========================
+  onChange = value => {
+    console.log('onChange ', value);
+    this.setState({ value });
+  };
+
+  // ============================提交新增探讨表单==============================
+  onFinish =(Values)=> {
+    console.log(Values);
+    this.props.submit(Values)
+  }
+  // 关闭弹框
+  delSearch =()=> {
+    this.props.cancel()
+  }
+
   render() {
     const { Option } = Select;
     const { TextArea } = Input;
+    const { SHOW_PARENT } = TreeSelect;
+    const treeData = [
+      {
+        title: 'Node1',
+        value: '0-0',
+        key: '0-0',
+        children: [
+          {
+            title: 'Child Node1',
+            value: '0-0-0',
+            key: '0-0-0',
+          },
+        ],
+      },
+      {
+        title: 'Node2',
+        value: '0-1',
+        key: '0-1',
+        children: [
+          {
+            title: 'Child Node3',
+            value: '0-1-0',
+            key: '0-1-0',
+          },
+          {
+            title: 'Child Node4',
+            value: '0-1-1',
+            key: '0-1-1',
+          },
+          {
+            title: 'Child Node5',
+            value: '0-1-2',
+            key: '0-1-2',
+          },
+        ],
+      },
+    ];
+    const tProps = {
+      treeData,
+      value: this.state.value,
+      onChange: this.onChange,
+      treeCheckable: true,
+      showCheckedStrategy: SHOW_PARENT,
+      placeholder: '请选择',
+      style: {
+        width: '100%',
+      },
+    };
       return (
           <div>
             {/* <h1>新增病例探讨</h1> */}
@@ -195,9 +257,11 @@ class  AddDiscuss extends Component {
                   <Form.Item
                     label="参会医生"
                     name="inviteGuests"
-                    rules = {[{required:true, message: '请选择!'}]}
+                    // rules = {[{required:true, message: '请选择!'}]}
                   >
-                    <Button className={styles.choose}>请选择</Button>
+                    {/* <Input placeholder="请选择" onClick={this.chooseDoc} /> */}
+                    <TreeSelect {...tProps} />
+                    {/* <Button className={styles.choose}>请选择</Button> */}
                   </Form.Item>
                 </Col>
                 <Col span={12}>
@@ -225,7 +289,7 @@ class  AddDiscuss extends Component {
                     name="enrollStart"
                     rules = {[{required:true, message: '请选择!'}]}
                   >
-                    <DatePicker locale={locale} showTime disabledDate={this.disabledStartDate} disabledTime={this.disabledStartDateTime} onChange={(val,dateStrings)=>this.changeTime(val,dateStrings,'startTime') } />
+                    <DatePicker format="YYYY-MM-DD HH:mm:ss" locale={locale} showTime disabledDate={this.disabledStartDate} disabledTime={this.disabledStartDateTime} onChange={(val,dateStrings)=>this.changeTime(val,dateStrings,'startTime') } />
                   </Form.Item>
                 </Col>
                 <Col span={12}>
@@ -273,7 +337,7 @@ class  AddDiscuss extends Component {
                   <Form.Item
                     label="会诊患者信息"
                     name="patietInfo"
-                    rules = {[{required:true, message: '请选择!'}]}
+                    // rules = {[{required:true, message: '请选择!'}]}
                   >
                     <Button className={styles.choose}>请选择</Button>
                   </Form.Item>
@@ -294,7 +358,7 @@ class  AddDiscuss extends Component {
                   </Form.Item>
                 </Col>
               </Row>
-            </Form>       
+            </Form>    
           </div>
       )
   }

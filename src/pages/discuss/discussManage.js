@@ -1,4 +1,5 @@
 import React, { PureComponent } from 'react'
+import {Link} from "react-router-dom"
 import { Modal, Form, Input, DatePicker, Row, Col, Select, Button, Table} from 'antd';
 import locale from 'antd/lib/date-picker/locale/zh_CN';
 import styles from './style.module.scss'
@@ -14,7 +15,27 @@ class discussManage extends PureComponent {
     this.state={
       discussLists:[],
       loaded: false,
-      visible: false
+      visible: false,
+      modalTitle: '',
+      storeState:{
+        // discussId: '',
+        // discussName: '',
+        // joinNumber: '',
+        // discussStart: '',
+        // enrollStart: '',
+        // enrollEnd: '',
+        // moneyType: '',
+        // AttendMoney: '',
+        // host: '',
+        // inviteGuests: '',
+        // discussState: '',
+        // cancelStart: '',
+        // discussEnd: '',
+        // continueTime: '',
+        // cancelReason: '',
+        // patietInfo: '',
+        // explain: '',
+      },
     }
   } 
   getDiscussList(values){
@@ -37,7 +58,7 @@ class discussManage extends PureComponent {
   }
   UNSAFE_componentWillMount(){
     this.getDiscussList();
-}
+  }
 // 提交搜索信息
   onFinish = values => {
     this.getDiscussList(values);
@@ -53,37 +74,49 @@ class discussManage extends PureComponent {
     // this.form.setFieldsValue()
     // console.log('Failed:', errorInfo);
   };
-  // 新增探讨
-  showModal = () => {
-    this.setState({
-      visible: true,
-    });
+  // ====================新增探讨,编辑探讨弹框====================
+  showModal = (title,  record) => {
+    console.log( record);
+    if( record !== 0){
+      this.setState({
+        modalTitle: title,
+        storeState:  record,
+        visible: true,
+      })
+    } else {
+      // console.log(111111111);
+      this.setState({
+        modalTitle: title,
+        visible: true,
+      })
+    }
   };
+  // 提交表单
   handleOk = e => {
     console.log(e);
     this.setState({
       visible: false,
     });
+    
   };
-
+  // 关闭弹框
   handleCancel = e => {
-    console.log(e);
     this.setState({
       visible: false,
     });
+    // console.log(this.state.storeState);
   };
   // 查看探讨
   checkDiscuss= () => {
     
   };
-  // 编辑探讨
-  editDiscuss= () => {
-    
-  };
   // 取消探讨
-  cancle= () => {
-    
+  cancleDiscuss= ( record) => {
+    console.log(record);
+
   };
+
+
   render() {
     // const { getFieldDecorator } = this.props.form;
     const { discussLists } = this.state;
@@ -170,25 +203,31 @@ class discussManage extends PureComponent {
         key: 'operation',
         fixed: 'right',
         width: 150,
-        render: () => <span><a onClick={this.checkDiscuss}>查看</a><a onClick={this.editDiscuss}>编辑</a><a onClick={this.cancle}>取消</a></span>,
+        render: (text, record) => <span><Link to={``}>查看</Link><a onClick={this.showModal.bind(this,'编辑病历探讨', record)}>编辑</a><a onClick={this.cancleDiscuss.bind(this, record)}>取消</a></span>,
       },
     ];   
+
+
     const data = [];
     for (let i = 0; i < discussLists.length; i++) {
       data.push({
-        key: i,
+        key: discussLists[i].discussId,
         探讨名称: discussLists[i].discussName,
         参加人数: discussLists[i].joinNumber,
         探讨开始时间: discussLists[i].discussStart,
         报名开始时间: discussLists[i].enrollStart,
         报名结束时间: discussLists[i].enrollEnd,
+        费用类型: discussLists[i].moneyType,
         参会金额: discussLists[i].AttendMoney,
         主持人: discussLists[i].host,
         邀请嘉宾: discussLists[i].inviteGuests,
         探讨状态: discussLists[i].discussState,
         取消时间: discussLists[i].cancelStart,
         结束时间: discussLists[i].discussEnd,
+        持续时间: discussLists[i].continueTime,
         取消理由: discussLists[i].cancelReason,
+        会诊患者信息: discussLists[i].patietInfo,
+        探讨说明: discussLists[i].explain,
       });
     }   
     return (
@@ -279,15 +318,15 @@ class discussManage extends PureComponent {
               <h1>探讨列表</h1> 
               <span className = {styles.allNum}>(共<span>{discussLists.length}</span>条记录)</span>
              
-              <Button type="primary" onClick={this.showModal}>新增探讨</Button>
+              <Button type="primary" onClick={this.showModal.bind(this,'新增病例探讨',0)}>新增探讨</Button>
             </div>
             {this.state.loaded && (
-            <Table columns={columns} dataSource={data} bordered size="middle" scroll={{ x: 1650 }} />
+            <Table columns={columns} dataSource={data} bordered size="middle" scroll={{ x: 1650 }}/>
             )}
           </div>
           {/* ================新增病例探讨弹框======================*/}
           <Modal
-              title="新增病例探讨"
+              title={this.state.modalTitle}
               visible={this.state.visible}
               onOk={this.handleOk}
               onCancel={this.handleCancel}
@@ -296,7 +335,7 @@ class discussManage extends PureComponent {
               footer={null}
               className={styles.addBox}
             >
-              <AddDiscuss ></AddDiscuss>
+              <AddDiscuss cancel={this.handleCancel} submit={this.handleOk}></AddDiscuss>
           </Modal>    
           
         </div>
