@@ -8,6 +8,7 @@ import patientListManage from './pages/patient/patientListManage'
 import ADRsTipsManage from './pages/patient/ADRsTipsManage'
 
 import hospitalManage from './pages/hospitalInfo/hospitalManage'
+import checkHospital from './pages/hospitalInfo/checkHospital'
 import doctorManage from './pages/hospitalInfo/doctorManage'
 
 import activityManage from './pages/activity/activityManage'
@@ -55,6 +56,7 @@ function App() {
                 <Route exact path="/index/patient/CaseDetail/:id" component={CaseDetail} />
                 {/* 医院信息 */}
                 <Route path="/index/hospitalInfo/hospital" component={hospitalManage} />
+                <Route path="/index/hospitalInfo/checkHospital" component={checkHospital} />
                 <Route path="/index/hospitalInfo/doctor" component={doctorManage} />
                 {/* 患教活动管理 */}
                 <Route path="/index/activity" component={activityManage} />
