@@ -33,7 +33,7 @@ function App() {
             path="/"
             exact
             // render={() => <Redirect to={'/index/patient/Addcase'} />}
-            render={() => <Redirect to={'/index/patient/Addcase'} />}
+            render={() => <Redirect to={'/index/patient/map'} />}
 
 
           ></Route>

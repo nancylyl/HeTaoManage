@@ -142,7 +142,7 @@ export default class Addcase extends PureComponent {
   }
 
   // 获取所有选中元素值
-  getModalCheckedData = (values,showError=true,needReturnData=false) => {
+  getModalCheckedData = (values, showError = true, needReturnData = false) => {
     const modalData = _.cloneDeep(this.state.modalData);
     let flag = true;
     const data = {}
@@ -180,7 +180,7 @@ export default class Addcase extends PureComponent {
       if (data[key] === false) {
         showError && message.error(errMsg);
         flag = false;
-        if (!needReturnData ) {
+        if (!needReturnData) {
           return true
         }
       }
@@ -208,7 +208,7 @@ export default class Addcase extends PureComponent {
     if (isHistoryOfTrauma === 1) {
       // 有外伤史
       historyOfChronicDisease = this.formRef.current.getFieldValue('historyOfChronicDisease');
-      if(!historyOfChronicDisease) {
+      if (!historyOfChronicDisease) {
         message.error('请填写外伤史内容')
         return
       }
@@ -227,6 +227,7 @@ export default class Addcase extends PureComponent {
     })
       .then((res) => {
         //  console.log(res)
+        message.info("添加成功！");
 
       })
       .finally(() => {
@@ -356,9 +357,9 @@ export default class Addcase extends PureComponent {
           initFormData: data,
           initDataLoaded: true,
           modalData,
-        },()=>{
+        }, () => {
           this.setState({
-            shadowModalData: this.getModalCheckedData(data, false,true)
+            shadowModalData: this.getModalCheckedData(data, false, true)
           })
         })
       })
@@ -472,11 +473,11 @@ export default class Addcase extends PureComponent {
     const clearModal = clearModalCheckedMap[key];
 
     if (clearModal && clearModal.value === value) {
-      const { modalData } = this.getModalDataModal(); 
+      const { modalData } = this.getModalDataModal();
       modalData[clearModal.clearModalKey] = _.cloneDeep(eval(clearModal.defaultModalKey));
       this.setState({
         modalData,
-      },()=>{
+      }, () => {
         this.setState({
           shadowModalData: this.getShadowModalDataNow()
         })
@@ -594,7 +595,7 @@ export default class Addcase extends PureComponent {
           {item.title}
         </div>
         {
-          item.menus.map(menu=>{
+          item.menus.map(menu => {
             return <div key={menu.key} className={styles.detailMenuTitle}>
               <span className={styles.detailMenu}>{menu.value}:</span>
               {
@@ -618,7 +619,7 @@ export default class Addcase extends PureComponent {
         }
       </div>
     })
-  } 
+  }
 
   render() {
     const { initFormData, visibleModalName, type, initDataLoaded, shadowModalData } = this.state;
@@ -630,13 +631,13 @@ export default class Addcase extends PureComponent {
     const tabsLength = tabs.length;
 
     const {
-      diagnosisContent, 
-      encephlogramContent, 
-      ctContent, 
-      medicationContent, 
-      operationContent, 
-      cdiseaseContent, 
-      familyhistoryContent, 
+      diagnosisContent,
+      encephlogramContent,
+      ctContent,
+      medicationContent,
+      operationContent,
+      cdiseaseContent,
+      familyhistoryContent,
       drugAllergyContent
     } = shadowModalData || {}
 
@@ -677,7 +678,7 @@ export default class Addcase extends PureComponent {
               <Col span={col_2}>
                 <Form.Item
                   label="诊断"
-                  // rules={[{ required: true, message: "必填" }]}
+                  rules={[{ required: true, message: "必填" }]}
                   name="diagnosis" >
                   <Select style={{ width: 120 }}>
                     <Option value={""}>请选择</Option>
@@ -720,7 +721,7 @@ export default class Addcase extends PureComponent {
               <Col span={col_2}>
                 <Form.Item
                   label="电脑图"
-                  // rules={[{ required: true, message: "必填" }]}
+                  rules={[{ required: true, message: "必填" }]}
                   name="computer" >
                   <Select style={{ width: 120 }} >
                     <Option value={""}>请选择</Option>
@@ -762,6 +763,7 @@ export default class Addcase extends PureComponent {
               <Col span={col_2}>
                 <Form.Item
                   label="核磁/CT"
+                  rules={[{ required: true, message: "必填" }]}
                   name="NMR" >
                   <Select style={{ width: 120 }} >
                     <Option value={""}>请选择</Option>
@@ -805,6 +807,7 @@ export default class Addcase extends PureComponent {
               <Col span={col_2}>
                 <Form.Item
                   label="基因"
+                  rules={[{ required: true, message: "必填" }]}
                   name="gene" >
                   <Select style={{ width: 120 }} >
                     <Option value={""}>请选择</Option>
@@ -821,6 +824,7 @@ export default class Addcase extends PureComponent {
               <Col span={col_2}>
                 <Form.Item
                   label="发作次数"
+                  rules={[{ required: true, message: "必填" }]}
                   name="numberOfEpisodes" >
                   <Select style={{ width: 120 }} >
                     <Option value={""}>请选择</Option>
@@ -834,6 +838,7 @@ export default class Addcase extends PureComponent {
                 {/* numberOfEpisodesException */}
                 <Form.Item
                   label="发作频率"
+                  rules={[{ required: true, message: "必填" }]}
                   name="numberOfEpisodesException" >
 
                   <Select style={{ width: 120 }} >
@@ -853,6 +858,7 @@ export default class Addcase extends PureComponent {
               <Col span={col_2}>
                 <Form.Item
                   label="是否药物治疗"
+                  rules={[{ required: true, message: "必填" }]}
                   name="medication"
                   colon={true}
                 >
@@ -897,6 +903,7 @@ export default class Addcase extends PureComponent {
               <Col span={col_2}>
                 <Form.Item
                   label="是否手术"
+                  rules={[{ required: true, message: "必填" }]}
                   name="surgery" >
                   <Select style={{ width: 120 }} >
                     <Option value={""}>请选择</Option>
@@ -938,6 +945,7 @@ export default class Addcase extends PureComponent {
               <Col span={col_2}>
                 <Form.Item
                   label="甲强==激素治疗"
+                  rules={[{ required: true, message: "必填" }]}
                   name="hormoneTherapy">
                   <Select style={{ width: 120 }} >
                     <Option value={""}>请选择</Option>
@@ -949,6 +957,7 @@ export default class Addcase extends PureComponent {
               <Col span={col_3}>
                 <Form.Item
                   label="免疫治疗"
+                  rules={[{ required: true, message: "必填" }]}
                   name="immunityTherapy">
                   <Select style={{ width: 120 }} >
                     <Option value={""}>请选择</Option>
@@ -964,6 +973,7 @@ export default class Addcase extends PureComponent {
               <Col span={col_2}>
                 <Form.Item
                   label="生酮饮食"
+                  rules={[{ required: true, message: "必填" }]}
                   name="ketogenicDiet">
                   <Select style={{ width: 120 }} >
                     <Option value={""}>请选择</Option>
@@ -975,6 +985,7 @@ export default class Addcase extends PureComponent {
               <Col span={col_3}>
                 <Form.Item
                   label="其他"
+                  rules={[{ required: true, message: "必填" }]}
                   name="other">
                   <Select style={{ width: 120 }} >
                     <Option value={""}>请选择</Option>
@@ -994,6 +1005,7 @@ export default class Addcase extends PureComponent {
               <Col span={col_2}>
                 <Form.Item
                   label="是否有药物过敏"
+                  rules={[{ required: true, message: "必填" }]}
                   name="drugAllergy" >
                   <Select style={{ width: 120 }} >
                     <Option value={""}>请选择</Option>
@@ -1034,6 +1046,7 @@ export default class Addcase extends PureComponent {
               <Col span={col_2}>
                 <Form.Item
                   label="是否有外伤史"
+                  rules={[{ required: true, message: "必填" }]}
                   name="isHistoryOfTrauma" >
                   <Select style={{ width: 120 }} >
                     <Option value={""}>请选择</Option>
@@ -1073,6 +1086,7 @@ export default class Addcase extends PureComponent {
               <Col span={col_2}>
                 <Form.Item
                   label="慢病史"
+                  rules={[{ required: true, message: "必填" }]}
                   name="ischronicDiseaseHistory" >
                   <Select style={{ width: 120 }} >
                     <Option value={""}>请选择</Option>
@@ -1116,6 +1130,7 @@ export default class Addcase extends PureComponent {
               <Col span={col_2}>
                 <Form.Item
                   label="产伤"
+                  rules={[{ required: true, message: "必填" }]}
                   name="birthInjury" >
                   <Select style={{ width: 120 }} >
                     <Option value={""}>请选择</Option>
@@ -1127,6 +1142,7 @@ export default class Addcase extends PureComponent {
               <Col span={col_3}>
                 <Form.Item
                   label="感染"
+                  rules={[{ required: true, message: "必填" }]}
                   name="infection" >
                   <Select style={{ width: 120 }} >
                     <Option value={""}>请选择</Option>
@@ -1143,6 +1159,7 @@ export default class Addcase extends PureComponent {
               <Col span={col_2}>
                 <Form.Item
                   label="出血"
+                  rules={[{ required: true, message: "必填" }]}
                   name="bleeding" >
                   <Select style={{ width: 120 }} >
                     <Option value={""}>请选择</Option>
@@ -1154,6 +1171,7 @@ export default class Addcase extends PureComponent {
               <Col span={col_3}>
                 <Form.Item
                   label="是否高热惊厥史"
+                  rules={[{ required: true, message: "必填" }]}
                   name="historyOfFebrileConvulsions" >
                   <Select style={{ width: 120 }} >
                     <Option value={""}>请选择</Option>
@@ -1172,6 +1190,7 @@ export default class Addcase extends PureComponent {
               <Col span={col_2}>
                 <Form.Item
                   label="是否有家族病"
+                  rules={[{ required: true, message: "必填" }]}
                   name="familyDisease" >
                   <Select style={{ width: 120 }} >
                     <Option value={""}>请选择</Option>
@@ -1187,6 +1206,7 @@ export default class Addcase extends PureComponent {
                     this.renderCheckedDetail(familyhistoryContent)
                   }
                   label="家族病名称"
+                  rules={[{ required: true, message: "必填" }]}
                   dependencies={['familyDisease']} >
                   {
                     ({ getFieldValue }) => {
@@ -1215,6 +1235,7 @@ export default class Addcase extends PureComponent {
               <Col span={col_2}>
                 <Form.Item
                   label="是否结婚"
+                  rules={[{ required: true, message: "必填" }]}
                   name="whetherToMarry" >
                   <Select style={{ width: 120 }} >
                     <Option value={""}>请选择</Option>
@@ -1226,6 +1247,7 @@ export default class Addcase extends PureComponent {
               <Col span={col_3}>
                 <Form.Item
                   label="是否生育"
+                  rules={[{ required: true, message: "必填" }]}
                   name="whetherToGiveBirth" >
                   <Select style={{ width: 120 }} >
                     <Option value={""}>请选择</Option>
@@ -1244,8 +1266,14 @@ export default class Addcase extends PureComponent {
               </Col>
               <Col span={1} > </Col>
               <Col span={11} >
-                {
+                {/* {
                   type === 'create' && <Button type="primary" htmlType="submit">
+                    保存
+                </Button>
+                } */}
+
+                {
+                  <Button type="primary" htmlType="submit">
                     保存
                 </Button>
                 }
