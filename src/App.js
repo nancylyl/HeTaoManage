@@ -14,6 +14,7 @@ import doctorManage from './pages/hospitalInfo/doctorManage'
 import activityManage from './pages/activity/activityManage'
 
 import discussManage from './pages/discuss/discussManage'
+import CheckDiscuss from './pages/discuss/CheckDiscuss'
 
 import dealsInfoManage from './pages/dealsInfo/dealsInfoManage'
 import bannerManage from './pages/banner/bannerManage'
@@ -64,8 +65,10 @@ function App() {
                 <Route path="/index/hospitalInfo/doctor" component={doctorManage} />
                 {/* 患教活动管理 */}
                 <Route path="/index/activity" component={activityManage} />
+                
                 {/* 病历探讨管理 */}
                 <Route path="/index/discuss" component={discussManage} />
+                <Route path="/index/checkDiscuss" component={CheckDiscuss} />
                 {/* 交易信息统计 */}
                 <Route path="/index/dealsInfo" component={dealsInfoManage} />
                 {/* 首页BANNER管理 */}

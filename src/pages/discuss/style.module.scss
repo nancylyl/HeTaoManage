@@ -2,15 +2,7 @@
   text-align: left;
 }
 .search {
-  
   // border: 1px solid red;
-  // .search_title{
-  //   text-align: right;
-  //   line-height: 32px;
-  //   color: #6b6b6d;
-  //   padding-right: 5px;
-  // }
-  
   button{
     margin: 0 10px;
     border-radius: 5px;
@@ -63,7 +55,7 @@
   }
 }
 
-
+// 新增、编辑弹框
 .addBox{
   width: 65%!important;
   margin: 0 auto;
@@ -84,6 +76,7 @@
     }
   }
 }
+// 主持人、医生选择弹框
 .smallBox{
   text-align: center; 
   width: 30%!important;
@@ -93,4 +86,67 @@
     color: #f50!important;
   }
   
+}
+
+// 查看病历探讨
+.check{
+  font-size: 17px;
+  font-weight: 500;
+  .title{
+    text-align: center;
+    h1{
+      display: inline-block;
+      font-size: 25px;
+      font-weight: 700;
+      margin-right: 30px;
+    }
+  }
+  .line{
+    padding-bottom: 20px;
+    border-bottom: 0.5px solid rgb(206, 201, 201);
+    margin: 30px 0;
+  }
+  .table{
+    text-align: center;
+    h1{
+      font-size: 25px;
+      font-weight: 700;
+    }
+    table{
+      tr{
+        th,td{
+          text-align: center;
+        }
+      }
+    }
+  }
+}
+// 查看探讨内容弹框
+.checkBox{
+  width: 35%!important;
+  text-align: center;
+  padding: 0;
+  .div{ 
+    // width: 111.2%;
+    margin: -10px 0 15px;
+  }
+  .list{
+    height: 400px;
+    overflow-y: scroll;
+  }
+  .left{
+    text-align: center;
+    .img{
+      width: 40px;
+      height: 40px;
+      margin: 0 auto;
+    }
+  }
+  .right{
+    text-align: left;
+    padding-right: 15px;
+    span{
+      display: block;
+    }
+  }  
 }
