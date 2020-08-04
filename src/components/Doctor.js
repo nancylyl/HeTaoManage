@@ -1,7 +1,7 @@
 import React, { Component, PureComponent } from 'react'
 import { TreeSelect, message } from 'antd';
-import Axios from '../../../util/axios'
-import Api from '../../../api/index'
+import Axios from '../util/axios'
+import Api from '../api/index'
 import Item from 'antd/lib/list/Item';
 const { TreeNode } = TreeSelect;
 export default class Doctor extends PureComponent {

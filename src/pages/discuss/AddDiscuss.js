@@ -3,7 +3,7 @@ import { Modal, Form, Input, DatePicker, Row, Col, Select, Button, Tree } from '
 import moment from 'moment';
 import locale from 'antd/lib/date-picker/locale/zh_CN';
 import styles from './style.module.scss'
-import Doctor from './components/Doctor';
+import Doctor from '../../components/Doctor';
 const x = 3;
 const y = 2;
 const z = 1;
