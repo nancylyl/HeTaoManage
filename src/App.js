@@ -22,6 +22,7 @@ import rechargeManage from './pages/recharge/rechargeManage'
 import Addcase from './pages/patient/case/AddCase'
 import CaseBox from './pages/patient/case/CaseBox'
 import CaseDetail from './pages/patient/case/components/CaseDetail'
+import CaseLogDetail from './pages/patient/case/components/CaseLogDetail'
 //引入路由
 import { BrowserRouter as Router, Route, Redirect, Switch } from 'react-router-dom'
 
@@ -54,6 +55,9 @@ function App() {
                 <Route exact path="/index/patient/CaseBox" component={CaseBox} />
                 {/* 患者详情 */}
                 <Route exact path="/index/patient/CaseDetail/:id" component={CaseDetail} />
+                <Route exact path="/index/patient/CaseDetail" component={CaseDetail} />
+                {/* 患者日志详情 */}
+                <Route exact path="/index/patient/CaseLogDetail/:id" component={CaseLogDetail} />
                 {/* 医院信息 */}
                 <Route path="/index/hospitalInfo/hospital" component={hospitalManage} />
                 <Route path="/index/hospitalInfo/checkHospital" component={checkHospital} />

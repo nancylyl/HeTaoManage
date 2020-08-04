@@ -27,7 +27,6 @@ export default class MedicalRecord extends PureComponent {
       data: { id: id }
     })
       .then((res) => {
-        console.log(res);
         if (res.data.success) {
           this.setState({
             mList: res.data.data.MedicalRecord,
@@ -46,7 +45,6 @@ export default class MedicalRecord extends PureComponent {
   render() {
 
     const { mList, loaded, total, UId } = this.state;
-    console.log(mList);
     const columns = [
       {
         title: '就诊次数',
@@ -88,7 +86,14 @@ export default class MedicalRecord extends PureComponent {
         align: 'center',
         width: 150,
         render: (text, record) => <span className={styles.tableLink}>
-          <Link to={`/index/patient/CaseDetail/` + record.Id}>查看</Link>
+          {/* <Link to={`/index/patient/CaseDetail/${record.Id}/flag=2`}>查看</Link> */}
+          <Link to={{
+            pathname: '/index/patient/CaseDetail/',
+            query: {
+              Id: record.Id,
+              flag: 2
+            }
+          }}>查看</Link>
           <Link to={`/index/patient/AddCase/` + record.Id}>编辑</Link>
         </span>,
       },

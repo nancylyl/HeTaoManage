@@ -33,6 +33,7 @@ export default class Addcase extends PureComponent {
     // type: this.props.match.params.id > 0 ? 'edit' : 'create',
     type: 'edit',
     initFormData: {
+      Id: 0,
       diagnosis: "",//诊断
       computer: "",//电脑图
       NMR: "",//ct
@@ -73,12 +74,31 @@ export default class Addcase extends PureComponent {
     visibleModalName: null, // 当前显示哪个modal的key值，为false，不显示modal
     typeLoaded: false,//弹出信息加载
     initDataLoaded: false, // 展示编辑时，标识数据是否加载完成
+    isBackShow: false
   }
 
 
   componentDidMount() {
     const { type } = this.state;
     // const { match: { params: { id } } } = this.props;
+    if (this.props.location != null && this.props.location != undefined) {
+      const parms = this.props.location.query;
+      console.log(parms);
+
+      if (parms != null && parms.flag == 2) {
+        this.setState({
+          isBackShow: true
+        });
+      }
+    }
+
+    // const parms = this.props.match.params.id.split('');
+    // console.log(this.props, parms);
+    // if (parms[0] == 1) {
+    //   this.setState({
+    //     isBackShow: true
+    //   })
+
     type === 'edit' && this.getCaseDetail(1)
   }
 
@@ -351,7 +371,7 @@ export default class Addcase extends PureComponent {
         // 将接口中弹层数据merge到弹层中
         const modalData = this.parseModalData(data);
 
-        console.log(data)
+        // console.log(data)
 
         this.setState({
           initFormData: data,
@@ -968,17 +988,7 @@ export default class Addcase extends PureComponent {
                   {
                     ({ getFieldValue }) => {
                       const diagnosis = getFieldValue("ischronicDiseaseHistory")
-                      return <Button
-                        disabled={diagnosis !== 1}
-                        style={{ width: 120 }}
-                        onClick={() => {
-                          this.onShowModal('cdisease')
-                        }}
-                      >
-                        {
-                          cdiseaseContent ? '已选择' : '请选择'
-                        }
-                      </Button>
+
                     }
                   }
 
@@ -1168,7 +1178,7 @@ export default class Addcase extends PureComponent {
           </Tabs>
         </Modal>
       }
-      <Row>
+      {/* <Row disabled={this.state.isBackShow} >
         <Col span={24} style={{ textAlign: "center", marginTop: '20px' }}>
           <Link to='/index/patient/patientList'>
             <Button type="primary" >
@@ -1176,7 +1186,20 @@ export default class Addcase extends PureComponent {
                 </Button>
           </Link>
         </Col>
-      </Row>
+      </Row> */}
+      {
+        this.state.isBackShow && (<Row>
+          <Col span={24} style={{ textAlign: "center", marginTop: '20px' }}>
+            <Link to='/index/patient/CaseBox'>
+              <Button type="primary" >
+                返回
+                </Button>
+            </Link>
+          </Col>
+        </Row>
+        )
+
+      }
     </>
   }
 }
