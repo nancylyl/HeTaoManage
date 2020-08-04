@@ -1,6 +1,7 @@
 import React, {PureComponent, useState} from 'react';
 import Axios from '../../util/axios'
 import Api from '../../api/index'
+import { Link } from 'react-router-dom'
 
 import {Row, Col, Input, Select, DatePicker, Table, Button, Space, Modal, Form,} from 'antd';
 import './hospitalManage.scss'
@@ -62,7 +63,7 @@ const columns = [
     align: 'center',
     render: () =>
         <Space size="middle">
-          <CollectionsPage1 />
+          <Link to={'/index/hospitalInfo/checkHospital'}>查看</Link>
           <a>编辑</a>
         </Space>,
   },
@@ -182,72 +183,74 @@ const CollectionCreateForm = ({ visible, onCreate, onCancel }) => {
       </Modal>
   );
 };
+
 //查看模态框
-const layout1 = {
-  labelCol: { span: 6 },
-  wrapperCol: { span: 16 },
-};
-const CollectionCreateForm1 = ({ visible, onCreate, onCancel }) => {
-  const [form] = Form.useForm();
-  return (
-      <Modal
-          visible={visible}
-          title="查看医院"
-          okText="确定"
-          cancelText="关闭"
-          onCancel={onCancel}
-          onOk={() => {
-            form
-                .validateFields()
-                .then(values => {
-                  form.resetFields();
-                  onCreate(values);
-                })
-                .catch(info => {
-                  console.log('Validate Failed:', info);
-                });
-          }}
-      >
-        <Form
-            form={form}
-            {...layout1}
-            layout="horizontal"
-            name="form_in_modal"
-            initialValues={{
-              modifier: 'public',
-            }}
-        >
-          <Form.Item name="hosName" label="医院名称">
-            <Input defaultValue='北京癫痫医院' disabled={true}/>
-          </Form.Item>
-          <Form.Item name="hosLevel" label="医院等级">
-            <Input defaultValue='二级甲等' disabled={true}/>
-          </Form.Item>
-          <Form.Item name="aliasName" label="医院别称">
-            <Input defaultValue='北京癫痫' disabled={true}/>
-          </Form.Item>
-          <Form.Item name="hosNature" label="医院性质">
-            <Input defaultValue='北京癫痫医院' disabled={true}/>
-          </Form.Item>
-          <Form.Item name="hosPhone" label="联系电话">
-            <Input defaultValue='北京癫痫医院' disabled={true}/>
-          </Form.Item>
-          <Form.Item name="hosTel" label="服务热线">
-            <Input defaultValue='北京癫痫医院' disabled={true}/>
-          </Form.Item>
-          <Form.Item name="linkman" label="医院联系人">
-            <Input defaultValue='北京癫痫医院' disabled={true}/>
-          </Form.Item>
-          <Form.Item name="linkmanTel" label="联系人电话">
-            <Input defaultValue='北京癫痫医院' disabled={true}/>
-          </Form.Item>
-          <Form.Item name="hosAddress" label="医院地址">
-            <Input defaultValue='北京市海淀区万寿路23号院' disabled={true}/>
-          </Form.Item>
-        </Form>
-      </Modal>
-  );
-};
+// const layout1 = {
+//   labelCol: { span: 6 },
+//   wrapperCol: { span: 16 },
+// };
+// const CollectionCreateForm1 = ({ visible, onCreate, onCancel }) => {
+//   const [form] = Form.useForm();
+//   return (
+//       <Modal
+//           visible={visible}
+//           title="查看医院"
+//           okText="确定"
+//           cancelText="关闭"
+//           onCancel={onCancel}
+//           onOk={() => {
+//             form
+//                 .validateFields()
+//                 .then(values => {
+//                   form.resetFields();
+//                   onCreate(values);
+//                 })
+//                 .catch(info => {
+//                   console.log('Validate Failed:', info);
+//                 });
+//           }}
+//       >
+//         <Form
+//             form={form}
+//             {...layout1}
+//             layout="horizontal"
+//             name="form_in_modal"
+//             initialValues={{
+//               modifier: 'public',
+//             }}
+//         >
+//           <Form.Item name="hosName" label="医院名称">
+//             <Input defaultValue='北京癫痫医院' disabled={true}/>
+//           </Form.Item>
+//           <Form.Item name="hosLevel" label="医院等级">
+//             <Input defaultValue='二级甲等' disabled={true}/>
+//           </Form.Item>
+//           <Form.Item name="aliasName" label="医院别称">
+//             <Input defaultValue='北京癫痫' disabled={true}/>
+//           </Form.Item>
+//           <Form.Item name="hosNature" label="医院性质">
+//             <Input defaultValue='北京癫痫医院' disabled={true}/>
+//           </Form.Item>
+//           <Form.Item name="hosPhone" label="联系电话">
+//             <Input defaultValue='北京癫痫医院' disabled={true}/>
+//           </Form.Item>
+//           <Form.Item name="hosTel" label="服务热线">
+//             <Input defaultValue='北京癫痫医院' disabled={true}/>
+//           </Form.Item>
+//           <Form.Item name="linkman" label="医院联系人">
+//             <Input defaultValue='北京癫痫医院' disabled={true}/>
+//           </Form.Item>
+//           <Form.Item name="linkmanTel" label="联系人电话">
+//             <Input defaultValue='北京癫痫医院' disabled={true}/>
+//           </Form.Item>
+//           <Form.Item name="hosAddress" label="医院地址">
+//             <Input defaultValue='北京市海淀区万寿路23号院' disabled={true}/>
+//           </Form.Item>
+//         </Form>
+//       </Modal>
+//   );
+// };
+
 //新增组件
 const CollectionsPage = () => {
   const [visible, setVisible] = useState(false);
@@ -275,33 +278,34 @@ const CollectionsPage = () => {
       </div>
   );
 };
+
 //查看组件
-const CollectionsPage1 = () => {
-  const [visible, setVisible] = useState(false);
-  const onCreate = values => {
-    console.log('获取到的值: ', values);
-    setVisible(false);
-  };
-  return (
-      <div>
-        <Button
-            type="link"
-            onClick={() => {
-              setVisible(true);
-            }}
-        >
-          查看
-        </Button>
-        <CollectionCreateForm1
-            visible={visible}
-            onCreate={onCreate}
-            onCancel={() => {
-              setVisible(false);
-            }}
-        />
-      </div>
-  );
-};
+// const CollectionsPage1 = () => {
+//   const [visible, setVisible] = useState(false);
+//   const onCreate = values => {
+//     console.log('获取到的值: ', values);
+//     setVisible(false);
+//   };
+//   return (
+//       <div>
+//         <Button
+//             type="link"
+//             onClick={() => {
+//               setVisible(true);
+//             }}
+//         >
+//           查看
+//         </Button>
+//         <CollectionCreateForm1
+//             visible={visible}
+//             onCreate={onCreate}
+//             onCancel={() => {
+//               setVisible(false);
+//             }}
+//         />
+//       </div>
+//   );
+// };
 
 class hospitalManage extends PureComponent {
   constructor(props) {

@@ -102,10 +102,10 @@ class discussManage extends PureComponent {
       visible: false,
     });
   };
-  // 查看探讨
-  checkDiscuss = () => {
+  // // 查看探讨
+  // checkDiscuss = () => {
 
-  };
+  // };
   // 取消探讨
   cancleDiscuss = (record) => {
     console.log(record);
@@ -197,7 +197,7 @@ class discussManage extends PureComponent {
         key: 'operation',
         fixed: 'right',
         width: 150,
-        render: (text, record) => <span><Link to={``}>查看</Link><a onClick={this.showModal.bind(this, '编辑病历探讨', record)}>编辑</a><a onClick={this.cancleDiscuss.bind(this, record)}>取消</a></span>,
+        render: (text, record) => <span><Link to={{pathname:`/index/checkDiscuss`,state:record}}>查看</Link><a onClick={this.showModal.bind(this, '编辑病历探讨', record)}>编辑</a><a onClick={this.cancleDiscuss.bind(this, record)}>取消</a></span>,
       },
     ];
 

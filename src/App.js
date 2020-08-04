@@ -10,10 +10,12 @@ import ADRsTipsManage from './pages/patient/ADRsTipsManage'
 import hospitalManage from './pages/hospitalInfo/hospitalManage'
 import checkHospital from './pages/hospitalInfo/checkHospital'
 import doctorManage from './pages/hospitalInfo/doctorManage'
+import checkDoctor from './pages/hospitalInfo/checkDoctor'
 
 import activityManage from './pages/activity/activityManage'
 
 import discussManage from './pages/discuss/discussManage'
+import CheckDiscuss from './pages/discuss/CheckDiscuss'
 
 import dealsInfoManage from './pages/dealsInfo/dealsInfoManage'
 import bannerManage from './pages/banner/bannerManage'
@@ -62,10 +64,13 @@ function App() {
                 <Route path="/index/hospitalInfo/hospital" component={hospitalManage} />
                 <Route path="/index/hospitalInfo/checkHospital" component={checkHospital} />
                 <Route path="/index/hospitalInfo/doctor" component={doctorManage} />
+                <Route path="/index/hospitalInfo/checkDoctor" component={checkDoctor} />
                 {/* 患教活动管理 */}
                 <Route path="/index/activity" component={activityManage} />
+                
                 {/* 病历探讨管理 */}
                 <Route path="/index/discuss" component={discussManage} />
+                <Route path="/index/checkDiscuss" component={CheckDiscuss} />
                 {/* 交易信息统计 */}
                 <Route path="/index/dealsInfo" component={dealsInfoManage} />
                 {/* 首页BANNER管理 */}
