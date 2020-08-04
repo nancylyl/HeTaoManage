@@ -31,7 +31,7 @@ export class RecordChart extends Component {
     })
       .then((res) => {
         const data = res.data.data.dataList;
-        console.log(data);
+        // console.log(data);
         if (data.success) {
           this.setState({
             dataX: data.dataX,

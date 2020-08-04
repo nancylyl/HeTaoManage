@@ -3,6 +3,7 @@ import home from './home'
 import discuss from './discuss'
 import hospital from './hospital'
 import department from './department'
+import doctor from './doctor'
 import patients from './patient'
 import addCase from './case'
 import map from './map'
@@ -15,4 +16,5 @@ export default {
   addCase,
   map,
   department,
+  doctor,
 }
