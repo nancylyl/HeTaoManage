@@ -1,6 +1,6 @@
 import React, { PureComponent, useState } from 'react'
 import { Row, Col, Input, Select, DatePicker, Table, Button, Space, Pagination, Modal, Form, Radio, message, Cascader, } from 'antd';
-import Axios from '../../util/axios'
+import testingAxios from '../../util/testingAxios'
 import Api from '../../api/index'
 import { Link } from 'react-router-dom'
 
@@ -17,18 +17,32 @@ function handleChange(value) {
   })
   console.log(`selected ${value}`);
 }
-function onChange(date, dateString) {
-  console.log(date, dateString);
-}
+
+const layout = {
+  labelCol: {
+    span: 8,
+  },
+  wrapperCol: {
+    span: 16,
+  },
+};
+const tailLayout = {
+  wrapperCol: {
+    offset: 8,
+    span: 16,
+  },
+};
 
 class patientListManage extends PureComponent {
+  
   state = {
     P_Name: "",//输入框输入值
     P_address: "",//输入框输入值
     medical: 2,//病历填写程度框 默认全部：2
     sex: 2,//性别多选框 默认全部：2
     clinicalTime: "",//上次就诊时间
-    visible: false
+    visible: false,
+    editvisible:false
   };
 
   //搜索功能所用方法
@@ -86,12 +100,13 @@ class patientListManage extends PureComponent {
     });
   };
   //-------------------------编辑部分-----------------------
+
   editform = (text) => {
     console.log(text.P_ID)
     //获取当前点击 行 的id
     this.setState({
-      newEdit: true,  // 这是 编辑 模态框
-    })
+      editvisible: true,
+    });
     let id = text.id;
     // axios.get(`接口地址/${id}/edit`)  //根据自己公司后端配置的接口地址来 ，获取页面初始化数据
     //     .then(res=>{
@@ -108,6 +123,34 @@ class patientListManage extends PureComponent {
     //         })
     //     })
   };
+  edithandleOk = values => {
+    console.log(values);
+    this.setState({
+      editvisible: false,
+    });
+  };
+  edithandleCancel = e => {
+    console.log(e);
+    this.setState({
+      editvisible: false,
+    });
+  };
+  formRef = React.createRef();
+
+  onGenderChange = value => {
+    this.formRef.current.setFieldsValue({
+      note: `Hi, ${value === 'male' ? 'man' : 'lady'}!`,
+    });
+  };
+
+  onFinish = values => {
+    console.log(values);
+  };
+
+  onReset = () => {
+    this.formRef.current.resetFields();
+  };
+
   constructor(props) {
     super(props);
 
@@ -115,24 +158,33 @@ class patientListManage extends PureComponent {
 
     }
   }
-
-  getpatientList = () => {
-    Axios({
+//----------------获取患者列表数据------------------
+  getpatientList = (page, limit) => {
+    testingAxios({
       url: Api.patients.getpatientList,
-    })
+      params: { // 这里的参数设置为URL参数（根据URL携带参数）
+        page:page,
+        limit:limit
+      }  
+      })
       .then((res) => {
-        console.log(res);
+        console.log(res.data.data);
         this.setState({
-          dataSource: res.data.data.patients
+          dataSource: res.data.data,
+          num : res.data.count
         })
-        let num = res.data.data.patients.length
+        
       })
   }
   componentDidMount() {
-    this.getpatientList();
+    this.getpatientList(0,6);
+    
     //构造一些初始数据
   }
-
+  getPageContent=(page,limit)=>{
+    console.log(page, limit);
+    this.getpatientList(page, limit)
+}
   render() {
     const style = { background: '#0092ff', padding: '8px 0' };
     // ----------------------患者列表展示部分------------------------------
@@ -203,14 +255,15 @@ class patientListManage extends PureComponent {
 
           <Space size="middle">
             <Link to={`/index/patient/CaseBox`}>查看</Link>
-            <a onClick={this.editform.bind(text, record)}>编辑</a>
+            {/* <a onClick={this.editform.bind(text, record)}>编辑</a> */}
+            <CollectionsPage2 onClick={this.editform.bind(text, record)}></CollectionsPage2>
             <a>更换医生</a>
             {record.medical > 0 ? '病历' : <Link to={"/index/patient/Addcase/0"}>新增病历</Link>}
           </Space>
         ),
       },
     ]
-    // ----------------------------------------新增患者部分-----------------------------------------
+    // ----------------------------------------新增患者部分模态框组件-----------------------------------------
     const CollectionCreateForm = ({ visible, onCreate, onCancel }) => {
       const [form] = Form.useForm();
       return (
@@ -337,9 +390,219 @@ class patientListManage extends PureComponent {
         </div>
       );
     };
+    //---------------------------------------编辑模态框组件-----------------------------------------
+    const CollectionCreateForm2 = ({ visible, onCreate, onCancel }) => {
+      const [form] = Form.useForm();
+      return (
+        <Modal
+          visible={visible}
+          title="编辑患者"
+          okText="更新"
+          cancelText="取消"
+          onCancel={onCancel}
+          onOk={() => {
+            form
+              .validateFields()
+              .then(values => {
+                form.resetFields();
+                onCreate(values);
+              })
+              .catch(info => {
+                console.log('Validate Failed:', info);
+              });
+          }}
+        >
+          <Form
+            form={form}
+            layout="vertical"
+            name="form_in_modal"
+            initialValues={{
+              modifier: 'public',
+            }}
+          >
+            <Form.Item
+              name="tel"
+              label="手机号"
+              rules={[
+                {
+                  required: true,
+                  pattern: new RegExp(/^((\+)?86|((\+)?86)?)0?1[3458]\d{9}$/),
+                  message: '请输入正确的手机号',
+                },
+              ]}
+            >
+              <Input />
+            </Form.Item>
+            <Form.Item
+              name="P_Name"
+              label="姓名"
+              rules={[
+                {
+                  required: true,
+                  pattern: new RegExp(/\S/),
+                  message: '请填写姓名',
+                },
+              ]}
+            >
+              <Input />
+            </Form.Item>
+            <Form.Item name="sex" label="性别" rules={[
+              {
+                required: true,
+                message: '请选择性别',
+              },
+            ]} className="collection-create-form_last-form-item">
+              <Radio.Group>
+                <Radio value="1">男</Radio>
+                <Radio value="0">女</Radio>
+              </Radio.Group>
+            </Form.Item>
+            <Form.Item name="birthday" label="出生日期" rules={[
+              {
+                required: true,
+                message: '请选择出生日期',
+              },
+            ]}>
+              <DatePicker placeholder="请选择出生日期" />
+            </Form.Item>
+            <Form.Item
+              label="发病年龄"
+              rules={[{ required: true, message: "必填" }]}
+              name="onsetAge" >
+              <Select style={{ width: 120 }} placeholder="请选择发病年龄">
+                <Option value={""}>请选择</Option>
+                {
+                  options
+                }
+              </Select>
+            </Form.Item>
+            <Form.Item label="现居住地"
+              rules={[{ required: true, message: "必填" }]}
+              name="P_address" >
+              <Cascader options={adoptions} placeholder="请选择居住地" />
+            </Form.Item>
+            <Form.Item name="description" label="备注">
+              <TextArea rows={4} />
+            </Form.Item>
+          </Form>
+        </Modal>
+      );
+    };
+    const CollectionsPage2 = () => {
+      const [visible, setVisible] = useState(false);
+
+      const onCreate = values => {
+        console.log('Received values of form: ', values);
+        setVisible(false);
+        message.success('操作成功');
+      };
+
+      return (
+        <div>
+          <a
+            type="primary"
+            onClick={() => {
+              setVisible(true);
+            }}
+          >
+            编辑
+          </a>
+          <CollectionCreateForm2
+            visible={visible}
+            onCreate={onCreate}
+            onCancel={() => {
+              setVisible(false);
+            }}
+          />
+        </div>
+      );
+    };
     return (
       <div>
-        {/* ---------------------------------搜素部分---------------------------------------------------- */}
+        {/* ---------------------------------编辑部分模态框---------------------------------------------------- */}
+        <Modal
+              title="编辑患者"
+              visible={this.state.editvisible}
+              onOk={this.edithandleOk}
+              onCancel={this.edithandleCancel}
+            >
+              <Form {...layout} ref={this.formRef} name="control-ref" onFinish={this.onFinish}>
+                  <Form.Item
+                  name="tel"
+                  label="手机号"
+                  rules={[
+                    {
+                      required: true,
+                      pattern: new RegExp(/^((\+)?86|((\+)?86)?)0?1[3458]\d{9}$/),
+                      message: '请输入正确的手机号',
+                    },
+                  ]}
+                >
+                  <Input />
+                </Form.Item>
+                <Form.Item
+                  name="P_Name"
+                  label="姓名"
+                  rules={[
+                    {
+                      required: true,
+                      pattern: new RegExp(/\S/),
+                      message: '请填写姓名',
+                    },
+                  ]}
+                >
+                  <Input />
+                </Form.Item>
+                <Form.Item name="sex" label="性别" rules={[
+                  {
+                    required: true,
+                    message: '请选择性别',
+                  },
+                ]} className="collection-create-form_last-form-item">
+                  <Radio.Group>
+                    <Radio value="1">男</Radio>
+                    <Radio value="0">女</Radio>
+                  </Radio.Group>
+                </Form.Item>
+                <Form.Item name="birthday" label="出生日期" rules={[
+                  {
+                    required: true,
+                    message: '请选择出生日期',
+                  },
+                ]}>
+                  <DatePicker placeholder="请选择出生日期" />
+                </Form.Item>
+                <Form.Item
+                  label="发病年龄"
+                  rules={[{ required: true, message: "必填" }]}
+                  name="onsetAge" >
+                  <Select style={{ width: 120 }} placeholder="请选择发病年龄">
+                    <Option value={""}>请选择</Option>
+                    {
+                      options
+                    }
+                  </Select>
+                </Form.Item>
+                <Form.Item label="现居住地"
+                  rules={[{ required: true, message: "必填" }]}
+                  name="P_address" >
+                  <Cascader options={adoptions} placeholder="请选择居住地" />
+                </Form.Item>
+                <Form.Item name="description" label="备注">
+                  <TextArea rows={4} />
+                </Form.Item>
+                
+              </Form>
+              <Form.Item {...tailLayout}>
+                  <Button type="primary" htmlType="submit">
+                    Submit
+                  </Button>
+                  <Button htmlType="button" onClick={this.onReset}>
+                    Reset
+                  </Button>
+                </Form.Item>
+            </Modal>
+ {/* ---------------------------------搜索部分---------------------------------------------------- */}
         <Row align='middle' justify='start'>
           <Col span={3} align="right">患者姓名：</Col>
           <Col span={5} ><Input placeholder="请输入" style={{ width: 150 }} value={this.state.P_Name}
@@ -386,7 +649,7 @@ class patientListManage extends PureComponent {
           </Col>
         </Row>
         {/* ------------------------------------列表显示部分----------------------------------------------- */}
-        <Table columns={columns} dataSource={this.state.dataSource} pagination={{ pageSize: 10 }} bordered rowKey="P_ID"></Table>
+        <Table columns={columns} dataSource={this.state.dataSource} pagination={{ pageSize: 6,  total:this.state.num , onChange:this.getPageContent}} bordered rowKey="P_ID"></Table>
       </div>
     )
   }
