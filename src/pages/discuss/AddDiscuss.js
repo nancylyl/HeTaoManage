@@ -4,33 +4,33 @@ import moment from 'moment';
 import locale from 'antd/lib/date-picker/locale/zh_CN';
 import styles from './style.module.scss'
 import Doctor from '../../components/Doctor';
-const x = 3;
-const y = 2;
-const z = 1;
+// const x = 3;
+// const y = 2;
+// const z = 1;
 const gData = [];
 
-const generateData = (_level, _preKey, _tns) => {
-  const preKey = _preKey || '0';
-  const tns = _tns || gData;
+// const generateData = (_level, _preKey, _tns) => {
+//   const preKey = _preKey || '0';
+//   const tns = _tns || gData;
 
-  const children = [];
-  for (let i = 0; i < x; i++) {
-    const key = `${preKey}-${i}`;
-    tns.push({ title: key, key });
-    if (i < y) {
-      children.push(key);
-    }
-  }
-  if (_level < 0) {
-    return tns;
-  }
-  const level = _level - 1;
-  children.forEach((key, index) => {
-    tns[index].children = [];
-    return generateData(level, key, tns[index].children);
-  });
-};
-generateData(z);
+//   const children = [];
+//   for (let i = 0; i < x; i++) {
+//     const key = `${preKey}-${i}`;
+//     tns.push({ title: key, key });
+//     if (i < y) {
+//       children.push(key);
+//     }
+//   }
+//   if (_level < 0) {
+//     return tns;
+//   }
+//   const level = _level - 1;
+//   children.forEach((key, index) => {
+//     tns[index].children = [];
+//     return generateData(level, key, tns[index].children);
+//   });
+// };
+// generateData(z);
 
 const dataList = [];
 const generateList = data => {
@@ -79,7 +79,7 @@ class AddDiscuss extends PureComponent {
   }
   // ==============================日期选择器限制条件设置===========================
   changeTime = (val, dateStrings, type) => {
-    // console.log(val);
+    console.log(dateStrings);
     if (type === 'startTime') {
       this.setState({ startTime: dateStrings });
     } else if (type === 'endTime') {
@@ -99,7 +99,7 @@ class AddDiscuss extends PureComponent {
     if (endTime !== '') {
       // console.log( moment(endTime).subtract(1, 'hour'));
       // 核心逻辑: 开始日期不能晚于结束日期，且比当前时间大1小时
-      return current >= moment(endTime).add(1, 'hours') || current < moment().startOf('day');
+      return current < moment().startOf('day') || current >= moment(endTime).add(1, 'hours');
     }
 
   }
@@ -263,10 +263,20 @@ class AddDiscuss extends PureComponent {
       searchValue: '',
     });
   };
-  // onSelect = (keys, event) => {
-  //   console.log(keys);
-  //   console.log(event.node.title);
-  // };
+  onSelect = (title,keys,event) => {
+    console.log(keys);
+    console.log(title);
+    if(title=='选择主持人'){
+      this.formRef.current.setFieldsValue({
+        host:keys
+      })
+    }else{
+      this.formRef.current.setFieldsValue({
+        inviteGuests:keys
+      })
+    }
+    
+  };
 
   onExpand = expandedKeys => {
     this.setState({
@@ -303,19 +313,16 @@ class AddDiscuss extends PureComponent {
   }
   onFill = () => {
     const { storeState } = this.props;
-
     if (storeState != undefined) {
       // console.log(storeState);
       this.formRef.current.setFieldsValue(storeState);
     }
     //获取医生信息
-
-    // console.log(this.formRef.current.getFieldsValue());
+    console.log(this.formRef.current);
   };
   componentDidMount() {
     // console.log('=================');
     this.onFill()
-    // console.log(this.formRef.current);
   }
   handClickDoctor = (val => {
     console.log("得到医生信息");
@@ -325,6 +332,7 @@ class AddDiscuss extends PureComponent {
     const { searchValue, expandedKeys, autoExpandParent } = this.state;
     const loop = data =>
       data.map(item => {
+        // console.log(item);
         const index = item.title.indexOf(searchValue);
         const beforeStr = item.title.substr(0, index);
         const afterStr = item.title.substr(index + searchValue.length);
@@ -525,19 +533,12 @@ class AddDiscuss extends PureComponent {
               <Tree
                 multiple={this.state.multiple}
                 onExpand={this.onExpand}
+                onSelect={this.onSelect.bind(this,this.state.modalTitle)}
                 expandedKeys={expandedKeys}
                 autoExpandParent={autoExpandParent}
-                treeData={loop(gData)}
+                treeData={loop(treeData)}
                 style={{ textAlign: "left" }}
               />
-              {/* <DirectoryTree
-                    multiple={this.state.multiple}
-                    defaultExpandAll
-                    onSelect={this.onSelect}
-                    onExpand={this.onExpand}
-                    treeData={treeData}
-                    style={{ textAlign: "left"}}
-                  /> */}
             </Col>
           </Row>
         </Modal>}
