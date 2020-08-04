@@ -3,6 +3,10 @@
   background: #ececec;
   font-size: 40px;
 }
+.title{
+  text-align: center;
+  font-weight: bold;
+}
 .addcase{
     h1{
     font-size: 20px;
@@ -26,9 +30,7 @@
     .isShowqmx{
      display: none;
     }
-    .title{
-      text-align: center;
-    }
+    
 }
 
 
@@ -133,4 +135,30 @@
       margin: 20px 0 0 120px;
     }
    }
+}
+
+.logDetail{
+
+ 
+/* 病情日志 */
+.contentDate{
+
+  width: 100%;
+  text-align: right;
+ 
+}
+.contenttitle{
+  font-size: 20px;
+  text-align: left;
+  font-weight: bold;
+  line-height: 45px;
+}
+.logContent{
+  text-align: left;
+  font-size: 12px;
+
+}
+img{
+  padding: 20px;
+}
 }

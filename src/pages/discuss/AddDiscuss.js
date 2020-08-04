@@ -1,21 +1,82 @@
-import React, { Component } from 'react'
-import { Form, Input, DatePicker, Row, Col, Select, Button,TreeSelect } from 'antd';
+import React, { PureComponent } from 'react'
+import { Modal, Form, Input, DatePicker, Row, Col, Select, Button,Tree } from 'antd';
 import moment from 'moment';
 import locale from 'antd/lib/date-picker/locale/zh_CN';
 import styles from './style.module.scss'
 
+const x = 3;
+const y = 2;
+const z = 1;
+const gData = [];
+
+const generateData = (_level, _preKey, _tns) => {
+  const preKey = _preKey || '0';
+  const tns = _tns || gData;
+
+  const children = [];
+  for (let i = 0; i < x; i++) {
+    const key = `${preKey}-${i}`;
+    tns.push({ title: key, key });
+    if (i < y) {
+      children.push(key);
+    }
+  }
+  if (_level < 0) {
+    return tns;
+  }
+  const level = _level - 1;
+  children.forEach((key, index) => {
+    tns[index].children = [];
+    return generateData(level, key, tns[index].children);
+  });
+};
+generateData(z);
+
+const dataList = [];
+const generateList = data => {
+  for (let i = 0; i < data.length; i++) {
+    const node = data[i];
+    const { key } = node;
+    dataList.push({ key, title: key });
+    if (node.children) {
+      generateList(node.children);
+    }
+  }
+};
+generateList(gData);
+
+const getParentKey = (key, tree) => {
+  let parentKey;
+  for (let i = 0; i < tree.length; i++) {
+    const node = tree[i];
+    if (node.children) {
+      if (node.children.some(item => item.key === key)) {
+        parentKey = node.key;
+      } else if (getParentKey(key, node.children)) {
+        parentKey = getParentKey(key, node.children);
+      }
+    }
+  }
+  return parentKey;
+};
 
 
-class  AddDiscuss extends Component {
+class  AddDiscuss extends PureComponent {
+  formRef = React.createRef()
   constructor(){
     super();
     this.state = {
       startTime: '',
       endTime: '',
+      visible: false,
       value: ['0-0-0'],
+      modalTitle: '',
+      multiple: false,
+      expandedKeys: [],
+      searchValue: '',
+      autoExpandParent: true,
     }
   } 
-
   // ==============================日期选择器限制条件设置===========================
   changeTime =(val, dateStrings, type)=> {
     // console.log(val);
@@ -169,11 +230,67 @@ class  AddDiscuss extends Component {
     }
   }
   // ============================选择医生========================
-  onChange = value => {
-    console.log('onChange ', value);
-    this.setState({ value });
+  chooseDoc= (title, record) => {
+    // console.log(record);
+    // console.log(title);
+    if (record==1) {
+      this.setState({
+        visible: true,
+        modalTitle: title,
+        multiple: true
+      });
+    }
+    else if(record==0){
+      this.setState({
+        visible: true,
+        modalTitle: title,
+        multiple: false
+      });
+    }
   };
 
+  handleOk = e => {
+    console.log(e);
+    this.setState({
+      visible: false,
+      searchValue: '',
+    });
+  };
+  handleCancel = e => {
+    console.log(e);
+    this.setState({
+      visible: false,
+      searchValue: '',
+    });
+  };
+  // onSelect = (keys, event) => {
+  //   console.log(keys);
+  //   console.log(event.node.title);
+  // };
+
+  onExpand = expandedKeys => {
+    this.setState({
+      expandedKeys,
+      autoExpandParent: false,
+    });
+  };
+  // 搜索
+  onSearch= (e) => {
+    const { value } = e.target;
+    const expandedKeys = dataList
+      .map(item => {
+        if (item.title.indexOf(value) > -1) {
+          return getParentKey(item.key, gData);
+        }
+        return null;
+      })
+      .filter((item, i, self) => item && self.indexOf(item) === i);
+    this.setState({
+      expandedKeys,
+      searchValue: value,
+      autoExpandParent: true,
+    });
+  };
   // ============================提交新增探讨表单==============================
   onFinish =(Values)=> {
     console.log(Values);
@@ -182,65 +299,101 @@ class  AddDiscuss extends Component {
   // 关闭弹框
   delSearch =()=> {
     this.props.cancel()
+    console.log(this.props.storeState);
   }
+  onFill = () => {
+    const {storeState} = this.props;
+    
+    if(storeState!=undefined){
+      console.log(storeState);
+      this.formRef.current.setFieldsValue(storeState);
+    }  
+    console.log(this.formRef.current.getFieldsValue()); 
+　};
+  componentDidMount(){
+    console.log('=================');
+      this.onFill()
+    console.log(this.formRef.current);
+  }
+  // UNSAFE_componentWillMount(){
+  //   console.log(this.props.storeState);
+//   { 
+//     discussId: storeState.discussId,
+//     discussName:  storeState.discussName,
+//     joinNumber:  storeState.joinNumber,
+//     discussStart:  storeState.discussStart,
+//     enrollStart:  storeState.enrollStart,
+//     enrollEnd:  storeState.enrollEnd,
+//     moneyType:  storeState.moneyType,
+//     AttendMoney:  storeState.AttendMoney,
+//     host:  storeState.host,
+//     inviteGuests:  storeState.inviteGuests,
+//     discussState:  storeState.discussState,
+//     cancelStart:  storeState.cancelStart,
+//     discussEnd:  storeState.discussEnd,
+//     continueTime:  storeState.continueTime,
+//     cancelReason:  storeState.cancelReason,
+//     patietInfo:  storeState.patietInfo,
+//     explain:  storeState.explain,
+//  }
+  // }
 
   render() {
+    const { searchValue, expandedKeys, autoExpandParent } = this.state;
+    const loop = data =>
+      data.map(item => {
+        const index = item.title.indexOf(searchValue);
+        const beforeStr = item.title.substr(0, index);
+        const afterStr = item.title.substr(index + searchValue.length);
+        const title =
+          index > -1 ? (
+            <span>
+              {beforeStr}
+              <span className="site-tree-search-value">{searchValue}</span>
+              {afterStr}
+            </span>
+          ) : (
+            <span>{item.title}</span>
+          );
+        if (item.children) {
+          return { title, key: item.key, children: loop(item.children) };
+        }
+
+        return {
+          title,
+          key: item.key,
+        };
+      });
+    // const { DirectoryTree } = Tree;
+    const { Search } = Input;
     const { Option } = Select;
     const { TextArea } = Input;
-    const { SHOW_PARENT } = TreeSelect;
+    const {storeState} = this.props;
     const treeData = [
       {
-        title: 'Node1',
-        value: '0-0',
+        title: 'parent 0',
         key: '0-0',
         children: [
-          {
-            title: 'Child Node1',
-            value: '0-0-0',
-            key: '0-0-0',
-          },
+          { title: 'leaf 0-0', key: '0-0-0', isLeaf: true },
+          { title: 'leaf 0-1', key: '0-0-1', isLeaf: true },
         ],
       },
       {
-        title: 'Node2',
-        value: '0-1',
+        title: 'parent 1',
         key: '0-1',
         children: [
-          {
-            title: 'Child Node3',
-            value: '0-1-0',
-            key: '0-1-0',
-          },
-          {
-            title: 'Child Node4',
-            value: '0-1-1',
-            key: '0-1-1',
-          },
-          {
-            title: 'Child Node5',
-            value: '0-1-2',
-            key: '0-1-2',
-          },
+          { title: 'leaf 1-0', key: '0-1-0', isLeaf: true },
+          { title: 'leaf 1-1', key: '0-1-1', isLeaf: true },
         ],
       },
     ];
-    const tProps = {
-      treeData,
-      value: this.state.value,
-      onChange: this.onChange,
-      treeCheckable: true,
-      showCheckedStrategy: SHOW_PARENT,
-      placeholder: '请选择',
-      style: {
-        width: '100%',
-      },
-    };
+
       return (
           <div>
-            {/* <h1>新增病例探讨</h1> */}
             <Form
               name="basic"
-              initialValues={{ remember: true }}
+              initialValues={storeState}
+              ref={this.formRef}
               onFinish={this.onFinish}
             >
               <Row justify="start" gutter={[120, 25]}>
@@ -249,6 +402,7 @@ class  AddDiscuss extends Component {
                     label="探讨主题"
                     name="discussName"
                     rules = {[{required:true, message: '请输入!'}]}
+                    // initialValue={storeState.discussName}
                   >
                     <Input placeholder="请输入" maxLength="20" />
                   </Form.Item>
@@ -257,10 +411,10 @@ class  AddDiscuss extends Component {
                   <Form.Item
                     label="参会医生"
                     name="inviteGuests"
-                    // rules = {[{required:true, message: '请选择!'}]}
-                  >
-                    {/* <Input placeholder="请选择" onClick={this.chooseDoc} /> */}
-                    <TreeSelect {...tProps} />
+                    rules = {[{required:true, message: '请选择!'}]}
+                 >
+                    <Input placeholder="请选择" onClick={this.chooseDoc.bind(this,"选择医生",1)} readOnly/>
+                    {/* <TreeSelect {...tProps} /> */}
                     {/* <Button className={styles.choose}>请选择</Button> */}
                   </Form.Item>
                 </Col>
@@ -270,7 +424,7 @@ class  AddDiscuss extends Component {
                     name="host"
                     rules = {[{required:true, message: '请输入!'}]}
                   >
-                    <Input placeholder="请输入" />
+                    <Input placeholder="请选择" onClick={this.chooseDoc.bind(this,"选择主持人",0)} readOnly/>
                   </Form.Item>
                 </Col>
                 <Col span={12}>
@@ -359,6 +513,50 @@ class  AddDiscuss extends Component {
                 </Col>
               </Row>
             </Form>    
+            {this.state.visible &&<Modal
+              title={this.state.modalTitle}
+              okText="确认"
+              cancelText="取消"
+              visible={this.state.visible}
+              onOk={this.handleOk}
+              onCancel={this.handleCancel}
+              className = {styles.smallBox}
+            >
+              <Row justify="start" gutter={[0, 25]}>
+                <Col span={6}>
+                  <h3 style={{ textAlign: "right",lineHeight:'30px'}}>关键字&nbsp;&nbsp;</h3>
+                </Col>
+                <Col span={14}>
+                  <Search style={{ marginBottom: 8 }} placeholder="请输入" size="middle" onChange={this.onSearch} enterButton="搜索"/>
+                  {/* <Search
+                    placeholder="请输入"
+                    enterButton="搜索"
+                    size="middle"
+                    onSearch={this.onSearch}
+                  /> */}
+                </Col>
+              </Row>
+              <Row justify="start" gutter={[0, 25]}>
+                <Col span={12} offset={6}>
+                  <Tree
+                    multiple={this.state.multiple}
+                    onExpand={this.onExpand}
+                    expandedKeys={expandedKeys}
+                    autoExpandParent={autoExpandParent}
+                    treeData={loop(gData)}
+                    style={{ textAlign: "left"}}
+                  />
+                  {/* <DirectoryTree
+                    multiple={this.state.multiple}
+                    defaultExpandAll
+                    onSelect={this.onSelect}
+                    onExpand={this.onExpand}
+                    treeData={treeData}
+                    style={{ textAlign: "left"}}
+                  /> */}
+                </Col>
+              </Row>
+            </Modal> }
           </div>
       )
   }

@@ -79,7 +79,7 @@ export default class CaseLog extends PureComponent {
         align: 'center',
         width: 150,
         render: (text, record) => <span className={styles.tableLink}>
-          <Link to={`/index/patient/CaseDetail/` + record.Id}>查看</Link>
+          <Link to={`/index/patient/CaseLogDetail/` + record.Id}>查看</Link>
         </span>,
       },
     ];

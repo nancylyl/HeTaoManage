@@ -36,6 +36,8 @@ class LeftMenu extends Component {
   render() {
     const { menu: userRoot } = this.props
     const { menu } = userRoot
+    // console.log(menu);
+
     return (
       <>
         {menu.loading && <span>loading</span>}
