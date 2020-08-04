@@ -10,6 +10,7 @@ import AddDiscuss from './AddDiscuss';
 
 
 class discussManage extends PureComponent {
+  formRef = React.createRef()
   constructor(){
     super();
     this.state={
@@ -18,23 +19,23 @@ class discussManage extends PureComponent {
       visible: false,
       modalTitle: '',
       storeState:{
-        // discussId: '',
-        // discussName: '',
-        // joinNumber: '',
-        // discussStart: '',
-        // enrollStart: '',
-        // enrollEnd: '',
-        // moneyType: '',
-        // AttendMoney: '',
-        // host: '',
-        // inviteGuests: '',
-        // discussState: '',
-        // cancelStart: '',
-        // discussEnd: '',
-        // continueTime: '',
-        // cancelReason: '',
-        // patietInfo: '',
-        // explain: '',
+        discussId: '',
+        discussName: '',
+        joinNumber: '',
+        discussStart: '',
+        enrollStart: '',
+        enrollEnd: '',
+        moneyType: '',
+        AttendMoney: '',
+        host: '',
+        inviteGuests: '',
+        discussState: '',
+        cancelStart: '',
+        discussEnd: '',
+        continueTime: '',
+        cancelReason: '',
+        patietInfo: '',
+        explain: '',
       },
     }
   } 
@@ -62,21 +63,17 @@ class discussManage extends PureComponent {
 // 提交搜索信息
   onFinish = values => {
     this.getDiscussList(values);
-    // const {form} = this.props;
     console.log(values);
-    // this.props.form.resetFields();
 
   };
 // 重置搜索框
   delSearch = () => {
-    // console.log(this.from);
-    // this.props.form.resetFields();
-    // this.form.setFieldsValue()
-    // console.log('Failed:', errorInfo);
+    console.log(this.formRef.current);
+    this.formRef.current.resetFields();  
   };
   // ====================新增探讨,编辑探讨弹框====================
   showModal = (title,  record) => {
-    console.log( record);
+    // console.log( record);
     if( record !== 0){
       this.setState({
         modalTitle: title,
@@ -104,7 +101,6 @@ class discussManage extends PureComponent {
     this.setState({
       visible: false,
     });
-    // console.log(this.state.storeState);
   };
   // 查看探讨
   checkDiscuss= () => {
@@ -118,10 +114,8 @@ class discussManage extends PureComponent {
 
 
   render() {
-    // const { getFieldDecorator } = this.props.form;
     const { discussLists } = this.state;
     const { Option } = Select;
-    // console.log(this.props.form);
     // 表格
     const columns = [
       {
@@ -232,11 +226,11 @@ class discussManage extends PureComponent {
     }   
     return (
         <div>
-          {/* 搜索栏 */}
-          
+          {/* =====================搜索栏================= */}         
           <Form
             name="basic"
             initialValues={{ remember: true }}
+            ref={this.formRef}
             onFinish={this.onFinish}
             className = {styles.search}
           >
@@ -325,7 +319,7 @@ class discussManage extends PureComponent {
             )}
           </div>
           {/* ================新增病例探讨弹框======================*/}
-          <Modal
+          {this.state.visible &&<Modal
               title={this.state.modalTitle}
               visible={this.state.visible}
               onOk={this.handleOk}
@@ -335,8 +329,8 @@ class discussManage extends PureComponent {
               footer={null}
               className={styles.addBox}
             >
-              <AddDiscuss cancel={this.handleCancel} submit={this.handleOk}></AddDiscuss>
-          </Modal>    
+              <AddDiscuss storeState={this.state.storeState} cancel={this.handleCancel} submit={this.handleOk}></AddDiscuss>
+          </Modal>  }  
           
         </div>
     )

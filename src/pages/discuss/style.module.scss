@@ -84,3 +84,13 @@
     }
   }
 }
+.smallBox{
+  text-align: center; 
+  width: 30%!important;
+}
+:global{
+  .site-tree-search-value {
+    color: #f50!important;
+  }
+  
+}
