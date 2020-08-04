@@ -1,5 +1,5 @@
 import React, { PureComponent, useState } from 'react'
-import { Row, Col, Input, Select, DatePicker, Table, Button, Space, Pagination, Modal, Form, Radio, message,Cascader, } from 'antd';
+import { Row, Col, Input, Select, DatePicker, Table, Button, Space, Pagination, Modal, Form, Radio, message, Cascader, } from 'antd';
 import Axios from '../../util/axios'
 import Api from '../../api/index'
 import { Link } from 'react-router-dom'
@@ -13,7 +13,7 @@ const options = new Array(80).fill('null').map((item, index) => <Option key={ind
 const adoptions = require('../../components/address.json');//诊断数据
 function handleChange(value) {
   this.setState({
-    sex : `${value}`
+    sex: `${value}`
   })
   console.log(`selected ${value}`);
 }
@@ -22,11 +22,11 @@ function onChange(date, dateString) {
 }
 
 class patientListManage extends PureComponent {
-  state = { 
-    P_Name : "",//输入框输入值
-    P_address : "",//输入框输入值
-    medical : 2,//病历填写程度框 默认全部：2
-    sex : 2,//性别多选框 默认全部：2
+  state = {
+    P_Name: "",//输入框输入值
+    P_address: "",//输入框输入值
+    medical: 2,//病历填写程度框 默认全部：2
+    sex: 2,//性别多选框 默认全部：2
     clinicalTime: "",//上次就诊时间
     visible: false
   };
@@ -34,80 +34,80 @@ class patientListManage extends PureComponent {
   //搜索功能所用方法
   P_NameInputValue = (event) => {
     this.setState({
-      P_Name : event.target.value,
+      P_Name: event.target.value,
     })
   };
   P_addressInputValue = (event) => {
     this.setState({
-      P_address : event.target.value
+      P_address: event.target.value
     })
   };
   medicalInputValue = (event) => {
     this.setState({
-      medical : event
+      medical: event
     })
   };
   sexInputValue = (event) => {
     this.setState({
-      sex : event
+      sex: event
     })
   };
   clinicalTimeInputValue = (event) => {
     this.setState({
-      clinicalTime : event._d
+      clinicalTime: event._d
     })
   };
   handlePost = () => {
-   console.log(this.state); 
+    console.log(this.state);
 
     //在此做提交操作，比如发dispatch等
   };
-//-----------------------------------------------------
+  //-----------------------------------------------------
 
-//新增患者 模态框
+  //新增患者 模态框
 
-addModal = () => {
-  this.setState({
-    visible: true,
-  });
-};
+  addModal = () => {
+    this.setState({
+      visible: true,
+    });
+  };
 
-handleOk = e => {
-  console.log(e);
-  this.setState({
-    visible: false,
-  });
-};
+  handleOk = e => {
+    console.log(e);
+    this.setState({
+      visible: false,
+    });
+  };
 
-handleCancel = e => {
-  console.log(e);
-  this.setState({
-    visible: false,
-  });
-};
-//-------------------------编辑部分-----------------------
-editform = (text) =>{
-  console.log(text.P_ID)  
-  //获取当前点击 行 的id
-  this.setState({
+  handleCancel = e => {
+    console.log(e);
+    this.setState({
+      visible: false,
+    });
+  };
+  //-------------------------编辑部分-----------------------
+  editform = (text) => {
+    console.log(text.P_ID)
+    //获取当前点击 行 的id
+    this.setState({
       newEdit: true,  // 这是 编辑 模态框
-  })
-  let id = text.id;    
-  // axios.get(`接口地址/${id}/edit`)  //根据自己公司后端配置的接口地址来 ，获取页面初始化数据
-  //     .then(res=>{
-  //         console.log(res)
-  //         this.setState({
-  //             list:res.data.data.advertisement    // 请在构造函数中 定义 list:{}
-  //         });
-  //         this.props.form.setFieldsValue({     // 双向绑定form 表单的数据
-  //             name:this.state.list.name,
-  //             sort:this.state.list.sort,
-  //             advertisement_node_id:this.state.list.advertisement_node_id,
-  //             photo_id:this.state.list.photo_id,
-  //             url:this.state.list.url,
-  //         })
-  //     })
-};
+    })
+    let id = text.id;
+    // axios.get(`接口地址/${id}/edit`)  //根据自己公司后端配置的接口地址来 ，获取页面初始化数据
+    //     .then(res=>{
+    //         console.log(res)
+    //         this.setState({
+    //             list:res.data.data.advertisement    // 请在构造函数中 定义 list:{}
+    //         });
+    //         this.props.form.setFieldsValue({     // 双向绑定form 表单的数据
+    //             name:this.state.list.name,
+    //             sort:this.state.list.sort,
+    //             advertisement_node_id:this.state.list.advertisement_node_id,
+    //             photo_id:this.state.list.photo_id,
+    //             url:this.state.list.url,
+    //         })
+    //     })
+  };
   constructor(props) {
     super(props);
 
@@ -202,10 +202,10 @@ editform = (text) =>{
         render: (text, record) => (
 
           <Space size="middle">
-            <a>查看</a>
-            <a onClick={this.editform.bind(text,record)}>编辑</a>
+            <Link to={`/index/patient/CaseBox`}>查看</Link>
+            <a onClick={this.editform.bind(text, record)}>编辑</a>
             <a>更换医生</a>
-            {record.medical > 0 ? '病历' :<Link to={"/index/patient/Addcase/1"}>新增病历</Link>}
+            {record.medical > 0 ? '病历' : <Link to={"/index/patient/Addcase/0"}>新增病历</Link>}
           </Space>
         ),
       },
@@ -267,23 +267,23 @@ editform = (text) =>{
               <Input />
             </Form.Item>
             <Form.Item name="sex" label="性别" rules={[
-                {
-                  required: true,
-                  message: '请选择性别',
-                },
-              ]} className="collection-create-form_last-form-item">
+              {
+                required: true,
+                message: '请选择性别',
+              },
+            ]} className="collection-create-form_last-form-item">
               <Radio.Group>
                 <Radio value="1">男</Radio>
                 <Radio value="0">女</Radio>
               </Radio.Group>
             </Form.Item>
             <Form.Item name="birthday" label="出生日期" rules={[
-                {
-                  required: true,
-                  message: '请选择出生日期',
-                },
-              ]}>
-              <DatePicker placeholder="请选择出生日期"/>
+              {
+                required: true,
+                message: '请选择出生日期',
+              },
+            ]}>
+              <DatePicker placeholder="请选择出生日期" />
             </Form.Item>
             <Form.Item
               label="发病年龄"
@@ -299,7 +299,7 @@ editform = (text) =>{
             <Form.Item label="现居住地"
               rules={[{ required: true, message: "必填" }]}
               name="P_address" >
-              <Cascader options={adoptions} placeholder="请选择居住地"/>
+              <Cascader options={adoptions} placeholder="请选择居住地" />
             </Form.Item>
             <Form.Item name="description" label="备注">
               <TextArea rows={4} />
@@ -310,7 +310,7 @@ editform = (text) =>{
     };
     const CollectionsPage = () => {
       const [visible, setVisible] = useState(false);
-    
+
       const onCreate = values => {
         console.log('Received values of form: ', values);
         setVisible(false);
@@ -329,7 +329,7 @@ editform = (text) =>{
           </Button>
           <CollectionCreateForm
             visible={visible}
-            onCreate={ onCreate }
+            onCreate={onCreate}
             onCancel={() => {
               setVisible(false);
             }}
@@ -343,8 +343,8 @@ editform = (text) =>{
         <Row align='middle' justify='start'>
           <Col span={3} align="right">患者姓名：</Col>
           <Col span={5} ><Input placeholder="请输入" style={{ width: 150 }} value={this.state.P_Name}
-          onChange={this.P_NameInputValue}
-/></Col>
+            onChange={this.P_NameInputValue}
+          /></Col>
           <Col span={3} align="right">患者性别：</Col>
           <Col span={5}>
             <Select defaultValue="2" style={{ width: 150 }} onChange={this.sexInputValue}>
@@ -355,7 +355,7 @@ editform = (text) =>{
           </Col>
           <Col span={3} align="right">现居住地：</Col>
           <Col span={5}><Input placeholder="请输入" style={{ width: 150 }} value={this.state.P_address}
-          onChange={this.P_addressInputValue}/></Col>
+            onChange={this.P_addressInputValue} /></Col>
         </Row>
         <Row align='middle' className='marginT' style={{ marginBottom: 50 }}>
           <Col span={3} align="right">病历填写程度：</Col>
@@ -366,8 +366,8 @@ editform = (text) =>{
               <Option value="0">未填写</Option>
             </Select>
           </Col>
-            <Col span={3} align="right">上次就诊时间：</Col>
-            <Col span={5}><DatePicker style={{ width: 150 }} onChange={this.clinicalTimeInputValue} placeholder="请选择" /></Col>
+          <Col span={3} align="right">上次就诊时间：</Col>
+          <Col span={5}><DatePicker style={{ width: 150 }} onChange={this.clinicalTimeInputValue} placeholder="请选择" /></Col>
           <Col span={2} offset={3}>
             <Button >重置</Button>
           </Col>

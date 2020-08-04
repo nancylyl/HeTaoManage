@@ -65,9 +65,9 @@ export default class index extends Component {
           <TabPane tab="发作次数纪录" key="3">
             <CaseRecord />
           </TabPane>
-          <TabPane tab="症状纪录" key="4">
+          {/* <TabPane tab="症状纪录" key="4">
             <CaseCondition />
-          </TabPane>
+          </TabPane> */}
           <TabPane tab="症状日志" key="4">
             <CaseLog />
           </TabPane>
