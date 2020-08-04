@@ -112,7 +112,13 @@ export default class CheckDiscuss extends PureComponent {
           visible: true,
         });
       };
-      
+
+      handleCancel = e => {
+        console.log(e);
+        this.setState({
+          visible: false,
+        });
+      };
     render() {
         const { Search } = Input;
         const {discussInfo} = this.state
