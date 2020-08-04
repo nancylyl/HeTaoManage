@@ -20,7 +20,11 @@ export default class menuStore {
         url: Api.home.getMenu,
       })
         .then((res) => {
+<<<<<<< HEAD
           console.log(res.data)
+=======
+          //   console.log(res.data)
+>>>>>>> 2b2f19f603d6810c9d330d12ed3a685f7e30f87d
           if (res.data.success) {
             this.menu.data = res.data.data
             this.menu.loaded = true
