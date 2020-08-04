@@ -72,6 +72,7 @@ const columns = [
       }
       else if(record.rechargeManage_Money==3){
         return "4"
+        
       }
       
     },
@@ -87,7 +88,7 @@ const columns = [
     title: '累计给予医生核桃币数',
     dataIndex: 'rechargeManage_TotalHetao',
     key: '2',
-    width: 150,
+    // width: 150,
   },
   {
     title: '会员有效期',
