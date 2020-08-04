@@ -1,5 +1,6 @@
 import React, { PureComponent,useState  } from 'react'
 import {Row, Col, Button, Table, Space, Modal, Form, Input, message} from 'antd';
+import { Link } from 'react-router-dom'
 import './hospitalManage.scss'
 import Axios from '../../util/axios'
 import Api from '../../api/index'
@@ -219,7 +220,9 @@ class checkHospital extends PureComponent {
                 />
                 <Row>
                     <Col span={13} align='right'>
-                        <Button type='default' size='large'>返回</Button>
+                        <Link to={'/index/hospitalInfo/hospital'}>
+                            <Button type='default' size='large'>返回</Button>
+                        </Link>
                     </Col>
                 </Row>
             </div>
