@@ -3,6 +3,10 @@
   background: #ececec;
   font-size: 40px;
 }
+.title{
+  text-align: center;
+  font-weight: bold;
+}
 .addcase{
     h1{
     font-size: 20px;
@@ -26,9 +30,7 @@
     .isShowqmx{
      display: none;
     }
-    .title{
-      text-align: center;
-    }
+    
 }
 
 
@@ -91,4 +93,72 @@
   &:last-child {
     margin-bottom: 10px;
   }
+}
+.baseInfoRow{
+  padding: 14px 0;
+}
+
+.titleTabs{
+ :global{
+  .ant-tabs-tab-btn{
+    width: 180px;
+    text-align: center;
+
+  }
+  .ant-tabs-nav .ant-tabs-tab {
+    border-radius: 5px 5px 0 0 !important;
+}
+ }
+}
+.tableTitle{
+  text-align: center;
+  margin: 10px;
+}
+.tableLink{
+  a{
+    display:inline-block;
+    margin-right: 20px;
+  }
+}
+.contentTabs
+{
+
+  :global{
+    .ant-tabs-nav .ant-tabs-tab {
+      border-radius: 5px 5px 0 0 !important;
+  }
+    .ant-tabs-tab-btn{
+      width: 40px !important;
+      text-align: center;
+    }
+    .ant-tabs-nav-wrap{
+      margin: 20px 0 0 120px;
+    }
+   }
+}
+
+.logDetail{
+
+ 
+/* 病情日志 */
+.contentDate{
+
+  width: 100%;
+  text-align: right;
+ 
+}
+.contenttitle{
+  font-size: 20px;
+  text-align: left;
+  font-weight: bold;
+  line-height: 45px;
+}
+.logContent{
+  text-align: left;
+  font-size: 12px;
+
+}
+img{
+  padding: 20px;
+}
 }

@@ -1,8 +1,9 @@
 import React, { PureComponent } from 'react'
+import { Link } from 'react-router-dom'
 import { Form, Input, Button, Card, Row, Col, Select, Typography, Modal, Tabs, Menu, Layout, Checkbox, message, Tag } from 'antd';
-import Axios from '../../../util/axios'
-import Api from '../../../api/index'
-import styles from './style.module.scss'
+import styles from '../style.module.scss'
+import Axios from '../../../../util/axios'
+import Api from '../../../../api/index'
 import _ from 'lodash';
 const { Title } = Typography;
 const { Option } = Select;
@@ -10,29 +11,29 @@ const { TabPane } = Tabs;
 const { Content, Sider } = Layout;
 const options = new Array(20).fill('null').map((item, index) => <Option key={index + 1} value={index + 1}>{`${index + 1}`}</Option>)
 
-
 //#endregion
 const col_1 = 3;
-const col_2 = 8
-const col_3 = 13
-
-const defaultDiagnoseData = require('./data/diagnose.json');//诊断数据
-const defaultEncephlogramData = require('./data/encephlogram.json');//脑电图异常数据
-const defaultmedicine = require('./data/medicine.json');//药物
-const defaultct = require('./data/ct.json');//核磁/ct
-const defaultoperation = require('./data/operation.json');//手术选项
-const defaultcdisease = require('./data/cdisease.json');//慢病史
+const col_2 = 5
+const col_3 = 16
+const defaultDiagnoseData = require('../data/diagnose.json');//诊断数据
+const defaultEncephlogramData = require('../data/encephlogram.json');//脑电图异常数据
+const defaultmedicine = require('../data/medicine.json');//药物
+const defaultct = require('../data/ct.json');//核磁/ct
+const defaultoperation = require('../data/operation.json');//手术选项
+const defaultcdisease = require('../data/cdisease.json');//慢病史
 // const defalutfamilyhistory = require('./data/cdisease.json');//请选择家族史
-const defalutfamilyhistory = _.cloneDeep(require('./data/cdisease.json'));//请选择家族史
+const defalutfamilyhistory = _.cloneDeep(require('../data/cdisease.json'));//请选择家族史
 defalutfamilyhistory.title = '家族病史'
-const defaultMedicineAllergy = _.cloneDeep(require('./data/medicine.json'));//过敏药物
+const defaultMedicineAllergy = _.cloneDeep(require('../data/medicine.json'));//过敏药物
 
 export default class Addcase extends PureComponent {
   formRef = React.createRef()
   state = {
     shadowModalData: {},
-    type: this.props.match.params.id > 0 ? 'edit' : 'create',
+    // type: this.props.match.params.id > 0 ? 'edit' : 'create',
+    type: 'edit',
     initFormData: {
+      Id: 0,
       diagnosis: "",//诊断
       computer: "",//电脑图
       NMR: "",//ct
@@ -73,13 +74,32 @@ export default class Addcase extends PureComponent {
     visibleModalName: null, // 当前显示哪个modal的key值，为false，不显示modal
     typeLoaded: false,//弹出信息加载
     initDataLoaded: false, // 展示编辑时，标识数据是否加载完成
+    isBackShow: false
   }
 
 
   componentDidMount() {
     const { type } = this.state;
-    const { match: { params: { id } } } = this.props;
-    type === 'edit' && this.getCaseDetail(id)
+    // const { match: { params: { id } } } = this.props;
+    if (this.props.location != null && this.props.location != undefined) {
+      const parms = this.props.location.query;
+      console.log(parms);
+
+      if (parms != null && parms.flag == 2) {
+        this.setState({
+          isBackShow: true
+        });
+      }
+    }
+
+    // const parms = this.props.match.params.id.split('');
+    // console.log(this.props, parms);
+    // if (parms[0] == 1) {
+    //   this.setState({
+    //     isBackShow: true
+    //   })
+
+    type === 'edit' && this.getCaseDetail(1)
   }
 
   //弹出层菜单
@@ -351,7 +371,7 @@ export default class Addcase extends PureComponent {
         // 将接口中弹层数据merge到弹层中
         const modalData = this.parseModalData(data);
 
-        console.log(data)
+        // console.log(data)
 
         this.setState({
           initFormData: data,
@@ -643,27 +663,11 @@ export default class Addcase extends PureComponent {
 
     return (type === 'create' || initDataLoaded) && <>
 
-      <div className={styles.addcase}>
-        <Card type="inner" title={<h1 className={styles.title}>患者信息</h1>}  >
-          <Row gutter={16}>
-            <Col span={6}>
-              <div className={styles.showdiv}>姓名：张三</div>
-            </Col>
-            <Col span={6}>
-              <div className={styles.showdiv} >性别：女</div>
-            </Col>
-            <Col span={6}>
-              <div className={styles.showdiv}>患病年龄：30岁</div>
-            </Col>
-            <Col span={6}>
-              <div className={styles.showdiv}>现居住地:北京市海定区</div>
-            </Col>
-          </Row>
-        </Card>
+      <div className={styles.addcase, styles.caseDetail}>
         <Form
           name="basic"
-          labelCol={{ span: 8 }}
-          wrapperCol={{ span: 16 }}
+          labelCol={{ span: 9 }}
+          wrapperCol={{ span: 15 }}
           initialValues={initFormData}
           onValuesChange={this.onValuesChange}
           ref={this.formRef}
@@ -678,14 +682,11 @@ export default class Addcase extends PureComponent {
               <Col span={col_2}>
                 <Form.Item
                   label="诊断"
-                  rules={[{ required: true, message: "必填" }]}
-                  name="diagnosis" >
-                  <Select style={{ width: 120 }}>
-                    <Option value={""}>请选择</Option>
-                    <Option value={0}>否</Option>
-                    <Option value={1}>是</Option>
-                  </Select>
+                >
+                  {initFormData.diagnosis == 1 ? "是" : "否"}
                 </Form.Item>
+
+
               </Col>
               <Col span={col_3}>
                 <Form.Item
@@ -698,17 +699,7 @@ export default class Addcase extends PureComponent {
                   {
                     ({ getFieldValue, getFieldsValue }) => {
                       const diagnosis = getFieldValue('diagnosis')
-                      return <Button
-                        disabled={diagnosis !== 1}
-                        style={{ width: 120 }}
-                        onClick={() => {
-                          this.onShowModal('diagnosis')
-                        }}
-                      >
-                        {
-                          diagnosisContent ? '已选择' : "请选择"
-                        }
-                      </Button>
+
                     }
                   }
                 </Form.Item>
@@ -721,13 +712,9 @@ export default class Addcase extends PureComponent {
               <Col span={col_2}>
                 <Form.Item
                   label="电脑图"
-                  rules={[{ required: true, message: "必填" }]}
-                  name="computer" >
-                  <Select style={{ width: 120 }} >
-                    <Option value={""}>请选择</Option>
-                    <Option value={1}>正常</Option>
-                    <Option value={0}>异常</Option>
-                  </Select>
+
+                >
+                  {initFormData.computer == 1 ? "正常" : "异常"}
                 </Form.Item>
               </Col>
               <Col span={col_3}>
@@ -740,17 +727,7 @@ export default class Addcase extends PureComponent {
                   {
                     ({ getFieldValue }) => {
                       const diagnosis = getFieldValue('computer')
-                      return <Button disabled={diagnosis !== 0}
-                        style={{ width: 120 }}
 
-                        onClick={() => {
-                          this.onShowModal('encephlogram')
-                        }}
-                      >
-                        {
-                          encephlogramContent ? '已选择' : '请选择'
-                        }
-                      </Button>
                     }
                   }
                 </Form.Item>
@@ -763,13 +740,9 @@ export default class Addcase extends PureComponent {
               <Col span={col_2}>
                 <Form.Item
                   label="核磁/CT"
-                  rules={[{ required: true, message: "必填" }]}
-                  name="NMR" >
-                  <Select style={{ width: 120 }} >
-                    <Option value={""}>请选择</Option>
-                    <Option value={0}>正常</Option>
-                    <Option value={1}>异常</Option>
-                  </Select>
+                >
+
+                  {initFormData.NMR == 0 ? "正常" : "异常"}
                 </Form.Item>
               </Col>
               {/* nMRException */}
@@ -783,18 +756,7 @@ export default class Addcase extends PureComponent {
                   {
                     ({ getFieldValue }) => {
                       const diagnosis = getFieldValue("NMR")
-                      return <Button
-                        disabled={diagnosis !== 1}
-                        style={{ width: 120 }}
-                        onClick={() => {
-                          this.onShowModal('ct')
-                        }}
-                      >
 
-                        {
-                          ctContent ? '已选择' : '请选择'
-                        }
-                      </Button>
                     }
                   }
                 </Form.Item>
@@ -807,13 +769,8 @@ export default class Addcase extends PureComponent {
               <Col span={col_2}>
                 <Form.Item
                   label="基因"
-                  rules={[{ required: true, message: "必填" }]}
-                  name="gene" >
-                  <Select style={{ width: 120 }} >
-                    <Option value={""}>请选择</Option>
-                    <Option value={0}>阴性</Option>
-                    <Option value={1}>阳性</Option>
-                  </Select>
+                >
+                  {initFormData.gene == 0 ? "阴性" : "阳性"}
                 </Form.Item>
               </Col>
             </Row>
@@ -824,29 +781,26 @@ export default class Addcase extends PureComponent {
               <Col span={col_2}>
                 <Form.Item
                   label="发作次数"
-                  rules={[{ required: true, message: "必填" }]}
-                  name="numberOfEpisodes" >
-                  <Select style={{ width: 120 }} >
-                    <Option value={""}>请选择</Option>
-                    {
-                      options
-                    }
-                  </Select>
+                >
+
+                  {initFormData.numberOfEpisodes}
                 </Form.Item>
               </Col>
               <Col span={col_3}>
                 {/* numberOfEpisodesException */}
                 <Form.Item
                   label="发作频率"
-                  rules={[{ required: true, message: "必填" }]}
-                  name="numberOfEpisodesException" >
 
-                  <Select style={{ width: 120 }} >
+                >
+
+                  {/* <Select style={{ width: 120 }} >
                     <Option value={""}>请选择</Option>
                     <Option value={0}>日</Option>
                     <Option value={1}>周</Option>
                     <Option value={2}>月</Option>
-                  </Select>
+                  </Select> */}
+
+                  {initFormData.numberOfEpisodesException == 0 ? "日" : "周"}
                 </Form.Item>
               </Col>
             </Row>
@@ -858,15 +812,11 @@ export default class Addcase extends PureComponent {
               <Col span={col_2}>
                 <Form.Item
                   label="是否药物治疗"
-                  rules={[{ required: true, message: "必填" }]}
-                  name="medication"
+
+
                   colon={true}
                 >
-                  <Select style={{ width: 120 }} >
-                    <Option value={""}>请选择</Option>
-                    <Option value={1}>是</Option>
-                    <Option value={0}>否</Option>
-                  </Select>
+                  {initFormData.medication == 1 ? "是" : "否"}
                 </Form.Item>
               </Col>
               {/* medicationContent */}
@@ -880,17 +830,7 @@ export default class Addcase extends PureComponent {
                   {
                     ({ getFieldValue }) => {
                       const diagnosis = getFieldValue("medication")
-                      return <Button
-                        disabled={diagnosis !== 1}
-                        style={{ width: 120 }}
-                        onClick={() => {
-                          this.onShowModal('medicine')
-                        }}
-                      >
-                        {
-                          medicationContent ? '已选择' : '请选择'
-                        }
-                      </Button>
+
                     }
                   }
                 </Form.Item>
@@ -903,13 +843,8 @@ export default class Addcase extends PureComponent {
               <Col span={col_2}>
                 <Form.Item
                   label="是否手术"
-                  rules={[{ required: true, message: "必填" }]}
-                  name="surgery" >
-                  <Select style={{ width: 120 }} >
-                    <Option value={""}>请选择</Option>
-                    <Option value={1}>是</Option>
-                    <Option value={0}>否</Option>
-                  </Select>
+                >
+                  {initFormData.surgery == 1 ? "是" : "否"}
                 </Form.Item>
               </Col>
               <Col span={col_3}>
@@ -922,18 +857,6 @@ export default class Addcase extends PureComponent {
                   {
                     ({ getFieldValue }) => {
                       const diagnosis = getFieldValue("surgery")
-                      return <Button
-                        disabled={diagnosis !== 1}
-                        style={{ width: 120 }}
-                        onClick={() => {
-                          this.onShowModal('operation')
-                        }}
-
-                      >
-                        {
-                          operationContent ? '已选择' : '请选择'
-                        }
-                      </Button>
                     }
                   }
                 </Form.Item>
@@ -945,25 +868,16 @@ export default class Addcase extends PureComponent {
               <Col span={col_2}>
                 <Form.Item
                   label="甲强==激素治疗"
-                  rules={[{ required: true, message: "必填" }]}
-                  name="hormoneTherapy">
-                  <Select style={{ width: 120 }} >
-                    <Option value={""}>请选择</Option>
-                    <Option value={1}>是</Option>
-                    <Option value={0}>否</Option>
-                  </Select>
+                >
+
+                  {initFormData.hormoneTherapy == 1 ? "是" : "否"}
                 </Form.Item>
               </Col>
               <Col span={col_3}>
                 <Form.Item
-                  label="免疫治疗"
-                  rules={[{ required: true, message: "必填" }]}
-                  name="immunityTherapy">
-                  <Select style={{ width: 120 }} >
-                    <Option value={""}>请选择</Option>
-                    <Option value={1}>是</Option>
-                    <Option value={0}>否</Option>
-                  </Select>
+                  label="免疫治疗">
+
+                  {initFormData.immunityTherapy == 1 ? "是" : "否"}
                 </Form.Item>
               </Col>
             </Row>
@@ -973,25 +887,15 @@ export default class Addcase extends PureComponent {
               <Col span={col_2}>
                 <Form.Item
                   label="生酮饮食"
-                  rules={[{ required: true, message: "必填" }]}
-                  name="ketogenicDiet">
-                  <Select style={{ width: 120 }} >
-                    <Option value={""}>请选择</Option>
-                    <Option value={1}>是</Option>
-                    <Option value={0}>否</Option>
-                  </Select>
+                >
+                  {initFormData.ketogenicDiet == 1 ? "是" : "否"}
                 </Form.Item>
               </Col>
               <Col span={col_3}>
                 <Form.Item
                   label="其他"
-                  rules={[{ required: true, message: "必填" }]}
-                  name="other">
-                  <Select style={{ width: 120 }} >
-                    <Option value={""}>请选择</Option>
-                    <Option value={1}>是</Option>
-                    <Option value={0}>否</Option>
-                  </Select>
+                >
+                  {initFormData.other == 1 ? "是" : "否"}
                 </Form.Item>
               </Col>
             </Row>
@@ -1005,13 +909,8 @@ export default class Addcase extends PureComponent {
               <Col span={col_2}>
                 <Form.Item
                   label="是否有药物过敏"
-                  rules={[{ required: true, message: "必填" }]}
-                  name="drugAllergy" >
-                  <Select style={{ width: 120 }} >
-                    <Option value={""}>请选择</Option>
-                    <Option value={1}>是</Option>
-                    <Option value={0}>否</Option>
-                  </Select>
+                >
+                  {initFormData.drugAllergy == 1 ? "是" : "否"}
                 </Form.Item>
               </Col>
               {/* allergyDrugName */}
@@ -1025,15 +924,7 @@ export default class Addcase extends PureComponent {
                   {
                     ({ getFieldValue }) => {
                       const diagnosis = getFieldValue("drugAllergy")
-                      return <Button
-                        disabled={diagnosis !== 1}
-                        style={{ width: 120 }}
-                        onClick={() => {
-                          this.onShowModal('drugAllergy')
-                        }}
-                      >
-                        {drugAllergyContent ? '已选择' : '请选择'}
-                      </Button>
+
                     }
                   }
                 </Form.Item>
@@ -1046,13 +937,8 @@ export default class Addcase extends PureComponent {
               <Col span={col_2}>
                 <Form.Item
                   label="是否有外伤史"
-                  rules={[{ required: true, message: "必填" }]}
-                  name="isHistoryOfTrauma" >
-                  <Select style={{ width: 120 }} >
-                    <Option value={""}>请选择</Option>
-                    <Option value={1}>是</Option>
-                    <Option value={0}>否</Option>
-                  </Select>
+                >
+                  {initFormData.isHistoryOfTrauma == 1 ? "是" : "否"}
                 </Form.Item>
               </Col>
               {/*  historyOfChronicDisease*/}
@@ -1067,7 +953,7 @@ export default class Addcase extends PureComponent {
                     ({ getFieldValue, setFieldsValue }) => {
                       const diagnosis = getFieldValue("isHistoryOfTrauma")
                       const historyOfChronicDisease = getFieldValue('historyOfChronicDisease')
-                      return <Input
+                      return <Input readOnly
                         disabled={diagnosis !== 1}
                         value={historyOfChronicDisease}
                         style={{ width: 120 }}
@@ -1086,13 +972,9 @@ export default class Addcase extends PureComponent {
               <Col span={col_2}>
                 <Form.Item
                   label="慢病史"
-                  rules={[{ required: true, message: "必填" }]}
-                  name="ischronicDiseaseHistory" >
-                  <Select style={{ width: 120 }} >
-                    <Option value={""}>请选择</Option>
-                    <Option value={1}>是</Option>
-                    <Option value={0}>否</Option>
-                  </Select>
+                >
+
+                  {initFormData.ischronicDiseaseHistory == 1 ? "是" : "否"}
                 </Form.Item>
               </Col>
               {/* chronicDiseaseHistoryName */}
@@ -1106,17 +988,7 @@ export default class Addcase extends PureComponent {
                   {
                     ({ getFieldValue }) => {
                       const diagnosis = getFieldValue("ischronicDiseaseHistory")
-                      return <Button
-                        disabled={diagnosis !== 1}
-                        style={{ width: 120 }}
-                        onClick={() => {
-                          this.onShowModal('cdisease')
-                        }}
-                      >
-                        {
-                          cdiseaseContent ? '已选择' : '请选择'
-                        }
-                      </Button>
+
                     }
                   }
 
@@ -1130,25 +1002,18 @@ export default class Addcase extends PureComponent {
               <Col span={col_2}>
                 <Form.Item
                   label="产伤"
-                  rules={[{ required: true, message: "必填" }]}
-                  name="birthInjury" >
-                  <Select style={{ width: 120 }} >
-                    <Option value={""}>请选择</Option>
-                    <Option value={1}>是</Option>
-                    <Option value={0}>否</Option>
-                  </Select>
+
+                >
+
+                  {initFormData.birthInjury == 1 ? "是" : "否"}
                 </Form.Item>
               </Col>
               <Col span={col_3}>
                 <Form.Item
                   label="感染"
-                  rules={[{ required: true, message: "必填" }]}
-                  name="infection" >
-                  <Select style={{ width: 120 }} >
-                    <Option value={""}>请选择</Option>
-                    <Option value={1}>是</Option>
-                    <Option value={0}>否</Option>
-                  </Select>
+                >
+
+                  {initFormData.infection == 1 ? "是" : "否"}
                 </Form.Item>
               </Col>
             </Row>
@@ -1159,25 +1024,16 @@ export default class Addcase extends PureComponent {
               <Col span={col_2}>
                 <Form.Item
                   label="出血"
-                  rules={[{ required: true, message: "必填" }]}
-                  name="bleeding" >
-                  <Select style={{ width: 120 }} >
-                    <Option value={""}>请选择</Option>
-                    <Option value={1}>是</Option>
-                    <Option value={0}>否</Option>
-                  </Select>
+                >
+                  {initFormData.bleeding == 1 ? "是" : "否"}
                 </Form.Item>
               </Col>
               <Col span={col_3}>
                 <Form.Item
                   label="是否高热惊厥史"
-                  rules={[{ required: true, message: "必填" }]}
-                  name="historyOfFebrileConvulsions" >
-                  <Select style={{ width: 120 }} >
-                    <Option value={""}>请选择</Option>
-                    <Option value={1}>是</Option>
-                    <Option value={0}>否</Option>
-                  </Select>
+
+                >
+                  {initFormData.historyOfFebrileConvulsions == 1 ? "是" : "否"}
                 </Form.Item>
               </Col>
             </Row>
@@ -1190,13 +1046,8 @@ export default class Addcase extends PureComponent {
               <Col span={col_2}>
                 <Form.Item
                   label="是否有家族病"
-                  rules={[{ required: true, message: "必填" }]}
-                  name="familyDisease" >
-                  <Select style={{ width: 120 }} >
-                    <Option value={""}>请选择</Option>
-                    <Option value={1}>是</Option>
-                    <Option value={0}>否</Option>
-                  </Select>
+                >
+                  {initFormData.familyDisease == 1 ? "是" : "否"}
                 </Form.Item>
               </Col>
               {/* familyDiseaseName */}
@@ -1206,22 +1057,12 @@ export default class Addcase extends PureComponent {
                     this.renderCheckedDetail(familyhistoryContent)
                   }
                   label="家族病名称"
-                  rules={[{ required: true, message: "必填" }]}
+
                   dependencies={['familyDisease']} >
                   {
                     ({ getFieldValue }) => {
                       const diagnosis = getFieldValue("familyDisease")
-                      return <Button
-                        disabled={diagnosis !== 1}
-                        style={{ width: 120 }}
-                        onClick={() => {
-                          this.onShowModal('familyhistory')
-                        }}
-                      >
-                        {
-                          familyhistoryContent ? '已选择' : '请选择'
-                        }
-                      </Button>
+
                     }
                   }
 
@@ -1235,50 +1076,19 @@ export default class Addcase extends PureComponent {
               <Col span={col_2}>
                 <Form.Item
                   label="是否结婚"
-                  rules={[{ required: true, message: "必填" }]}
-                  name="whetherToMarry" >
-                  <Select style={{ width: 120 }} >
-                    <Option value={""}>请选择</Option>
-                    <Option value={1}>是</Option>
-                    <Option value={0}>否</Option>
-                  </Select>
+                >
+                  {initFormData.whetherToMarry == 1 ? "是" : "否"}
                 </Form.Item>
               </Col>
               <Col span={col_3}>
                 <Form.Item
                   label="是否生育"
-                  rules={[{ required: true, message: "必填" }]}
-                  name="whetherToGiveBirth" >
-                  <Select style={{ width: 120 }} >
-                    <Option value={""}>请选择</Option>
-                    <Option value={1}>是</Option>
-                    <Option value={0}>否</Option>
-                  </Select>
+                >
+                  {initFormData.whetherToGiveBirth == 1 ? "是" : "否"}
                 </Form.Item>
               </Col>
             </Row>
 
-            <Row>
-              <Col span={12} style={{ textAlign: "right" }}>
-                <Button type="primary" htmlType="submit">
-                  返回
-                </Button>
-              </Col>
-              <Col span={1} > </Col>
-              <Col span={11} >
-                {/* {
-                  type === 'create' && <Button type="primary" htmlType="submit">
-                    保存
-                </Button>
-                } */}
-
-                {
-                  <Button type="primary" htmlType="submit">
-                    保存
-                </Button>
-                }
-              </Col>
-            </Row>
 
           </Card>
         </Form>
@@ -1368,7 +1178,28 @@ export default class Addcase extends PureComponent {
           </Tabs>
         </Modal>
       }
+      {/* <Row disabled={this.state.isBackShow} >
+        <Col span={24} style={{ textAlign: "center", marginTop: '20px' }}>
+          <Link to='/index/patient/patientList'>
+            <Button type="primary" >
+              返回
+                </Button>
+          </Link>
+        </Col>
+      </Row> */}
+      {
+        this.state.isBackShow && (<Row>
+          <Col span={24} style={{ textAlign: "center", marginTop: '20px' }}>
+            <Link to='/index/patient/CaseBox'>
+              <Button type="primary" >
+                返回
+                </Button>
+            </Link>
+          </Col>
+        </Row>
+        )
 
+      }
     </>
   }
 }
