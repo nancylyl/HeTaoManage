@@ -34,7 +34,7 @@ function App() {
           <Route
             path="/"
             exact
-            render={() => <Redirect to={'/index/patient/CaseBox'} />}
+            render={() => <Redirect to={'/index/discuss'} />}
           // render={() => <Redirect to={'/index/patient/map'} />}
 
 

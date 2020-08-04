@@ -16,7 +16,7 @@ class discussManage extends PureComponent {
     this.state = {
       discussLists: [],
       loaded: false,
-      visible: false,
+      visible: true,
       modalTitle: '',
       storeState: {
         discussId: '',
@@ -216,8 +216,7 @@ class discussManage extends PureComponent {
             <Col span={6}>
               <Form.Item
                 label="探讨名称"
-                name="discussName"
-              >
+                name="discussName">
                 <Input placeholder="请输入" />
               </Form.Item>
             </Col>
