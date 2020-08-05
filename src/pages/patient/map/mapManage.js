@@ -20,7 +20,7 @@ class mapManage extends PureComponent {
   }
 
   search = (key) => {
-    console.log(key);
+
     let url = "";
     if (key == 2) {
       url = Api.map.getWeekMyPatient
@@ -28,11 +28,12 @@ class mapManage extends PureComponent {
       url = Api.map.getAllMyPatient
     }
     Axios({
-      url: url,
+      url: url
     })
       .then((res) => {
-        const data = res.data.data;
-        //  console.log(data);
+
+        const data = res.data.data;/*  */
+
 
         this.initalECharts(data);
       })

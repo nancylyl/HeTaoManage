@@ -15,6 +15,7 @@ import checkDoctor from './pages/hospitalInfo/checkDoctor'
 import activityManage from './pages/activity/activityManage'
 
 import discussManage from './pages/discuss/discussManage'
+import CheckDiscuss from './pages/discuss/CheckDiscuss'
 
 import dealsInfoManage from './pages/dealsInfo/dealsInfoManage'
 import bannerManage from './pages/banner/bannerManage'
@@ -24,8 +25,10 @@ import Addcase from './pages/patient/case/AddCase'
 import CaseBox from './pages/patient/case/CaseBox'
 import CaseDetail from './pages/patient/case/components/CaseDetail'
 import CaseLogDetail from './pages/patient/case/components/CaseLogDetail'
+import Error from './components/Error'
 //引入路由
 import { BrowserRouter as Router, Route, Redirect, Switch } from 'react-router-dom'
+
 
 function App() {
   return (
@@ -35,8 +38,8 @@ function App() {
           <Route
             path="/"
             exact
-            render={() => <Redirect to={'/index/patient/CaseBox'} />}
-          // render={() => <Redirect to={'/index/patient/map'} />}
+            //  render={() => <Redirect to={'/index/discuss'} />}
+            render={() => <Redirect to={'/index/patient/map'} />}
 
 
           ></Route>
@@ -66,15 +69,18 @@ function App() {
                 <Route path="/index/hospitalInfo/checkDoctor" component={checkDoctor} />
                 {/* 患教活动管理 */}
                 <Route path="/index/activity" component={activityManage} />
+
                 {/* 病历探讨管理 */}
                 <Route path="/index/discuss" component={discussManage} />
+                <Route path="/index/checkDiscuss" component={CheckDiscuss} />
                 {/* 交易信息统计 */}
                 <Route path="/index/dealsInfo" component={dealsInfoManage} />
                 {/* 首页BANNER管理 */}
                 <Route path="/index/banner" component={bannerManage} />
                 {/* 充值管理 */}
                 <Route path="/index/recharge" component={rechargeManage} />
-
+                {/* 充值管理 */}
+                <Route path="/index/error" component={Error} />
               </Index>
             )}
           ></Route>
