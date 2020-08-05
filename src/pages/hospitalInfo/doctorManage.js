@@ -339,26 +339,45 @@ const CollectionsPage = () => {
 };
 
 class doctorManage extends PureComponent {
+
+  formRef = React.createRef()
+
   constructor(props) {
     super(props);
     this.state={
+      doctorList:[]
     }
   }
-  getDoctor = () => {
+  getDoctor = (values) => {
     Axios({
       url: Api.doctor.getDoctor,
+      data:values,
     })
         .then((res) => {
           console.log(res)
           this.setState({
-            dataSource : res.data.data.doctorList
+            doctorList:res.data.data.doctorList
           })
         })
   }
+  // 提交搜索信息
+  onFinish = values => {
+    this.getDoctor(values);
+    console.log(values);
+
+  };
+  // 重置搜索框
+  delSearch = () => {
+    console.log(this.formRef.current);
+    this.formRef.current.resetFields();
+  };
+
   componentWillMount() {
     this.getDoctor();
   }
   render() {
+    const { doctorList } = this.state;
+    // console.log({ doctorList })
     return (
       <div>
         {/* 搜索栏 */}
@@ -367,12 +386,13 @@ class doctorManage extends PureComponent {
             initialValues={{ remember: true }}
             onFinish={this.onFinish}
             className = {styles.search}
+            ref={this.formRef}
         >
           <Row justify="start" gutter={[20, 20]}>
             <Col span={8}>
               <Form.Item
                   label="医生名称"
-                  name="discussName"
+                  name="Name"
               >
                 <Input placeholder="请输入" />
               </Form.Item>
@@ -380,19 +400,19 @@ class doctorManage extends PureComponent {
             <Col span={8}>
               <Form.Item
                   label="所属医院"
-                  name="host"
+                  name="hospital"
               >
                 <Select defaultValue="请选择"  allowClear className = {styles.select} >
                   <Option value="-1">请选择</Option>
-                  <Option value="0">北京癫痫医院</Option>
-                  <Option value="1">上海癫痫医院</Option>
+                  <Option value="北京癫痫医院">北京癫痫医院</Option>
+                  <Option value="上海癫痫医院">上海癫痫医院</Option>
                 </Select>
               </Form.Item>
             </Col>
             <Col span={8}>
               <Form.Item
                   label="医生性别"
-                  name="discussState"
+                  name="sex"
               >
                 <Select defaultValue="全部"  allowClear className = {styles.select} >
                   <Option value="-1">全部</Option>
@@ -404,7 +424,7 @@ class doctorManage extends PureComponent {
             <Col span={8}>
               <Form.Item
                   label="账号状态"
-                  name="enrollStart"
+                  name="status"
               >
                 <Select defaultValue="请选择"  allowClear className = {styles.select} >
                   <Option value="-1">请选择</Option>
@@ -417,13 +437,13 @@ class doctorManage extends PureComponent {
             <Col span={5}>
               <Form.Item
                   label="创建时间"
-                  name="enrollEnd"
+                  name="createdate"
               >
                 <DatePicker locale={locale} />
               </Form.Item>
             </Col>
             <Col span={5}>
-              <Form.Item label="~" style={{textAlign:"left"}} colon ={false}>
+              <Form.Item label="~" name="createdate" style={{textAlign:"left"}} colon ={false}>
                 <DatePicker locale={locale} />
               </Form.Item>
             </Col>
@@ -438,7 +458,7 @@ class doctorManage extends PureComponent {
         <Row>
           <Col span={5} align='left' className='title'>
             <span className='titleB'>医生列表</span>
-            <span className='titleS'>（共90条记录）</span>
+            <span className='titleS'>（共<span>{doctorList.length}</span>条记录）</span>
           </Col>
           <Col span={2} offset={17} className='marginT'>
             <CollectionsPage />
@@ -446,7 +466,7 @@ class doctorManage extends PureComponent {
         </Row>
         <Table
             columns={columns}
-            dataSource={this.state.dataSource}
+            dataSource={this.state.doctorList}
             bordered
             pagination={{ pageSize: 9}}
             rowKey="id"
