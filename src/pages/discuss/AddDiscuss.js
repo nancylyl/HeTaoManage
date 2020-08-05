@@ -518,11 +518,13 @@ class AddDiscuss extends PureComponent {
       <div>
         <Form
           name="basic"
+          labelCol={{ span: 10 }}
+          wrapperCol={{ span: 14 }}
           // initialValues={this.state.storeState}
           ref={this.formRef}
           onFinish={this.onFinish}
         >
-          <Row justify="start" gutter={[120, 25]}>
+          <Row justify="start" gutter={[50, 5]}>
             <Col span={12}>
               <Form.Item
                 label="探讨主题"
@@ -623,17 +625,19 @@ class AddDiscuss extends PureComponent {
                 {/* <Button className={styles.choose}>请选择</Button> */}
               </Form.Item>
             </Col>
-            <Col span={24}>
+            <Col span={22}>
               <Form.Item
                 label="探讨说明"
                 name="explain"
+                labelCol={{ span: 5 }}
+                wrapperCol={{ span: 19 }}
                 rules={[{ required: true, message: '请输入!' }]}
               >
                 <TextArea rows={4} maxLength="200" placeholder="请输入病历探讨说明" />
               </Form.Item>
             </Col>
             <Col span={24}>
-              <Form.Item>
+              <Form.Item wrapperCol={{ span: 24 }}>
                 <Button className={styles.submit} onClick={this.delSearch}>关闭</Button>
                 <Button className={styles.submit} type="primary" htmlType="submit">确定</Button>
               </Form.Item>
