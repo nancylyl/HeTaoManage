@@ -3,7 +3,9 @@ import { Modal, message, Form, Input, DatePicker, Row, Col, Select, Button, Tree
 import moment from 'moment';
 import locale from 'antd/lib/date-picker/locale/zh_CN';
 import styles from './style.module.scss'
-import Doctor from '../../components/Doctor';
+import Axios from '../../util/axios'
+import Api from '../../api/index'
+// import Doctor from '../../components/Doctor';
 
 
 const dataList = [];
@@ -50,99 +52,24 @@ class AddDiscuss extends PureComponent {
       expandedKeys: [],
       searchValue: '',
       autoExpandParent: true,
-      storeState: {
-        discussId: '',
-        discussName: '',
-        joinNumber: '',
-        discussStart: '',
-        enrollStart: '',
-        enrollEnd: '',
-        moneyType: '',
-        AttendMoney: '',
-        host: '',
-        inviteGuests: '',
-        discussState: '',
-        cancelStart: '',
-        discussEnd: '',
-        continueTime: '',
-        cancelReason: '',
-        patietInfo: '',
-        explain: '',
-      },
-      treeData : [
-        {
-          title: '北京癫痫病医院',
-          value: '1',
-          key: '1',
-          children: [
-            {
-              title: '林明',
-              value: '1-1',
-              key: '1-1',
-            },
-            {
-              title: '陈杰',
-              value: '1-2',
-              key: '1-2',
-            },
-            {
-              title: '郝丽',
-              value: '1-3',
-              key: '1-3',
-            },
-          ],
-        },
-        {
-          title: '癫痫总院',
-          value: '2',
-          key: '2',
-          children: [
-            {
-              title: '何芳',
-              value: '2-1',
-              key: '2-1',
-            },
-            {
-              title: '杨超',
-              value: '2-2',
-              key: '2-2',
-            },
-            {
-              title: '冯静',
-              value: '2-3',
-              key: '2-3',
-            },
-            {
-              title: '陈艳',
-              value: '2-4',
-              key: '2-4',
-            },
-            {
-              title: '侯磊',
-              value: '2-5',
-              key: '2-5',
-            },
-          ],
-        },
-        {
-          title: '上海癫痫病医院',
-          value: '3',
-          key: '3',
-          children: [
-            {
-              title: '孙敏',
-              value: '3-1',
-              key: '3-1',
-            },
-            {
-              title: '刘勇',
-              value: '3-2',
-              key: '3-2',
-            }
-          ],
-        },
-      ]
+      storeState: {},
+      treeData : []
     }
+  }
+
+  // 调接口获得医生数据
+  init() {
+    Axios({
+      url: Api.discuss.getChooseDoc
+    })
+      .then((res) => {
+        if (res.data.success) {
+          this.setState({
+            treeData: res.data.data,
+          })
+        } else {
+        }
+      })
   }
   // ==============================日期选择器限制条件设置===========================
   changeTime = (val, dateStrings, type) => {
@@ -358,10 +285,10 @@ class AddDiscuss extends PureComponent {
     }); 
   };
 
-  handClickDoctor = (val => {
-    console.log("得到医生信息");
-    console.log(val);
-  })
+  // handClickDoctor = (val => {
+  //   console.log("得到医生信息");
+  //   console.log(val);
+  // })
   /* ===============================选择患者====================== */
   choosePat = () => {
     this.setState({
@@ -427,6 +354,7 @@ class AddDiscuss extends PureComponent {
   componentDidMount() {
     // console.log('=================');
     this.onFill()
+    this.init();
   }
   
   render() {
