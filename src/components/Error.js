@@ -2,6 +2,7 @@ import React, { Component } from 'react'
 import { Result } from 'antd';
 
 export default class Error extends Component {
+
     render() {
         return (
             <div>
