@@ -16,27 +16,12 @@ class discussManage extends PureComponent {
     this.state = {
       discussLists: [],
       loaded: false,
-      visible: true,
+      visible: false,
+      isshow: false,
       modalTitle: '',
-      storeState: {
-        discussId: '',
-        discussName: '',
-        joinNumber: '',
-        discussStart: '',
-        enrollStart: '',
-        enrollEnd: '',
-        moneyType: '',
-        AttendMoney: '',
-        host: '',
-        inviteGuests: '',
-        discussState: '',
-        cancelStart: '',
-        discussEnd: '',
-        continueTime: '',
-        cancelReason: '',
-        patietInfo: '',
-        explain: '',
-      },
+      discussId: '',
+      discussTitle: '',
+      cancelText: '',
     }
   }
   getDiscussList(values) {
@@ -46,7 +31,7 @@ class discussManage extends PureComponent {
       method: 'post',
     })
       .then((res) => {
-        console.log(res)
+        // console.log(res)
         if (res.data.success) {
           // this.setState.loaded = true
           this.setState({
@@ -63,30 +48,20 @@ class discussManage extends PureComponent {
   // 提交搜索信息
   onFinish = values => {
     this.getDiscussList(values);
-    console.log(values);
-
+    // console.log(values);
   };
   // 重置搜索框
   delSearch = () => {
-    console.log(this.formRef.current);
     this.formRef.current.resetFields();
   };
   // ====================新增探讨,编辑探讨弹框====================
   showModal = (title, record) => {
     // console.log( record);
-    if (record !== 0) {
       this.setState({
         modalTitle: title,
-        storeState: record,
+        discussId: record,
         visible: true,
       })
-    } else {
-      // console.log(111111111);
-      this.setState({
-        modalTitle: title,
-        visible: true,
-      })
-    }
   };
   // 提交表单
   handleOk = e => {
@@ -102,20 +77,43 @@ class discussManage extends PureComponent {
       visible: false,
     });
   };
-  // // 查看探讨
-  // checkDiscuss = () => {
 
-  // };
-  // 取消探讨
+  // ====================================取消探讨弹框==================================
   cancleDiscuss = (record) => {
     console.log(record);
+    this.setState({
+      isshow: true,
+      discussTitle: record.discussName,
+      discussId: record.discussId,
 
+    });
   };
+  cancelText= (e) => {
+    this.setState({
+      cancelText: e.target.value,
+    }); 
+  }
+
+  handleOk1 = e => {
+    this.setState({
+      isshow: false,
+    });
+    console.log(this.state.discussId);
+    console.log(this.state.cancelText);
+  };
+  handleCancel1 = e => {
+    this.setState({
+      isshow: false,
+    });
+  };
+
+
 
 
   render() {
     const { discussLists } = this.state;
     const { Option } = Select;
+    const { TextArea } = Input;
     // 表格
     const columns = [
       {
@@ -198,7 +196,7 @@ class discussManage extends PureComponent {
         fixed: 'right',
         width: 150,
         render:(text, record) => record.discussState == '未开始'?
-          <span><Link to={{pathname:`/index/checkDiscuss`,state:record}}>查看</Link><a onClick={this.showModal.bind(this, '编辑病历探讨', record)}>编辑</a><a onClick={this.cancleDiscuss.bind(this, record)}>取消</a></span>
+          <span><Link to={{pathname:`/index/checkDiscuss`,state:record}}>查看</Link><a onClick={this.showModal.bind(this,'编辑病例探讨', record.discussId)}>编辑</a><a onClick={this.cancleDiscuss.bind(this, record)}>取消</a></span>
           :<span><Link to={{pathname:`/index/checkDiscuss`,state:record}}>查看</Link>&nbsp;&nbsp;<span>编辑</span>&nbsp;&nbsp;<span>取消</span></span>
       },
     ];
@@ -235,8 +233,8 @@ class discussManage extends PureComponent {
                 label="探讨状态"
                 name="discussState"
               >
-                <Select defaultValue="请选择" allowClear className={styles.select} >
-                  <Option value="-1">请选择</Option>
+                <Select placeholder="请选择" allowClear className={styles.select} >
+                  <Option value="">请选择</Option>
                   <Option value="0">未开始</Option>
                   <Option value="1">已取消</Option>
                   <Option value="2">开始中</Option>
@@ -291,7 +289,7 @@ class discussManage extends PureComponent {
             <h1>探讨列表</h1>
             <span className={styles.allNum}>(共<span>{discussLists.length}</span>条记录)</span>
 
-            <Button type="primary" onClick={this.showModal.bind(this, '新增病例探讨', 0)}>新增探讨</Button>
+            <Button type="primary" onClick={this.showModal.bind(this, '新增病例探讨', '')}>新增探讨</Button>
           </div>
           {this.state.loaded && (
             <Table columns={columns} dataSource={this.state.discussLists} bordered size="middle" rowKey="discussId" scroll={{ x: 1650 }} />
@@ -308,9 +306,29 @@ class discussManage extends PureComponent {
           footer={null}
           className={styles.addBox}
         >
-          <AddDiscuss storeState={this.state.storeState} cancel={this.handleCancel} submit={this.handleOk}></AddDiscuss>
+          <AddDiscuss discussLists={this.state.discussLists} discussId={this.state.discussId} cancel={this.handleCancel} submit={this.handleOk}></AddDiscuss>
         </Modal>}
-
+        {/* ================取消病例探讨弹框======================*/}
+        {this.state.isshow && <Modal
+          title='取消探讨'
+          visible={this.state.isshow}
+          onOk={this.handleOk1}
+          onCancel={this.handleCancel1}
+          className={styles.cancelBox}
+          okText="确认"
+          cancelText="取消"
+        >
+          <div className={styles.content}>
+            <div>
+              探讨名称: {this.state.discussTitle}
+            </div>
+            <div className={styles.text}>
+              <span>取消理由：</span>
+              <TextArea rows={4} placeholder='请输入取消理由' onChange={this.cancelText}/>
+            </div>
+          </div>
+          
+        </Modal>}
       </div>
     )
   }

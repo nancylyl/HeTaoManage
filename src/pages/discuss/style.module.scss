@@ -150,3 +150,14 @@
     }
   }  
 }
+// 取消探讨弹框
+.cancelBox{
+  text-align: center;
+  width: 28%!important;
+  .content{
+    text-align: left;
+    .text{
+      margin: 20px 0;
+    }
+  }
+}

@@ -15,34 +15,34 @@ export default class CheckDiscuss extends PureComponent {
           visible: false,
           recordList: [
             {
-                time: '14:00:05',
-                img: '',
-                name: '张全',
-                content: '2222eu接口熟练了绿绿绿绿绿绿所所所所所所所所所所所所所所所所所所所所所所所所所所所所所所所所所所所所所所222'
+                logTime: '14:00:05',
+                avatar: '',
+                spokesmanName: '张全',
+                context: '2222eu接口熟练了绿绿绿绿绿绿所所所所所所所所所所所所所所所所所所所所所所所所所所所所所所所所所所所所所所222'
             },
             {
-                time: '14:10:05',
-                img: '',
-                name: '张三',
-                content: '3333'
+                logTime: '14:10:05',
+                avatar: '',
+                spokesmanName: '张三',
+                context: '3333'
             },
             {
-                time: '14:20:08',
-                img: '',
-                name: '李四',
-                content: '22224444222'
+                logTime: '14:20:08',
+                avatar: '',
+                spokesmanName: '李四',
+                context: '22224444222'
             },
             {
-                time: '14:30:00',
-                img: '',
-                name: '张全',
-                content: '55555555'
+                logTime: '14:30:00',
+                avatar: '',
+                spokesmanName: '张全',
+                context: '55555555'
             },
             {
-                time: '14:35:05',
-                img: '',
-                name: '张三',
-                content: '3333'
+                logTime: '14:35:05',
+                avatar: '',
+                spokesmanName: '张三',
+                context: '3333'
             },
         ],
           showList: []
@@ -62,7 +62,7 @@ export default class CheckDiscuss extends PureComponent {
       method: 'post',
     })
       .then((res) => {
-        console.log(res)
+        // console.log(res)
         if (res.data.success) {
           // this.setState.loaded = true
           this.setState({
@@ -83,13 +83,13 @@ export default class CheckDiscuss extends PureComponent {
                                     <div className = {styles.img}>
                                         <img src={item.img} alt=""/>
                                     </div>
-                                    <p>{item.name}</p>
+                                    <p>{item.spokesmanName}</p>
                                 </div>
                             </Col>
                             <Col span={20}>
                                 <div className = {styles.right}>
-                                    <span>{item.time}</span>
-                                    <span>{item.content}</span>
+                                    <span>{item.logTime}</span>
+                                    <span style={{color:'black'}}>{item.context}</span>
                                 </div>
                             </Col>
                         </Row>   
@@ -112,7 +112,6 @@ export default class CheckDiscuss extends PureComponent {
           visible: true,
         });
       };
-
       handleCancel = e => {
         console.log(e);
         this.setState({
@@ -125,60 +124,60 @@ export default class CheckDiscuss extends PureComponent {
         const columns = [
             {
               title: '姓名',
-              dataIndex: 'name',
-              key: 'name',
-              width: 150,
+              dataIndex: 'doctorName',
+              key: '1',
+              width: 100,
             },
             {
               title: '性别',
               dataIndex: 'age',
-              key: 'age',
+              key: '2',
               width: 80,
             },
             {
               title: '职称',
-              dataIndex: 'staff',
-              key: 'staff',
-              ellipsis: true,
+              dataIndex: 'title',
+              key: '3',
+              width: 130,
             },
             {
               title: '报名时间',
-              dataIndex: 'time',
-              key: 'time',
+              dataIndex: 'enrollTime',
+              key: '4',
               ellipsis: true,
             },
             {
               title: '参与讨论',
-              dataIndex: 'jion',
+              dataIndex: 'isEnterDiscuss',
               render: text => text=='是'?<CheckOutlined />:'',
-              key: 'jion',
-              ellipsis: true,
+              key: '5',
+              width: 100,
             }
           ];
         const data = [
         {
             key: '1',
-            name: 'John Brown',
+            doctorName: '张三',
             age: 32,
-            staff: '医师',
-            time: 'New York',
-            jion: '是',
+            title: '医师',
+            enrollTime: '2020-7-20 10:20:30',
+            isEnterDiscuss: '是',
         },
         {
             key: '2',
-            name: 'Jim Green',
+            doctorName: '张三',
             age: 42,
-            staff: '医师',
-            time: 'London No',
-            jion: '否',
+            title: '医师',
+            enrollTime: '2020-7-20 10:20:30',
+            isEnterDiscuss: '否',
         },
         {
             key: '3',
-            name: 'Joe Black',
+            doctorName: '张三',
             age: 32,
-            staff: '医师',
-            time: 'Sidney No',
-            jion: '是',
+            title: '医师',
+            enrollTime: '2020-7-20 10:20:30',
+            isEnterDiscuss: '是',
             
         },
         ];
@@ -233,7 +232,7 @@ export default class CheckDiscuss extends PureComponent {
                             <span>{discussInfo.patietInfo}</span>
                         </Col>
                         <Col span={4}>
-                            <a href="javascript:void(0)" onClick={this.showModal}>探讨内容-记录</a>
+                            <a onClick={this.showModal}>探讨内容-记录</a>
                         </Col>
                         
                     </Row>

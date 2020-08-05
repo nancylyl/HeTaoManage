@@ -1,59 +1,33 @@
 import React, { PureComponent } from 'react'
-import { Modal, Form, Input, DatePicker, Row, Col, Select, Button, Tree } from 'antd';
+import { Modal, message, Form, Input, DatePicker, Row, Col, Select, Button, Tree, Table, Radio } from 'antd';
 import moment from 'moment';
 import locale from 'antd/lib/date-picker/locale/zh_CN';
 import styles from './style.module.scss'
 import Doctor from '../../components/Doctor';
-// const x = 3;
-// const y = 2;
-// const z = 1;
-const gData = [];
 
-// const generateData = (_level, _preKey, _tns) => {
-//   const preKey = _preKey || '0';
-//   const tns = _tns || gData;
-
-//   const children = [];
-//   for (let i = 0; i < x; i++) {
-//     const key = `${preKey}-${i}`;
-//     tns.push({ title: key, key });
-//     if (i < y) {
-//       children.push(key);
-//     }
-//   }
-//   if (_level < 0) {
-//     return tns;
-//   }
-//   const level = _level - 1;
-//   children.forEach((key, index) => {
-//     tns[index].children = [];
-//     return generateData(level, key, tns[index].children);
-//   });
-// };
-// generateData(z);
 
 const dataList = [];
-const generateList = data => {
+const generateList = (data) => {
   for (let i = 0; i < data.length; i++) {
-    const node = data[i];
-    const { key } = node;
-    dataList.push({ key, title: key });
-    if (node.children) {
-      generateList(node.children);
-    }
+      const node = data[i];
+      const key = node.key;
+      dataList.push({key, title: node.title});
+      if (node.children) {
+          generateList(node.children);
+      }
   }
 };
-generateList(gData);
 
-const getParentKey = (key, tree) => {
+
+const getParentKey = (title, tree) => {
   let parentKey;
   for (let i = 0; i < tree.length; i++) {
     const node = tree[i];
     if (node.children) {
-      if (node.children.some(item => item.key === key)) {
+      if (node.children.some(item => item.title === title)) {
         parentKey = node.key;
-      } else if (getParentKey(key, node.children)) {
-        parentKey = getParentKey(key, node.children);
+      } else if (getParentKey(title, node.children)) {
+        parentKey = getParentKey(title, node.children);
       }
     }
   }
@@ -69,12 +43,105 @@ class AddDiscuss extends PureComponent {
       startTime: '',
       endTime: '',
       visible: false,
+      isshow: false,
       value: ['0-0-0'],
       modalTitle: '',
       multiple: false,
       expandedKeys: [],
       searchValue: '',
       autoExpandParent: true,
+      storeState: {
+        discussId: '',
+        discussName: '',
+        joinNumber: '',
+        discussStart: '',
+        enrollStart: '',
+        enrollEnd: '',
+        moneyType: '',
+        AttendMoney: '',
+        host: '',
+        inviteGuests: '',
+        discussState: '',
+        cancelStart: '',
+        discussEnd: '',
+        continueTime: '',
+        cancelReason: '',
+        patietInfo: '',
+        explain: '',
+      },
+      treeData : [
+        {
+          title: '北京癫痫病医院',
+          value: '1',
+          key: '1',
+          children: [
+            {
+              title: '林明',
+              value: '1-1',
+              key: '1-1',
+            },
+            {
+              title: '陈杰',
+              value: '1-2',
+              key: '1-2',
+            },
+            {
+              title: '郝丽',
+              value: '1-3',
+              key: '1-3',
+            },
+          ],
+        },
+        {
+          title: '癫痫总院',
+          value: '2',
+          key: '2',
+          children: [
+            {
+              title: '何芳',
+              value: '2-1',
+              key: '2-1',
+            },
+            {
+              title: '杨超',
+              value: '2-2',
+              key: '2-2',
+            },
+            {
+              title: '冯静',
+              value: '2-3',
+              key: '2-3',
+            },
+            {
+              title: '陈艳',
+              value: '2-4',
+              key: '2-4',
+            },
+            {
+              title: '侯磊',
+              value: '2-5',
+              key: '2-5',
+            },
+          ],
+        },
+        {
+          title: '上海癫痫病医院',
+          value: '3',
+          key: '3',
+          children: [
+            {
+              title: '孙敏',
+              value: '3-1',
+              key: '3-1',
+            },
+            {
+              title: '刘勇',
+              value: '3-2',
+              key: '3-2',
+            }
+          ],
+        },
+      ]
     }
   }
   // ==============================日期选择器限制条件设置===========================
@@ -99,7 +166,7 @@ class AddDiscuss extends PureComponent {
     if (endTime !== '') {
       // console.log( moment(endTime).subtract(1, 'hour'));
       // 核心逻辑: 开始日期不能晚于结束日期，且比当前时间大1小时
-      return current < moment().startOf('day') || current >= moment(endTime).add(1, 'hours');
+      return current >= moment(endTime).add(1, 'hours')  || current <= moment().startOf('day');
     }
 
   }
@@ -108,8 +175,6 @@ class AddDiscuss extends PureComponent {
     const { startTime } = this.state;
     if (startTime !== '') {
       // 核心逻辑: 结束日期不能小余开始日期后1小时，且不能早于开始日期
-      // console.log(startTime);
-      // console.log(moment(startTime));
       return current && current <= moment(startTime).startOf('day');
     }
   }
@@ -231,22 +296,11 @@ class AddDiscuss extends PureComponent {
   }
   // ============================选择医生========================
   chooseDoc = (title, record) => {
-    // console.log(record);
-    // console.log(title);
-    if (record == 1) {
       this.setState({
         visible: true,
         modalTitle: title,
-        multiple: true
+        multiple: record == 1?true:false
       });
-    }
-    else if (record == 0) {
-      this.setState({
-        visible: true,
-        modalTitle: title,
-        multiple: false
-      });
-    }
   };
 
   handleOk = e => {
@@ -266,31 +320,33 @@ class AddDiscuss extends PureComponent {
   onSelect = (title,keys,event) => {
     console.log(keys);
     console.log(title);
-    if(title=='选择主持人'){
-      this.formRef.current.setFieldsValue({
-        host:keys
-      })
-    }else{
-      this.formRef.current.setFieldsValue({
-        inviteGuests:keys
-      })
-    }
-    
+    this.state.treeData.map(item=>{
+      console.log(item.title);
+      for (let index = 0; index < keys.length; index++) {
+        console.log(keys[index]);
+        if(item.title==keys[index]){
+          keys.splice(index,1)
+          message.error("您不能选择医院")
+        }
+      }
+    })
+    title=='选择主持人'?this.formRef.current.setFieldsValue({host:keys}):
+    this.formRef.current.setFieldsValue({inviteGuests:keys})
   };
-
   onExpand = expandedKeys => {
     this.setState({
       expandedKeys,
       autoExpandParent: false,
     });
   };
-  // 搜索
+  // 搜索医生
   onSearch = (e) => {
     const { value } = e.target;
+    console.log(dataList);
     const expandedKeys = dataList
       .map(item => {
         if (item.title.indexOf(value) > -1) {
-          return getParentKey(item.key, gData);
+          return getParentKey(item.title, this.state.treeData);
         }
         return null;
       })
@@ -299,8 +355,37 @@ class AddDiscuss extends PureComponent {
       expandedKeys,
       searchValue: value,
       autoExpandParent: true,
+    }); 
+  };
+
+  handClickDoctor = (val => {
+    console.log("得到医生信息");
+    console.log(val);
+  })
+  /* ===============================选择患者====================== */
+  choosePat = () => {
+    this.setState({
+      isshow: true,
+    });
+  }
+  handleOk1 = e => {
+    console.log(e);
+    this.setState({
+      isshow: false,
     });
   };
+  handleCancel1 = e => {
+    console.log(e);
+    this.setState({
+      isshow: false,
+    });
+  };
+  patietInfo= (e) => {
+    console.log(e.target.value);
+    this.formRef.current.setFieldsValue({
+      patietInfo:e.target.value.name
+    })
+  }
   // ============================提交新增探讨表单==============================
   onFinish = (Values) => {
     console.log(Values);
@@ -309,27 +394,44 @@ class AddDiscuss extends PureComponent {
   // 关闭弹框
   delSearch = () => {
     this.props.cancel()
-    console.log(this.props.storeState);
   }
   onFill = () => {
-    const { storeState } = this.props;
-    if (storeState != undefined) {
-      // console.log(storeState);
-      this.formRef.current.setFieldsValue(storeState);
+    const { discussId, discussLists } = this.props;
+    if (discussId != '') {
+      this.setState({
+        storeState: discussLists.filter( item=>discussId==item.discussId)[0]
+      },()=>{
+        const { storeState } = this.state;
+        this.formRef.current.setFieldsValue({
+          discussId: storeState.discussId,
+          discussName: storeState.discussName,
+          joinNumber: storeState.joinNumber,
+          discussStart: moment(storeState.discussStart),
+          enrollStart: moment(storeState.enrollStart),
+          enrollEnd:  moment(storeState.enrollEnd),
+          moneyType: storeState.moneyType,
+          AttendMoney: storeState.AttendMoney,
+          host: storeState.host,
+          inviteGuests: storeState.inviteGuests,
+          discussState: storeState.discussState,
+          cancelStart: storeState.cancelStart,
+          discussEnd: storeState.discussEnd,
+          continueTime: storeState.continueTime,
+          cancelReason: storeState.cancelReason,
+          patietInfo: storeState.patietInfo,
+          explain: storeState.explain,
+        });
+        }) 
     }
-    //获取医生信息
-    console.log(this.formRef.current);
   };
   componentDidMount() {
     // console.log('=================');
     this.onFill()
   }
-  handClickDoctor = (val => {
-    console.log("得到医生信息");
-    console.log(val);
-  })
+  
   render() {
     const { searchValue, expandedKeys, autoExpandParent } = this.state;
+    generateList( this.state.treeData);
     const loop = data =>
       data.map(item => {
         // console.log(item);
@@ -346,44 +448,77 @@ class AddDiscuss extends PureComponent {
           ) : (
               <span>{item.title}</span>
             );
+            
         if (item.children) {
-          return { title, key: item.key, children: loop(item.children) };
+          return { title, key: item.title, children: loop(item.children) };
         }
 
         return {
           title,
-          key: item.key,
+          key: item.title,
         };
       });
     // const { DirectoryTree } = Tree;
     const { Search } = Input;
     const { Option } = Select;
     const { TextArea } = Input;
-    const { storeState } = this.props;
-    const treeData = [
+    const columns = [
       {
-        title: 'parent 0',
-        key: '0-0',
-        children: [
-          { title: 'leaf 0-0', key: '0-0-0', isLeaf: true },
-          { title: 'leaf 0-1', key: '0-0-1', isLeaf: true },
-        ],
+        dataIndex: 'name',
       },
       {
-        title: 'parent 1',
-        key: '0-1',
-        children: [
-          { title: 'leaf 1-0', key: '0-1-0', isLeaf: true },
-          { title: 'leaf 1-1', key: '0-1-1', isLeaf: true },
-        ],
+        dataIndex: 'age',
+      },
+      {
+        dataIndex: 'address',
+        render: text => <span>{text}</span>,
+      },
+      {
+        key: 'operation',
+        fixed: 'right',
+        width: 15,
+        render: (text) => <Radio value={text}> </Radio> ,
       },
     ];
-
+    const data = [
+      {
+        key: '1',
+        name: 'John Brown',
+        avatar: '',//头像
+        age: 42,
+        sex: '男',
+        address: 'New York No. 1 Lake Park',
+      },
+      {
+        key: '2',
+        name: 'John Brown',
+        avatar: '',//头像
+        age: 42,
+        sex: '男',
+        address: 'New York No. 1 Lake Park',
+      },
+      {
+        key: '3',
+        name: 'John Brown',
+        avatar: '',//头像
+        age: 42,
+        sex: '男',
+        address: 'New York No. 1 Lake Park',
+      },
+      {
+        key: '4',
+        name: 'John Brown',
+        avatar: '',//头像
+        age: 42,
+        sex: '男',
+        address: 'New York No. 1 Lake Park',
+      },
+    ];
     return (
       <div>
         <Form
           name="basic"
-          initialValues={storeState}
+          // initialValues={this.state.storeState}
           ref={this.formRef}
           onFinish={this.onFinish}
         >
@@ -404,10 +539,8 @@ class AddDiscuss extends PureComponent {
                 name="inviteGuests"
                 rules={[{ required: true, message: '请选择!' }]}
               >
-                {/* <Input placeholder="请选择" onClick={this.chooseDoc.bind(this, "选择医生", 1)} readOnly /> */}
-                {/* <TreeSelect {...tProps} /> */}
-                {/* <Button className={styles.choose}>请选择</Button> */}
-                <Doctor handClickDoctor={this.handClickDoctor} />
+                <Input placeholder="请选择" onClick={this.chooseDoc.bind(this, "选择医生", 1)} readOnly />
+                {/* <Doctor handClickDoctor={this.handClickDoctor} /> */}
               </Form.Item>
             </Col>
             <Col span={12}>
@@ -417,6 +550,7 @@ class AddDiscuss extends PureComponent {
                 rules={[{ required: true, message: '请输入!' }]}
               >
                 <Input placeholder="请选择" onClick={this.chooseDoc.bind(this, "选择主持人", 0)} readOnly />
+                {/* <Doctor handClickDoctor={this.handClickDoctor} /> */}
               </Form.Item>
             </Col>
             <Col span={12}>
@@ -485,7 +619,8 @@ class AddDiscuss extends PureComponent {
                 name="patietInfo"
               // rules = {[{required:true, message: '请选择!'}]}
               >
-                <Button className={styles.choose}>请选择</Button>
+                <Input placeholder="请选择" onClick={this.choosePat} readOnly />
+                {/* <Button className={styles.choose}>请选择</Button> */}
               </Form.Item>
             </Col>
             <Col span={24}>
@@ -505,6 +640,7 @@ class AddDiscuss extends PureComponent {
             </Col>
           </Row>
         </Form>
+        {/* ======================================选择医生弹框=================================== */}
         {this.state.visible && <Modal
           title={this.state.modalTitle}
           okText="确认"
@@ -520,12 +656,6 @@ class AddDiscuss extends PureComponent {
             </Col>
             <Col span={14}>
               <Search style={{ marginBottom: 8 }} placeholder="请输入" size="middle" onChange={this.onSearch} enterButton="搜索" />
-              {/* <Search
-                    placeholder="请输入"
-                    enterButton="搜索"
-                    size="middle"
-                    onSearch={this.onSearch}
-                  /> */}
             </Col>
           </Row>
           <Row justify="start" gutter={[0, 25]}>
@@ -536,10 +666,36 @@ class AddDiscuss extends PureComponent {
                 onSelect={this.onSelect.bind(this,this.state.modalTitle)}
                 expandedKeys={expandedKeys}
                 autoExpandParent={autoExpandParent}
-                treeData={loop(treeData)}
+                treeData={loop(this.state.treeData)}
                 style={{ textAlign: "left" }}
               />
             </Col>
+          </Row>
+        </Modal>}
+        {/* =================================选择患者弹框============================= */}
+        {this.state.isshow && <Modal
+          title='选择患者'
+          okText="确认"
+          cancelText="取消"
+          visible={this.state.isshow}
+          onOk={this.handleOk1}
+          onCancel={this.handleCancel1}
+          className={styles.smallBox}
+        >
+          <Row justify="start" gutter={[0, 25]}>
+            <Col span={6}>
+              <h3 style={{ textAlign: "right", lineHeight: '30px' }}>关键字&nbsp;&nbsp;</h3>
+            </Col>
+            <Col span={14}>
+              <Search style={{ marginBottom: 8 }} placeholder="请输入" size="middle" onChange={this.onSearch} enterButton="搜索" />
+            </Col>
+          </Row>
+          <Row justify="start" gutter={[0, 25]}>
+            <Col span={24} >
+              <Radio.Group onChange={this.patietInfo}>
+                <Table style={{height: '300px', overflowY:' scroll'}} showHeader={false} pagination={false} columns={columns} dataSource={data} size="small" />
+              </Radio.Group>
+            </Col>  
           </Row>
         </Modal>}
       </div>
