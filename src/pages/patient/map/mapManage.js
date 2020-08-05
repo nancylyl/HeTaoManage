@@ -28,8 +28,7 @@ class mapManage extends PureComponent {
       url = Api.map.getAllMyPatient
     }
     Axios({
-      url: url,
-      isDev: 1
+      url: url
     })
       .then((res) => {
 

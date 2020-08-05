@@ -1,8 +1,6 @@
 import Axios from 'axios'
 var baseURL = ''
 export default function axios(config) {
-
-  console.log(config.isDev);
   if (config.isDev != undefined && config.isDev == 1) {
     baseURL = "http://118.190.245.9:8080"
   }
@@ -19,8 +17,6 @@ export default function axios(config) {
   instance.interceptors.request.use(
     (config) => {
       window.loading()
-
-      console.log(baseURL)
       return config
     },
     (err) => {
@@ -37,9 +33,9 @@ export default function axios(config) {
     },
     (err) => {
       window.loading(false)
-      console.log('22');
-      console.log(err)
+      //  request("/index/error")
       window.location.href = "/index/error"
+
     }
   )
 
