@@ -1,0 +1,30 @@
+#showImg{
+  width: 150px;
+  height: 120px;
+  margin-left: 30px;
+}
+.site-calendar-demo-card {
+  width: 600px;
+  border: 1px solid #f0f0f0;
+  border-radius: 2px;
+  margin: 0 auto;
+}
+
+.touXiang{
+  width: 320px;
+  height: 120px;
+  margin-top: 20px;
+  border: 1px solid #f0f0f0;
+  padding: 8px;
+  display: inline-block;
+  margin-right: 30px;
+  img{
+    width: 80px;
+    height: 80px;
+    border-radius: 50%;
+    margin-right: 20px;
+  }
+  .float{
+    float: left;
+  }
+}

@@ -308,28 +308,44 @@ const CollectionsPage = () => {
 // };
 
 class hospitalManage extends PureComponent {
+
+  formRef = React.createRef()
+
   constructor(props) {
     super(props);
     this.state={
+      hospitalList:[]
     }
   }
 
-  gethospital = () => {
+  gethospital = (values) => {
       Axios({
         url: Api.hospital.gethospital,
+        data:values,
       })
     .then((res) => {
       console.log(res)
       this.setState({
-        dataSource : res.data.data.hospitalList
+        hospitalList : res.data.data.hospitalList
       })
     })
   }
   componentWillMount() {
     this.gethospital();
   }
+  // 提交搜索信息
+  onFinish = values => {
+    this.gethospital(values);
+    console.log(values);
 
+  };
+  // 重置搜索框
+  delSearch = () => {
+    console.log(this.formRef.current);
+    this.formRef.current.resetFields();
+  };
   render() {
+    const {hospitalList}=this.state;
     return (
       <div>
         {/* 搜索栏 */}
@@ -338,6 +354,7 @@ class hospitalManage extends PureComponent {
             initialValues={{ remember: true }}
             onFinish={this.onFinish}
             className = {styles.search}
+            ref={this.formRef}
         >
           <Row justify="start" gutter={[20, 20]} className = {styles.search}>
             <Col span={8}>
@@ -396,7 +413,7 @@ class hospitalManage extends PureComponent {
         <Row>
           <Col span={5} align='left' className='title'>
             <span className='titleB'>医院列表</span>
-            <span className='titleS'>（共90条记录）</span>
+            <span className='titleS'>（共<span>{hospitalList.length}</span>条记录）</span>
           </Col>
           <Col span={2} offset={17} className='marginT'>
             <CollectionsPage />
@@ -404,7 +421,7 @@ class hospitalManage extends PureComponent {
         </Row>
         <Table
             columns={columns}
-            dataSource={this.state.dataSource}
+            dataSource={this.state.hospitalList}
             bordered
             pagination={{ pageSize: 9}}
             rowKey="hosId"
