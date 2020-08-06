@@ -8,26 +8,18 @@ const { TextArea } = Input;
 const { Option } = Select;
 const options = new Array(80).fill('null').map((item, index) => <Option key={index + 1} value={index + 1}>{`${index + 1}`}</Option>)
 
-const adoptions = require('../../components/address.json');//诊断数据
-function handleChange(value) {
-  this.setState({
-    sex: `${value}`
-  })
-  console.log(`selected ${value}`);
-}
-
 const layout = {
   labelCol: {
-    span: 8,
+    span: 6,
   },
   wrapperCol: {
-    span: 16,
+    span: 12,
   },
 };
 const tailLayout = {
   wrapperCol: {
-    offset: 8,
-    span: 16,
+    offset: 6,
+    span: 12,
   },
 };
 
@@ -35,7 +27,7 @@ class bannerListManage extends PureComponent {
   
   state = {
    
-    medical: 2,//病历填写程度框 默认全部：2
+   
     sex: 2,//性别多选框 默认全部：2
     clinicalTime: "",//上次就诊时间
     visible: false,
@@ -47,14 +39,10 @@ class bannerListManage extends PureComponent {
 
   activeInputValue = (event) => {
     this.setState({
-      medical: event
+      active: event
     })
   };
-  sexInputValue = (event) => {
-    this.setState({
-      sex: event
-    })
-  };
+
   clinicalTimeInputValue = (event) => {
     this.setState({
       clinicalTime: event._d
@@ -112,29 +100,9 @@ class bannerListManage extends PureComponent {
     //         })
     //     })
   };
-  edithandleOk = values => {
-    console.log(values);
-    this.setState({
-      editvisible: false,
-    });
-  };
-  edithandleCancel = e => {
-    console.log(e);
-    this.setState({
-      editvisible: false,
-    });
-  };
+
+
   formRef = React.createRef();
-
-  onGenderChange = value => {
-    this.formRef.current.setFieldsValue({
-      note: `Hi, ${value === 'male' ? 'man' : 'lady'}!`,
-    });
-  };
-
-  onFinish = values => {
-    console.log(values);
-  };
 
   onReset = () => {
     this.formRef.current.resetFields();
@@ -147,7 +115,7 @@ class bannerListManage extends PureComponent {
 
     }
   }
-//----------------获取患者列表数据------------------
+//----------------获取banner列表数据------------------
   getbannerList = (page, limit) => {
     testingAxios('https://www.fastmock.site/mock/63908e19f8683a898abc0a03e1010b59/api/bannerManage')
       .then((res) => {
@@ -170,7 +138,7 @@ class bannerListManage extends PureComponent {
 }
   render() {
     const style = { background: '#0092ff', padding: '8px 0' };
-    // ----------------------患者列表展示部分------------------------------
+    // ----------------------banner列表展示部分------------------------------
     const columns = [
       {
         title: 'bannner图',
@@ -239,26 +207,6 @@ class bannerListManage extends PureComponent {
           
         },
       },
-      // {
-      //   title: 'Tags',
-      //   key: 'tags',
-      //   dataIndex: 'tags',
-      //   render: tags => (
-      //     <>
-      //       {tags.map(tag => {
-      //         let color = tag.length > 5 ? 'geekblue' : 'green';
-      //         if (tag === 'loser') {
-      //           color = 'volcano';
-      //         }
-      //         return (
-      //           <Tag color={color} key={tag}>
-      //             {tag.toUpperCase()}
-      //           </Tag>
-      //         );
-      //       })}
-      //     </>
-      //   ),
-      // },
       {
         title: '操作',
         key: 'action',
@@ -411,7 +359,7 @@ class bannerListManage extends PureComponent {
           <Col span={3} align="right">创建时间: &nbsp;</Col>
           <Col span={5}><DatePicker style={{ width: 150 }} onChange={this.clinicalTimeInputValue} placeholder="请选择" /></Col>
           <Col span={2} offset={3}>
-            <Button >重置</Button>
+            <Button onClick={this.handlePost} >重置</Button>
           </Col>
           <Col span={2}>
             <Button type="primary" onClick={this.handlePost}>搜索</Button>
