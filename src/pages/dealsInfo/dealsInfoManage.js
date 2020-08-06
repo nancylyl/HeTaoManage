@@ -41,7 +41,6 @@ class dealsInfoManage extends PureComponent {
     return result;
   }
   disabledDate=(current)=> {
-    // Can not select days before today and today
     return current && current >= moment().endOf('day');
   }
   disabledRangeTime=(current, type)=> {   
@@ -50,23 +49,29 @@ class dealsInfoManage extends PureComponent {
     let hour = Number(moment().hour());
     let second = Number(moment().second());
     let startTime;
-    if (type === 'start') {
       startTime = moment(current)
       if (today === moment(current).date()) {
-        return {
-          disabledHours: () => this.range(hour+1, 24),
-          disabledMinutes: () => this.range(minute+1, 60),
-          disabledSeconds: () => this.range(second, 60),
-        };
+        if (current.hour() === hour) {
+          return {
+            disabledHours: () => this.range(hour+1, 24),
+            disabledMinutes: () => this.range(minute+1, 60),
+            disabledSeconds: () => this.range(second+1, 60),  
+          };
+        } else if (current.hour() < hour) {
+          return {
+            disabledHours: () => this.range(hour+1, 24),
+            disabledMinutes: () => this.range(60, 1),
+            disabledSeconds: () => this.range(60, 1),
+          };
+        }
       }
-    }
-    else{
-      return {
-        disabledHours: () => this.range(hour+1, 24),
-        disabledMinutes: () => this.range(minute+1, 60),
-        disabledSeconds: () => this.range(second, 60),
-      };
-    }    
+      else{
+        return {
+          disabledHours: () => this.range(24, 1),
+          disabledMinutes: () => this.range(60, 1),
+          disabledSeconds: () => this.range(60, 1),
+        };
+      }       
   }
 
   // 提交搜索信息
