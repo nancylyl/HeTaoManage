@@ -2,7 +2,8 @@ import Axios from 'axios'
 var baseURL = ''
 export default function axios(config) {
   if (config.isDev != undefined && config.isDev == 1) {
-    baseURL = "http://118.190.245.9:8080"
+    // baseURL = "http://118.190.245.9:8080"
+    baseURL = "http://172.16.2.81:8080"
   }
   else {
     baseURL = "https://www.fastmock.site/mock/63908e19f8683a898abc0a03e1010b59"

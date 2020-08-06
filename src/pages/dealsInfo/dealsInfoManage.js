@@ -3,6 +3,8 @@ import {  Form, Input, DatePicker, Row, Col,  Button, Table } from 'antd';
 import moment from 'moment';
 import locale from 'antd/lib/date-picker/locale/zh_CN';
 import styles from './dealInfo.module.scss'
+import Axios from '../../util/axios'
+import Api from '../../api/index'
 const { RangePicker } = DatePicker;
 
 class dealsInfoManage extends PureComponent {
@@ -10,28 +12,36 @@ class dealsInfoManage extends PureComponent {
   constructor() {
     super();
     this.state = {
-      dealList: [
-        {
-          recordId: 1,
-          userName: "张三",
-          transactionType: "充值",
-          transactionMoney: '20',
-          transactionTime: '2020-06-12 12:00:00',
-          TransactionSerial: '11825455',
-          TransactionStatus: '交易成功'
-        },
-        {
-          recordId: 2,
-          userName: "张三",
-          transactionType: "充值",
-          transactionMoney: '20',
-          transactionTime: '2020-06-12 12:00:00',
-          TransactionSerial: '11825455',
-          TransactionStatus: '交易成功'
-        },
-      ]
+      loaded: false,
+      dealLists: []
     }
   }
+
+  into() {
+    Axios({
+      url: Api.deals.getDeals,
+      params: {
+        limit: 10,
+        page: 1,
+      },
+      isDev: 1
+    })
+      .then((res) => {
+        console.log(res)
+        console.log(res.data.data)
+        if (res.status== 200) {
+          this.setState({
+            dealLists: res.data.data,
+            loaded: true,
+          })
+        } else {
+        }
+      })
+  }
+  componentDidMount() {
+    this.into();
+  }
+
 
   range=(start, end)=> {
     const result = [];
@@ -77,51 +87,52 @@ class dealsInfoManage extends PureComponent {
   // 提交搜索信息
   onFinish = values => {
     console.log(values);
+
   };
   // 重置搜索框
   delSearch = () => {
     this.formRef.current.resetFields();
   };
   render() {
-    const { dealList } = this.state;
+    const { dealLists } = this.state;
     const columns = [
       {
         title: '交易用户',
         width: 120,
-        dataIndex: 'userName',
-        key: 'userName',
+        dataIndex: 'transactionname',
+        key: 'transactionname',
         fixed: 'left',
       },
       {
         title: '交易类型',
         width: 120,
-        dataIndex: 'transactionType',
-        key: 'transactionType',
+        dataIndex: 'transactiontype',
+        key: 'transactiontype',
         fixed: 'left',
       },
       {
         title: '核桃币',
-        dataIndex: 'transactionMoney',
-        key: 'transactionMoney',
+        dataIndex: 'transactionmoney',
+        key: 'transactionmoney',
         width: 100,
       },
       {
         title: '交易时间',
-        dataIndex: 'transactionTime',
-        key: 'transactionTime',
+        dataIndex: 'transactiontime',
+        key: 'transactiontime',
         width: 180,
       },
       {
         title: '交易流水号',
-        dataIndex: 'TransactionSerial',
-        key: 'TransactionSerial',
-        width: 150,
+        dataIndex: 'transactionserial',
+        key: 'transactionserial',
+        width: 120,
       },
       {
         title: '交易状态',
-        dataIndex: 'TransactionStatus',
-        key: 'TransactionStatus',
-        width: 100,
+        dataIndex: 'transactionstatus',
+        key: 'transactionstatus',
+        width: 120,
       }
     ];
     return (
@@ -180,16 +191,16 @@ class dealsInfoManage extends PureComponent {
         <div className={styles.dealList}>
           <div className={styles.listTitle}>
             <h1>交易列表</h1>
-            <span className={styles.allNum}>(共<span>{dealList.length}</span>条记录)</span>
+            <span className={styles.allNum}>(共<span>{dealLists.length}</span>条记录)</span>
             <Button type="primary">导出</Button>
           </div>
-          {/* {this.state.loaded && ( */}
+          {this.state.loaded && (
             <Row justify="start">
-              <Col span={18} offset={3}>
-                <Table columns={columns} dataSource={dealList} bordered size="middle" rowKey="recordId" />
+              <Col span={24} >
+                <Table columns={columns} dataSource={dealLists} bordered size="middle" rowKey="id" />
               </Col>
             </Row>
-          {/* )} */}
+          )}
         </div>
       </div>
     )
