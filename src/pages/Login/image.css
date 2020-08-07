@@ -1,10 +1,10 @@
 .image-code {
     padding: 10px;
     user-select: none;
-    margin: auto;
+    /*margin: auto;*/
     width: 20%;
     height: 30%;
-border: 1px solid royalblue;
+/*border: 1px solid royalblue;*/
 }
 
 .image-container {
