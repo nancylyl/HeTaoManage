@@ -57,10 +57,10 @@ const columns = [
     title: '操作',
     dataIndex: '操作',
     align: 'center',
-    render: () =>
+    render: (text,record) =>
         <Space size="middle">
-          <Link to={'/index/hospitalInfo/checkDoctor'}>查看</Link>
-          <a>编辑</a>
+          <Link to={{pathname:'/index/hospitalInfo/checkDoctor',state:record}}>查看</Link>
+          <CollectionsPage1/>
           <a>停用</a>
         </Space>,
   },
@@ -308,7 +308,6 @@ const CollectionCreateForm = ({ visible, onCreate, onCancel }) => {
       </Modal>
   );
 };
-
 //新增组件
 const CollectionsPage = () => {
   const [visible, setVisible] = useState(false);
@@ -328,6 +327,217 @@ const CollectionsPage = () => {
           新增医生
         </Button>
         <CollectionCreateForm
+            visible={visible}
+            onCreate={onCreate}
+            onCancel={() => {
+              setVisible(false);
+            }}
+        />
+      </div>
+  );
+};
+
+//编辑模态框
+const layout1 = {
+  labelCol: { span: 8 },
+  wrapperCol: { span: 16 },
+};
+const CollectionCreateForm1 = ({ visible, onCreate, onCancel }) => {
+  const [form] = Form.useForm();
+  return (
+      <Modal
+          visible={visible}
+          width='640px'
+          title="编辑医生"
+          okText="确定"
+          cancelText="关闭"
+          onCancel={onCancel}
+          onOk={() => {
+            form
+                .validateFields()
+                .then(values => {
+                  form.resetFields();
+                  onCreate(values);
+                })
+                .catch(info => {
+                  console.log('Validate Failed:', info);
+                });
+          }}
+      >
+        <Form
+            form={form}
+            {...layout1}
+            // layout="horizontal"
+            name="form_in_modal"
+            initialValues={{
+              modifier: 'public',
+            }}
+        >
+          <Row justify="start" gutter={[20,5]}>
+            <Col span={24}>
+              <Form.Item>
+                <h3>基本信息</h3>
+              </Form.Item>
+            </Col>
+            <Col span={13}>
+              <Form.Item label="头像上传" name='avatar' rules={[{required: true,message: '请上传头像'}]}>
+                <Avatar></Avatar>
+                <p>上传图片大小请尽可能小于100k，图片尺寸（150x150px）支持图片格式 .jpg  .png  .gif</p>
+              </Form.Item>
+            </Col>
+            <Col span={12}>
+              <Form.Item name="Name" label="姓名" rules={[
+                {
+                  required: true,
+                  message: '内容不能为空',
+                },
+              ]}
+              >
+                <Input placeholder='请输入'/>
+              </Form.Item>
+            </Col>
+            <Col span={12}>
+              <Form.Item name="sex" label="姓别" rules={[
+                {
+                  required: true,
+                  message: '内容不能为空',
+                },
+              ]}>
+                <Select defaultValue="请选择"  allowClear className = {styles.select} >
+                  <Option value="0">男</Option>
+                  <Option value="1">女</Option>
+                </Select>
+              </Form.Item>
+            </Col>
+            <Col span={12}>
+              <Form.Item name="phonenumber" label="手机号" rules={[
+                {
+                  required: true,
+                  message: '内容不能为空',
+                },
+              ]}>
+                <Input placeholder='请输入'/>
+              </Form.Item>
+            </Col>
+            <Col span={12}>
+              <Form.Item name="hospital" label="所属医院" rules={[
+                {
+                  required: true,
+                  message: '内容不能为空',
+                },
+              ]}>
+                <Select defaultValue="请选择"  allowClear className = {styles.select} >
+                  <Option value="0">北京癫痫医院</Option>
+                  <Option value="1">上海癫痫医院</Option>
+                </Select>
+              </Form.Item>
+            </Col>
+            <Col span={12}>
+              <Form.Item name="profession" label="职称" rules={[
+                {
+                  required: true,
+                  message: '内容不能为空',
+                },
+              ]}>
+                <Select defaultValue="请选择"  allowClear className = {styles.select} >
+                  <Option value="0">主治医生</Option>
+                  <Option value="1">实习医生</Option>
+                </Select>
+              </Form.Item>
+            </Col>
+            <Col span={12}>
+              <Form.Item name="subject" label="科室" rules={[
+                {
+                  required: true,
+                  message: '内容不能为空',
+                },
+              ]}>
+                <Select defaultValue="请选择"  allowClear className = {styles.select} >
+                  <Option value="0">癫痫脑外科</Option>
+                  <Option value="1">癫痫脑内科</Option>
+                </Select>
+              </Form.Item>
+            </Col>
+            <Col span={12}>
+              <Form.Item name="experience" label="从医经验" rules={[
+                {
+                  required: true,
+                  message: '内容不能为空',
+                },
+              ]}>
+                <Input placeholder='请输入'/>
+              </Form.Item>
+            </Col>
+            <Col span={12}>
+              <Form.Item name="play" label="账号角色" rules={[
+                {
+                  required: true,
+                  message: '内容不能为空',
+                },
+              ]}>
+                <Select defaultValue="请选择"  allowClear className = {styles.select} >
+                  <Option value="0">管理员</Option>
+                  <Option value="1">普通用户</Option>
+                </Select>
+              </Form.Item>
+            </Col>
+            <Col span={12}>
+              <Form.Item name="type" label="医生类型" rules={[
+                {
+                  required: true,
+                  message: '内容不能为空',
+                },
+              ]}>
+                <Select defaultValue="请选择"  allowClear className = {styles.select} >
+                  <Option value="0">普通医生</Option>
+                  <Option value="1">特权医生</Option>
+                </Select>
+              </Form.Item>
+            </Col>
+            <Col span={24}>
+              <Form.Item>
+                <h3>审核信息</h3>
+              </Form.Item>
+            </Col>
+            <Col span={12}>
+              <Form.Item label="资格证" rules={[{required: true,message: '请上传资格证'}]} name='certificate'>
+                <Avatar></Avatar>
+              </Form.Item>
+            </Col>
+            <Col span={24}>
+              <Form.Item>
+                <h3>介绍信息</h3>
+              </Form.Item>
+            </Col>
+            <Col span={12}>
+              <Form.Item label="基本信息" name="message" rules={[{required: true,message: '内容不能为空'}]}>
+                <TextArea rows={4} placeholder='请输入医院任职情况，如姓名、性别、职称、现任职、曾任职等（200字以内）'/>
+              </Form.Item>
+            </Col>
+          </Row>
+        </Form>
+      </Modal>
+  );
+};
+//编辑组件
+const CollectionsPage1 = () => {
+  const [visible, setVisible] = useState(false);
+  const onCreate = values => {
+    console.log('获取到的值: ', values);
+    setVisible(false);
+    message.success('新增成功！');
+  };
+  return (
+      <div>
+        <Button
+            type="link"
+            onClick={() => {
+              setVisible(true);
+            }}
+        >
+          编辑
+        </Button>
+        <CollectionCreateForm1
             visible={visible}
             onCreate={onCreate}
             onCancel={() => {

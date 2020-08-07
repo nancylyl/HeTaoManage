@@ -18,26 +18,28 @@ const { TabPane } = Tabs;
 @observer
 
 class checkDoctor extends PureComponent {
+    constructor(props) {
+        super(props);
+        this.state={
+            doctorInfo: [],
+        }
+    }
+
     state = {
-        userInfo: {
-            Name: '张山',
-            sex: '女',
-            experience: 10,
-            hospital: '北京第一癫痫医院',
-            profession: "主治医师",
-            subject: '癫痫脑外科',
-            phonenumber: '158092783819',
-            certificate:'https://timgsa.baidu.com/timg?image&quality=80&size=b9999_10000&sec=1596602737144&di=6f819c7d71e784f736041dfb2a61c963&imgtype=0&src=http%3A%2F%2F5b0988e595225.cdn.sohucs.com%2Fq_70%2Cc_zoom%2Cw_640%2Fimages%2F20181205%2Fb811fbf0f17546bd9bc1cfb29a0fb5ef.jpeg'
-
-        },
-
         chanageCard(actionKey) {
             console.log(actionKey)
         }
-
     }
+    componentWillMount() {
+        console.log(this.props.location.state)
+        this.setState ({
+            doctorInfo: this.props.location.state,
+        })
+    }
+
     render() {
-        const { Name, sex, experience, hospital, profession, subject, phonenumber,certificate } = this.state.userInfo
+        const {doctorInfo} = this.state
+
         const { caseTabs: userRoot } = this.props
 
         const { getActiveIndex, setActiveIndex } = userRoot
@@ -49,35 +51,34 @@ class checkDoctor extends PureComponent {
                 <Card type="inner" title={<h1 className={styles.title}>医生信息</h1>}  >
                     <Row gutter={16} className={styles.baseInfoRow}>
                         <Col span={6}>
-                            <div className={styles.showdiv}>医生姓名：{Name}</div>
+                            <div className={styles.showdiv}>医生姓名：{doctorInfo.Name}</div>
                         </Col>
                         <Col span={6}>
-                            <div className={styles.showdiv} >性别：{sex}</div>
+                            <div className={styles.showdiv} >性别：{doctorInfo.sex}</div>
                         </Col>
                         <Col span={6}>
-                            <div className={styles.showdiv}>从业经验：{experience}年</div>
+                            <div className={styles.showdiv}>从业经验：{doctorInfo.experience}</div>
                         </Col>
                         <Col span={6}>
-                            <div className={styles.showdiv}>所属医院:{hospital}</div>
+                            <div className={styles.showdiv}>所属医院:{doctorInfo.hospital}</div>
                         </Col>
                     </Row>
                     <Row gutter={16} className={styles.baseInfoRow}>
                         <Col span={6}>
-                            <div className={styles.showdiv}>职称: {profession}</div>
+                            <div className={styles.showdiv}>职称: {doctorInfo.profession}</div>
                         </Col>
                         <Col span={6}>
-                            <div className={styles.showdiv}>科室: {subject}</div>
+                            <div className={styles.showdiv}>科室: {doctorInfo.subject}</div>
                         </Col>
                         <Col span={6}>
-                            <div className={styles.showdiv}>手机号: {phonenumber}</div>
+                            <div className={styles.showdiv}>手机号: {doctorInfo.phonenumber}</div>
                         </Col>
                     </Row>
                     <Row gutter={16} className={styles.baseInfoRow}>
                         <Col span={6}>
                             <div className={styles.showdiv}>资格证:
-                                <img src={certificate} alt="" id='showImg'/>
+                                <img src='https://timgsa.baidu.com/timg?image&quality=80&size=b9999_10000&sec=1596602737144&di=6f819c7d71e784f736041dfb2a61c963&imgtype=0&src=http%3A%2F%2F5b0988e595225.cdn.sohucs.com%2Fq_70%2Cc_zoom%2Cw_640%2Fimages%2F20181205%2Fb811fbf0f17546bd9bc1cfb29a0fb5ef.jpeg' alt="" id='showImg'/>
                             </div>
-
                         </Col>
                     </Row>
                 </Card>
@@ -87,7 +88,6 @@ class checkDoctor extends PureComponent {
                       onTabClick={(key) => {
                           setActiveIndex(key)
                       }}
-
                 >
                     <TabPane tab="患者列表" key="1" >
                         <PatientList/>

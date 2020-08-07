@@ -7,6 +7,7 @@ import doctor from './doctor'
 import patients from './patient'
 import addCase from './case'
 import map from './map'
+import transaction from './transaction'
 export default {
   user,
   home,
@@ -17,4 +18,5 @@ export default {
   map,
   department,
   doctor,
+  transaction,
 }
