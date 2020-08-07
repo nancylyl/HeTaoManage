@@ -33,7 +33,6 @@ class discussManage extends PureComponent {
       .then((res) => {
         // console.log(res)
         if (res.data.success) {
-          // this.setState.loaded = true
           this.setState({
             discussLists: res.data.data,
             loaded: true,

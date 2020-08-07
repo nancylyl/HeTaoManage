@@ -1,6 +1,7 @@
 import user from './user'
 import home from './home'
 import discuss from './discuss'
+import deals from './deals'
 import hospital from './hospital'
 import department from './department'
 import doctor from './doctor'
@@ -19,4 +20,5 @@ export default {
   department,
   doctor,
   transaction,
+  deals,
 }

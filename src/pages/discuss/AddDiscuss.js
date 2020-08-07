@@ -53,7 +53,7 @@ class AddDiscuss extends PureComponent {
       searchValue: '',
       autoExpandParent: true,
       storeState: {},
-      treeData : []
+      treeData : [],
     }
   }
 
@@ -73,11 +73,30 @@ class AddDiscuss extends PureComponent {
   }
   // ==============================日期选择器限制条件设置===========================
   changeTime = (val, dateStrings, type) => {
+    const { startTime,endTime } = this.state;
     console.log(dateStrings);
     if (type === 'startTime') {
-      this.setState({ startTime: dateStrings });
-    } else if (type === 'endTime') {
-      this.setState({ endTime: dateStrings });
+      this.setState({ startTime: dateStrings, disabled1: false });
+    } 
+    else if (type === 'endTime') {
+      if (startTime === '') {
+        console.log(111111111);
+        message.error("请先选择报名开始时间")
+        this.formRef.current.setFieldsValue({enrollEnd: ''})
+      }
+      else{
+        console.log(22222222222);
+        this.setState({ endTime: dateStrings });
+      }
+    }
+    else {
+      if (endTime === '' || startTime === '') {
+        message.error("请先选择报名时间")
+        this.formRef.current.setFieldsValue({discussStart: ''})
+      }
+      else{
+        console.log(22222222222);
+      }
     }
   }
   range = (start, end) => {
@@ -89,30 +108,17 @@ class AddDiscuss extends PureComponent {
   }
   // 报名开始时间
   disabledStartDate = (current) => {
-    const { endTime } = this.state;
-    if (endTime !== '') {
-      // console.log( moment(endTime).subtract(1, 'hour'));
-      // 核心逻辑: 开始日期不能晚于结束日期，且比当前时间大1小时
-      return current >= moment(endTime).add(1, 'hours')  || current <= moment().startOf('day');
-    }
-
+    return current && current <= moment().startOf('day');
   }
   // 报名结束时间
   disabledEndDate = (current) => {
     const { startTime } = this.state;
-    if (startTime !== '') {
-      // 核心逻辑: 结束日期不能小余开始日期后1小时，且不能早于开始日期
-      return current && current <= moment(startTime).startOf('day');
-    }
+    return current && current <= moment(startTime).startOf('day');
   }
   // 探讨开始时间
   disabledDate = (current) => {
     const { endTime } = this.state;
-    if (endTime !== '') {
-      // console.log( moment(endTime).subtract(1, 'hour'));
-      // 核心逻辑: 开始日期不能晚于结束日期，且比当前时间大1小时
-      return current && current <= moment(endTime).startOf('day');
-    }
+    return current && current <= moment(endTime).startOf('day');   
   }
   // 报名开始时间
   disabledStartDateTime = (current) => {
@@ -130,7 +136,6 @@ class AddDiscuss extends PureComponent {
         else {
           if (current.minute() >= 59) {
             finalHour = hour + 1;
-            finalMinute = 0;
           } else {
             finalHour = hour + 1;
             finalMinute = minute + 1;
@@ -243,6 +248,7 @@ class AddDiscuss extends PureComponent {
       visible: false,
       searchValue: '',
     });
+    this.state.multiple == true?this.formRef.current.setFieldsValue({inviteGuests: ''}):this.formRef.current.setFieldsValue({host: ''})
   };
   onSelect = (title,keys,event) => {
     console.log(keys);
@@ -499,7 +505,9 @@ class AddDiscuss extends PureComponent {
                 name="enrollStart"
                 rules={[{ required: true, message: '请选择!' }]}
               >
-                <DatePicker format="YYYY-MM-DD HH:mm:ss" locale={locale} showTime disabledDate={this.disabledStartDate} disabledTime={this.disabledStartDateTime} onChange={(val, dateStrings) => this.changeTime(val, dateStrings, 'startTime')} />
+                <DatePicker locale={locale} showNow={false}
+                  showTime={{hideDisabledOptions: true}}
+                 disabledDate={this.disabledStartDate} disabledTime={this.disabledStartDateTime} onChange={(val, dateStrings) => this.changeTime(val, dateStrings, 'startTime')} />
               </Form.Item>
             </Col>
             <Col span={12}>
@@ -508,7 +516,10 @@ class AddDiscuss extends PureComponent {
                 name="enrollEnd"
                 rules={[{ required: true, message: '请选择!' }]}
               >
-                <DatePicker locale={locale} disabledDate={this.disabledEndDate} disabledTime={this.disabledEndDateTime} showTime onChange={(val, dateStrings) => this.changeTime(val, dateStrings, 'endTime')} />
+                <DatePicker locale={locale} showNow={false}
+                 showTime={{hideDisabledOptions: true}}
+                 disabledDate={this.disabledEndDate} disabledTime={this.disabledEndDateTime} 
+                 onChange={(val, dateStrings) => this.changeTime(val, dateStrings, 'endTime')} />
               </Form.Item>
             </Col>
             <Col span={12}>
@@ -517,7 +528,10 @@ class AddDiscuss extends PureComponent {
                 name="discussStart"
                 rules={[{ required: true, message: '请选择!' }]}
               >
-                <DatePicker locale={locale} disabledDate={this.disabledDate} disabledTime={this.disabledDateTime} showTime />
+                <DatePicker locale={locale} showNow={false}
+                showTime={{hideDisabledOptions: true}}
+                disabledDate={this.disabledDate} disabledTime={this.disabledDateTime} 
+                onChange={(val, dateStrings) => this.changeTime(val, dateStrings, 'start')}/>
               </Form.Item>
             </Col>
             <Col span={12}>
