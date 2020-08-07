@@ -34,7 +34,6 @@ class mapManage extends PureComponent {
 
         const data = res.data.data;/*  */
 
-
         this.initalECharts(data);
       })
       .finally(() => {
