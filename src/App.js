@@ -22,6 +22,7 @@ import rechargeManage from './pages/recharge/rechargeManage'
 import Addcase from './pages/patient/case/AddCase'
 import CaseBox from './pages/patient/case/CaseBox'
 import CaseDetail from './pages/patient/case/components/CaseDetail'
+import login from './pages/Login/index'
 //引入路由
 import { BrowserRouter as Router, Route, Redirect, Switch } from 'react-router-dom'
 
@@ -38,7 +39,7 @@ function App() {
 
 
           ></Route>
-          <Route path="/Login" component={Login}></Route>
+          <Route path="/" component={login}></Route>
           <Route
             path="/index"
             render={() => (
@@ -68,7 +69,8 @@ function App() {
                 <Route path="/index/banner" component={bannerManage} />
                 {/* 充值管理 */}
                 <Route path="/index/recharge" component={rechargeManage} />
-
+                  {/* 登录 */}
+                  <Route path="/index/recharge" component={login} />
               </Index>
             )}
           ></Route>

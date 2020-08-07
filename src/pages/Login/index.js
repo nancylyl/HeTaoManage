@@ -3,6 +3,8 @@ import { Layout, message } from 'antd'
 import { Form, Input, Button, Checkbox } from 'antd'
 import { inject, observer } from 'mobx-react'
 import styles from './style.module.scss'
+import ImageCode from "./ImageCode";
+import img from '../../assets/images/23.png'
 // import { withRouter } from 'react-router-dom'
 const { Header, Footer, Content } = Layout
 
@@ -13,13 +15,32 @@ const layout = {
 const tailLayout = {
   wrapperCol: { offset: 0, span: 16 },
 }
+
 // @withRouter
 @inject('user')
 @observer
 class Login extends PureComponent {
   state = {
-    Account: '15328189934',
-    PassWord: '1234',
+    Account: '17531903634',
+    PassWord: '1111',
+    url: ""
+  }
+
+
+  //获取图片路径
+  getImage=()=>{
+
+  }
+  componentDidMount() {
+    this.setState({
+      url: img
+    })
+  }
+
+  onReload = () => {
+    this.setState({
+      url: img
+    })
   }
 
   onFinish = (values) => {
@@ -39,17 +60,18 @@ class Login extends PureComponent {
   onFinishFailed = (errorInfo) => {
     console.log('Failed:', errorInfo)
   }
-
   render() {
     const { Account, PassWord } = this.state
     console.log(this.props)
     return (
-      <div>
+      <div className={styles['login-box1']}>
         <Layout>
-          <Header>班级管理系统</Header>
+            <Header className={styles['login-box2']}>医疗管理系统</Header>
           <Content>
             {/*登录页的内容*/}
             <div className={styles['login-box']}>
+              <div className={styles['login-box3']}>
+                <div className={styles['login-box4']}>
               <Form
                 {...layout}
                 name="basic"
@@ -57,7 +79,7 @@ class Login extends PureComponent {
                 onFinish={this.onFinish}
                 onFinishFailed={this.onFinishFailed}
               >
-                <Form.Item
+              <Form.Item
                   label="姓名"
                   name="Account"
                   rules={[{ required: true, message: '请输入用户名!' }]}
@@ -72,7 +94,6 @@ class Login extends PureComponent {
                 >
                   <Input.Password />
                 </Form.Item>
-
                 <Form.Item
                   {...tailLayout}
                   name="remember"
@@ -80,7 +101,7 @@ class Login extends PureComponent {
                   label=" "
                   colon={false}
                 >
-                  <Checkbox>Remember me</Checkbox>
+                  <Checkbox>记住密码</Checkbox>
                 </Form.Item>
 
                 <Form.Item colon={false} label=" " {...tailLayout}>
@@ -89,13 +110,23 @@ class Login extends PureComponent {
                   </Button>
                 </Form.Item>
               </Form>
+                </div>
+              </div>
             </div>
           </Content>
-          <Footer>备案号：nana</Footer>
         </Layout>
+
+        <ImageCode
+            imageUrl={this.state.url}
+            onReload={this.onReload}
+            onMatch={() => {
+              console.log("code is match")
+            }}
+        />
+
       </div>
+
     )
   }
 }
-
 export default Login

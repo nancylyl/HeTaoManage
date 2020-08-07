@@ -13,14 +13,13 @@ export default class userStore {
   @observable user = { ...defaultData } //用户
   @observable isLogin = false
   @observable token = ''
-
   @action
   login = () => {
     return new Promise((resolve, reject) => {
       this.user.loading = true
       Axios({
         url: Api.user.userLogin,
-        data: { Account: '15328189934', PassWord: 1234 },
+        data: { Account: '17531903634', PassWord: 1111 },
         method: 'post',
       })
         .then((res) => {
