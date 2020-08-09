@@ -48,12 +48,12 @@ class patientListManage extends PureComponent {
   //搜索功能所用方法
   P_NameInputValue = (event) => {
     this.setState({
-      P_Name: event.target.value,
+      p_Name: event.target.value,
     })
   };
   P_addressInputValue = (event) => {
     this.setState({
-      P_address: event.target.value
+      p_address: event.target.value
     })
   };
   medicalInputValue = (event) => {
@@ -102,7 +102,7 @@ class patientListManage extends PureComponent {
   //-------------------------编辑部分-----------------------
 
   editform = (text) => {
-    console.log(text.P_ID)
+    console.log(text.p_ID)
     //获取当前点击 行 的id
     this.setState({
       editvisible: true,
@@ -177,7 +177,7 @@ class patientListManage extends PureComponent {
       })
   }
   componentDidMount() {
-    this.getpatientList(0,6);
+    this.getpatientList(1,6);
     
     //构造一些初始数据
   }
@@ -191,8 +191,8 @@ class patientListManage extends PureComponent {
     const columns = [
       {
         title: '患者姓名',
-        dataIndex: 'P_Name',
-        key: 'P_Name',
+        dataIndex: 'p_Name',
+        key: 'p_Name',
         align: 'center',
       },
       {
@@ -204,8 +204,8 @@ class patientListManage extends PureComponent {
       },
       {
         title: '现居住地址',
-        dataIndex: 'P_address',
-        key: 'P_address',
+        dataIndex: 'p_address',
+        key: 'p_address',
         align: 'center',
       },
       {
@@ -257,7 +257,7 @@ class patientListManage extends PureComponent {
             <Link to={`/index/patient/CaseBox`}>查看</Link>
             {/* <a onClick={this.editform.bind(text, record)}>编辑</a> */}
             <CollectionsPage2 onClick={this.editform.bind(text, record)}></CollectionsPage2>
-            <a>更换医生</a>
+            <a onClick={this.editform.bind(text, record)}>更换医生</a>
             {record.medical > 0 ? '病历' : <Link to={"/index/patient/Addcase/0"}>新增病历</Link>}
           </Space>
         ),
@@ -307,7 +307,7 @@ class patientListManage extends PureComponent {
               <Input />
             </Form.Item>
             <Form.Item
-              name="P_Name"
+              name="p_Name"
               label="姓名"
               rules={[
                 {
@@ -339,24 +339,19 @@ class patientListManage extends PureComponent {
               <DatePicker placeholder="请选择出生日期" />
             </Form.Item>
             <Form.Item
-              label="发病年龄"
+              label="发病时间"
               rules={[{ required: true, message: "必填" }]}
-              name="onsetAge" >
-              <Select style={{ width: 120 }} placeholder="请选择发病年龄">
-                <Option value={""}>请选择</Option>
-                {
-                  options
-                }
-              </Select>
+              name="date">
+              <DatePicker style={{ width: 150 }} placeholder="请选择" />
             </Form.Item>
             <Form.Item label="现居住地"
               rules={[{ required: true, message: "必填" }]}
-              name="P_address" >
+              name="p_address" >
               <Cascader options={adoptions} placeholder="请选择居住地" />
             </Form.Item>
-            <Form.Item name="description" label="备注">
+            {/* <Form.Item name="description" label="备注">
               <TextArea rows={4} />
-            </Form.Item>
+            </Form.Item> */}
           </Form>
         </Modal>
       );
@@ -434,7 +429,7 @@ class patientListManage extends PureComponent {
               <Input />
             </Form.Item>
             <Form.Item
-              name="P_Name"
+              name="p_Name"
               label="姓名"
               rules={[
                 {
@@ -466,24 +461,19 @@ class patientListManage extends PureComponent {
               <DatePicker placeholder="请选择出生日期" />
             </Form.Item>
             <Form.Item
-              label="发病年龄"
+              label="发病时间"
               rules={[{ required: true, message: "必填" }]}
-              name="onsetAge" >
-              <Select style={{ width: 120 }} placeholder="请选择发病年龄">
-                <Option value={""}>请选择</Option>
-                {
-                  options
-                }
-              </Select>
+              name="date" >
+               <DatePicker style={{ width: 150 }} placeholder="请选择" />
             </Form.Item>
             <Form.Item label="现居住地"
               rules={[{ required: true, message: "必填" }]}
-              name="P_address" >
+              name="p_address" >
               <Cascader options={adoptions} placeholder="请选择居住地" />
             </Form.Item>
-            <Form.Item name="description" label="备注">
+            {/* <Form.Item name="description" label="备注">
               <TextArea rows={4} />
-            </Form.Item>
+            </Form.Item> */}
           </Form>
         </Modal>
       );
@@ -611,7 +601,7 @@ class patientListManage extends PureComponent {
           <Col span={3} align="right">患者性别：</Col>
           <Col span={5}>
             <Select defaultValue="2" style={{ width: 150 }} onChange={this.sexInputValue}>
-              <Option value="2">全部</Option>
+              <Option value="">全部</Option>
               <Option value="1">男</Option>
               <Option value="0">女</Option>
             </Select>
@@ -624,7 +614,7 @@ class patientListManage extends PureComponent {
           <Col span={3} align="right">病历填写程度：</Col>
           <Col span={5}>
             <Select defaultValue="全部" style={{ width: 150 }} onChange={this.medicalInputValue}>
-              <Option value="2">全部</Option>
+              <Option value="">全部</Option>
               <Option value="1">已填写</Option>
               <Option value="0">未填写</Option>
             </Select>
@@ -641,7 +631,7 @@ class patientListManage extends PureComponent {
         <Row>
           <Col span={5} align='left' className='title'>
             <span className='titleB'>患者列表</span>
-            <span className='titleS'>（共90条记录）</span>
+                  <span className='titleS'>（共{this.state.num}条记录）</span>
           </Col>
           {/* -------------------------------新增患者部分------------------------------------ */}
           <Col span={2} align='right' offset={16} className='marginT'>
