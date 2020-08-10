@@ -1,4 +1,45 @@
 .login-box {
-  width: 600px;
+  width: 500px;
   margin: 0 auto;
+  position: absolute;
+  top: 0;
+  bottom: 0;
+  left: 0;
+  right: 0;
+  margin: auto;
+  height: 340px;
+  width: 500px;
+  //border: 1px solid royalblue;
+  background-color: white;
+  　　opacity:0.0;
+  border-radius:14px
 }
+.login-box1{
+  width: 100%;
+  height: 969px;
+  background-size:100% 100%;
+  background-image:url("../../assets/images/2.png");
+}
+.login-box2{
+  margin: auto;
+  font-size: 30px;
+  top: 0;
+  bottom: 0;
+  left: 0;
+  right: 0;
+  background-color: #1B342C;
+}
+.Header{
+  color: #222222;
+}
+.login-box3{
+  position: absolute;
+  top: 0;
+  bottom: 0;
+  left: 0;
+  right: 0;
+  margin: auto;
+  width: 400px;
+  height: 200px;
+}
+

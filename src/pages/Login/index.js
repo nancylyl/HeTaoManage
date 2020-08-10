@@ -3,6 +3,8 @@ import { Layout, message } from 'antd'
 import { Form, Input, Button, Checkbox } from 'antd'
 import { inject, observer } from 'mobx-react'
 import styles from './style.module.scss'
+import ImageCode from "./ImageCode";
+import img from '../../assets/images/23.png'
 // import { withRouter } from 'react-router-dom'
 const { Header, Footer, Content } = Layout
 
@@ -13,89 +15,131 @@ const layout = {
 const tailLayout = {
   wrapperCol: { offset: 0, span: 16 },
 }
+
 // @withRouter
 @inject('user')
 @observer
 class Login extends PureComponent {
   state = {
-    Account: '15328189934',
-    PassWord: '1234',
+    Account: '17531903634',
+    PassWord: '1111',
+    url: "",
+    isShow: false,
+    img: []
+  }
+  //获取图片路径
+  getImage = () => {
+
+  }
+  componentDidMount () {
+    this.setState({
+      url: img
+    })
   }
 
+  onReload = () => {
+    this.setState({
+      url: img
+    })
+  }
   onFinish = (values) => {
-    console.log('Success:', values)
-    console.log(this.state)
-    this.props.user
-      .login()
-      .then((data) => {
-        console.log(data)
-        this.props.history.push('./index')
+    console.log(values)
+    if (this.state.isShow === false) {
+      this.setState({
+        img: [<ImageCode
+          key='1'
+          imageUrl={this.state.url}
+          onReload={this.onReload}
+          onMatch={() => {
+            console.log("code is match")
+            this.props.history.push('/')
+            this.props.user.login(values).then((data) => {
+              this.props.history.push('/')
+            })
+              .catch((err) => {
+                // message.error(err)
+              })
+          }} />]
       })
-      .catch((err) => {
-        message.error(err)
-      })
+    }
+    // console.log('Success:', values)
+    // console.log(this.state)
+    // this.setState({
+    //   isShow:true
+    // })
+    // this.props.user.login(values).then((data) => {
+    //     this.props.history.push('./index')
+    //   })
+    //   .catch((err) => {
+    //     message.error(err)
+    //   })
   }
 
   onFinishFailed = (errorInfo) => {
     console.log('Failed:', errorInfo)
   }
-
-  render() {
+  render () {
     const { Account, PassWord } = this.state
     console.log(this.props)
     return (
-      <div>
+
+      <div className={styles['login-box1']}>
         <Layout>
-          <Header>班级管理系统</Header>
+          <Header className={styles['login-box2']}>医疗管理系统</Header>
           <Content>
             {/*登录页的内容*/}
             <div className={styles['login-box']}>
-              <Form
-                {...layout}
-                name="basic"
-                initialValues={{ Account, PassWord }}
-                onFinish={this.onFinish}
-                onFinishFailed={this.onFinishFailed}
-              >
-                <Form.Item
-                  label="姓名"
-                  name="Account"
-                  rules={[{ required: true, message: '请输入用户名!' }]}
-                >
-                  <Input />
-                </Form.Item>
+              <div className={styles['login-box3']}>
+                <div className={styles['login-box4']}>
+                  <Form
+                    {...layout}
+                    name="basic"
+                    initialValues={{ Account, PassWord }}
+                    onFinish={this.onFinish}
+                    onFinishFailed={this.onFinishFailed}
+                  >
+                    <Form.Item
+                      label="姓名"
+                      name="Account"
+                      rules={[{ required: true, message: '请输入用户名!' }]}
+                    >
+                      <Input />
+                    </Form.Item>
 
-                <Form.Item
-                  label="密码"
-                  name="PassWord"
-                  rules={[{ required: true, message: '请输入密码!' }]}
-                >
-                  <Input.Password />
-                </Form.Item>
+                    <Form.Item
+                      label="密码"
+                      name="PassWord"
+                      rules={[{ required: true, message: '请输入密码!' }]}
+                    >
+                      <Input.Password />
+                    </Form.Item>
+                    <Form.Item
+                      {...tailLayout}
+                      name="remember"
+                      valuePropName="checked"
+                      label=" "
+                      colon={false}
+                    >
+                      <Checkbox>记住密码</Checkbox>
+                    </Form.Item>
 
-                <Form.Item
-                  {...tailLayout}
-                  name="remember"
-                  valuePropName="checked"
-                  label=" "
-                  colon={false}
-                >
-                  <Checkbox>Remember me</Checkbox>
-                </Form.Item>
-
-                <Form.Item colon={false} label=" " {...tailLayout}>
-                  <Button type="primary" htmlType="submit">
-                    登录
+                    <Form.Item colon={false} label=" " {...tailLayout}>
+                      <Button type="primary" htmlType="submit">
+                        登录
                   </Button>
-                </Form.Item>
-              </Form>
+                    </Form.Item>
+                  </Form>
+                </div>
+              </div>
             </div>
           </Content>
-          <Footer>备案号：nana</Footer>
         </Layout>
+        <div>
+          {this.state.img}
+        </div>
       </div>
+
     )
   }
 }
-
 export default Login
