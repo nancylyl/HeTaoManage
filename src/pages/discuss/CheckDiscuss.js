@@ -18,31 +18,31 @@ export default class CheckDiscuss extends PureComponent {
                 logTime: '14:00:05',
                 avatar: '',
                 spokesmanName: '张全',
-                context: '2222eu接口熟练了绿绿绿绿绿绿所所所所所所所所所所所所所所所所所所所所所所所所所所所所所所所所所所所所所所222'
+                context: '哈哈哈哈哈哈哈哈哈哈哈哈哈哈哈哈哈哈哈哈哈哈哈哈哈哈哈哈哈哈哈哈哈哈哈哈哈哈'
             },
             {
                 logTime: '14:10:05',
                 avatar: '',
                 spokesmanName: '张三',
-                context: '3333'
+                context: '好难啊23333'
             },
             {
                 logTime: '14:20:08',
                 avatar: '',
                 spokesmanName: '李四',
-                context: '22224444222'
+                context: '不知道写啥了啊啊啊啊啊'
             },
             {
                 logTime: '14:30:00',
                 avatar: '',
                 spokesmanName: '张全',
-                context: '55555555'
+                context: '啊啊啊啊啊啊啊啊啊啊'
             },
             {
                 logTime: '14:35:05',
                 avatar: '',
                 spokesmanName: '张三',
-                context: '3333'
+                context: '呵呵呵呵呵呵呵'
             },
         ],
           showList: []
@@ -81,7 +81,7 @@ export default class CheckDiscuss extends PureComponent {
                             <Col span={4}>
                                 <div className = {styles.left}>
                                     <div className = {styles.img}>
-                                        <img src={item.img} alt=""/>
+                                        <img src={require(`../../assets/images/3.png`)} alt=""/>
                                     </div>
                                     <p>{item.spokesmanName}</p>
                                 </div>

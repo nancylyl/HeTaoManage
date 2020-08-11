@@ -6,29 +6,35 @@ import { Link } from 'react-router-dom'
 import { Card, Button, Row, Col } from 'antd';
 export default class CaseLogDetail extends PureComponent {
   state = {
-    id: 1,//
+    id: '',//
     loaded: false,
     detail: []
   }
   componentDidMount() {
     this.init()
+    this.setState({
+      id:this.props.match.params.id
+    })
   }
 
   init() {
     Axios({
       url: Api.addCase.getCaseLogDetail,
+      params: { 
+        gid: this.state.id, 
+      },
     })
       .then((res) => {
-        //   console.log(res);
-        const data = res.data;
+          console.log(res);
+        // const data = res.data;
         //  console.log(data.data);
 
-        if (data.success) {
-          this.setState({
-            detail: data.data,
-            loaded: true
-          })
-        }
+        // if (data.success) {
+        //   this.setState({
+        //     detail: data.data,
+        //     loaded: true
+        //   })
+        // }
 
       })
   }

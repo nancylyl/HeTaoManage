@@ -14,7 +14,7 @@ export default class CaseLog extends PureComponent {
       loaded: false,
       // id:this.props.match.params.id > 0 ? 1: 0,
       id: 1,
-      UId: 0
+      UId: 2
     }
 
   }
@@ -23,13 +23,19 @@ export default class CaseLog extends PureComponent {
     Axios({
       url: Api.addCase.getCaseLog,
       method: "get",
-      params: { UId: UId }
+      params: { 
+        pid: UId, 
+        limit: 8,
+        page: 1
+      },
+      isDev : 1
     })
       .then((res) => {
         console.log(res);
-        if (res.data.success) {
+        console.log(res.data.data);
+        if (res.status==200) {
           this.setState({
-            logList: res.data.data.logList,
+            logList: res.data.data,
             loaded: true,
           })
         } else {
@@ -39,18 +45,27 @@ export default class CaseLog extends PureComponent {
   }
   componentDidMount() {
     this.getDiscussList();
-
   }
-
+  timestampToTime(timestamp) {
+    var date = new Date(timestamp);//时间戳为10位需*1000，时间戳为13位的话不需乘1000
+    let Y = date.getFullYear() + '-';
+    let M = (date.getMonth()+1 < 10 ? '0'+(date.getMonth()+1) : date.getMonth()+1) + '-';
+    let D = date.getDate() + ' ';
+    let h = date.getHours() + ':';
+    let m = date.getMinutes() + ':';
+    let s = date.getSeconds();
+    return Y+M+D+" "+h+m+s;
+}
   render() {
-
     const { logList, loaded, total, UId } = this.state;
     const columns = [
       {
         title: '纪录时间',
-        dataIndex: 'CreateTime',
+        dataIndex: 'logtime',
         align: 'center',
-        key: 'CreateTime',
+        key: 'logtime',
+        // render: (text) =>new Date(parseInt(text)).toLocaleString().replace(/:\d{1,2}$/,' ')
+        render: (text) => this.timestampToTime(text)
         // width: '300px'
       },
       {
@@ -58,19 +73,20 @@ export default class CaseLog extends PureComponent {
         dataIndex: 'Video',
         align: 'center',
         key: 'Video',
+        render: (text) => '无'
       },
       {
         title: '是否有图片',
-        dataIndex: 'Image',
+        dataIndex: 'logP',
         align: 'center',
-        key: 'Image',
-
+        key: 'logP',
+        render: (text) => text==null? '无':'是'
       },
       {
         title: '内容',
-        dataIndex: 'Content',
+        dataIndex: 'logdetails',
         align: 'center',
-        key: 'Content',
+        key: 'logdetails',
 
       },
       {
@@ -79,7 +95,7 @@ export default class CaseLog extends PureComponent {
         align: 'center',
         width: 150,
         render: (text, record) => <span className={styles.tableLink}>
-          <Link to={`/index/patient/CaseLogDetail/` + record.Id}>查看</Link>
+          <Link to={`/index/patient/CaseLogDetail/` + record.id}>查看</Link>
         </span>,
       },
     ];

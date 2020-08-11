@@ -1,3 +1,4 @@
 export default {
-    getDeals: '/htr/transaction',
+    getDeals: '/transaction/page',
+    searchDeals: '/transaction/like',
   }

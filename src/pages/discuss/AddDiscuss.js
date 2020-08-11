@@ -398,14 +398,20 @@ class AddDiscuss extends PureComponent {
     const { TextArea } = Input;
     const columns = [
       {
+        dataIndex: 'img',
+        render: text => <img src={require(`../../assets/images/3.png`)} alt="" style={{width:'30px'}}/>,
+      },
+      {
         dataIndex: 'name',
+        render: text => <span>[{text}]</span>,
       },
       {
         dataIndex: 'age',
+        render: text => <span>[{text}岁]</span>,
       },
       {
-        dataIndex: 'address',
-        render: text => <span>{text}</span>,
+        dataIndex: 'type',
+        render: text => <span>[{text}]</span>,
       },
       {
         key: 'operation',
@@ -417,35 +423,51 @@ class AddDiscuss extends PureComponent {
     const data = [
       {
         key: '1',
-        name: 'John Brown',
+        name: '张三',
         avatar: '',//头像
         age: 42,
         sex: '男',
-        address: 'New York No. 1 Lake Park',
+        type: '癫痫',
       },
       {
         key: '2',
-        name: 'John Brown',
+        name: '李四',
         avatar: '',//头像
-        age: 42,
+        age: 30,
         sex: '男',
-        address: 'New York No. 1 Lake Park',
+        type: '癫痫',
       },
       {
         key: '3',
-        name: 'John Brown',
+        name: '林华',
         avatar: '',//头像
-        age: 42,
+        age: 26,
         sex: '男',
-        address: 'New York No. 1 Lake Park',
+        type: '癫痫',
       },
       {
         key: '4',
-        name: 'John Brown',
+        name: '张敏',
         avatar: '',//头像
-        age: 42,
+        age: 39,
         sex: '男',
-        address: 'New York No. 1 Lake Park',
+        type: '癫痫',
+      },,
+      {
+        key: '5',
+        name: '林华',
+        avatar: '',//头像
+        age: 26,
+        sex: '男',
+        type: '癫痫',
+      },
+      {
+        key: '6',
+        name: '张敏',
+        avatar: '',//头像
+        age: 39,
+        sex: '男',
+        type: '癫痫',
       },
     ];
     return (
@@ -561,7 +583,7 @@ class AddDiscuss extends PureComponent {
               <Form.Item
                 label="会诊患者信息"
                 name="patietInfo"
-              // rules = {[{required:true, message: '请选择!'}]}
+              rules = {[{required:true, message: '请选择!'}]}
               >
                 <Input placeholder="请选择" onClick={this.choosePat} readOnly />
                 {/* <Button className={styles.choose}>请选择</Button> */}
@@ -639,7 +661,7 @@ class AddDiscuss extends PureComponent {
           <Row justify="start" gutter={[0, 25]}>
             <Col span={24} >
               <Radio.Group onChange={this.patietInfo}>
-                <Table style={{height: '300px', overflowY:' scroll'}} showHeader={false} pagination={false} columns={columns} dataSource={data} size="small" />
+                <Table style={{height: '200px', overflowY:' scroll'}} showHeader={false} pagination={false} columns={columns} dataSource={data} size="small" />
               </Radio.Group>
             </Col>  
           </Row>
