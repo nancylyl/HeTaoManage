@@ -34,12 +34,12 @@ const tailLayout = {
 };
 
 class patientListManage extends PureComponent {
-  
+  formRef = React.createRef()
   state = {
     P_Name: "",//输入框输入值
     P_address: "",//输入框输入值
-    medical: 2,//病历填写程度框 默认全部：2
-    sex: 2,//性别多选框 默认全部：2
+    medical: "",//病历填写程度框 默认全部：2
+    sex: '',//性别多选框 默认全部：2
     clinicalTime: "",//上次就诊时间
     visible: false,
     editvisible:false
@@ -73,8 +73,38 @@ class patientListManage extends PureComponent {
   };
   handlePost = () => {
     console.log(this.state);
-
+    testingAxios({
+      url: Api.patients.getpatientList,
+      params: { // 这里的参数设置为URL参数（根据URL携带参数）
+        page:1,
+        limit:6,
+        P_Name:this.state.p_Name,
+        sex:this.state.sex,
+        P_address:this.state.p_address,
+        medical:this.state.medical,
+        clinicalTime:this.state.clinicalTime
+      }  
+      })
+      .then((res) => {
+        console.log(res);
+        this.setState({
+          dataSource: res.data.data,
+          num : res.data.count
+        })
+        
+      })
     //在此做提交操作，比如发dispatch等
+  };
+  // 重置搜索框
+  delSearch = () => {
+    this.formRef.current.resetFields();
+    this.setState ({
+      p_Name: "",//输入框输入值
+      p_address: "",//输入框输入值
+      medical: "",//病历填写程度框 默认全部：2
+      sex: '',//性别多选框 默认全部：2
+      clinicalTime: "",//上次就诊时间
+    })
   };
   //-----------------------------------------------------
 
@@ -159,16 +189,21 @@ class patientListManage extends PureComponent {
     }
   }
 //----------------获取患者列表数据------------------
-  getpatientList = (page, limit) => {
+  getpatientList = (page, limit,P_Name,sex,P_address,medical,clinicalTime) => {
     testingAxios({
       url: Api.patients.getpatientList,
       params: { // 这里的参数设置为URL参数（根据URL携带参数）
         page:page,
-        limit:limit
+        limit:limit,
+        P_Name:this.state.p_Name,
+        sex:this.state.sex,
+        P_address:this.state.p_address,
+        medical:this.state.medical,
+        clinicalTime:this.state.clinicalTime
       }  
       })
       .then((res) => {
-        console.log(res.data.data);
+        console.log(res);
         this.setState({
           dataSource: res.data.data,
           num : res.data.count
@@ -358,9 +393,23 @@ class patientListManage extends PureComponent {
     };
     const CollectionsPage = () => {
       const [visible, setVisible] = useState(false);
-
+      // ------------------------新增框点击确认后传参------------------------------------
       const onCreate = values => {
         console.log('Received values of form: ', values);
+        testingAxios({
+          url: Api.patients.getpatientList,
+          params: { // 这里的参数设置为URL参数（根据URL携带参数）
+            tel:values.tel,
+            P_Name:values.p_Name,
+            sex:values.sex,
+            birthday:values.birthday._d,
+            date:values.date._d,
+            P_address:values.p_address,
+          }  
+          })
+          .then((res) => {
+            console.log(res); 
+          })
         setVisible(false);
         message.success('操作成功');
       };
@@ -593,41 +642,71 @@ class patientListManage extends PureComponent {
                 </Form.Item>
             </Modal>
  {/* ---------------------------------搜索部分---------------------------------------------------- */}
+        <Form
+          name="patient"
+          initialValues={{ remember: true }}
+          ref={this.formRef}
+        >           
         <Row align='middle' justify='start'>
-          <Col span={3} align="right">患者姓名：</Col>
-          <Col span={5} ><Input placeholder="请输入" style={{ width: 150 }} value={this.state.P_Name}
-            onChange={this.P_NameInputValue}
-          /></Col>
-          <Col span={3} align="right">患者性别：</Col>
-          <Col span={5}>
-            <Select defaultValue="2" style={{ width: 150 }} onChange={this.sexInputValue}>
-              <Option value="">全部</Option>
-              <Option value="1">男</Option>
-              <Option value="0">女</Option>
-            </Select>
+          <Col span={7}>
+            <Form.Item
+                  label="患者姓名"
+                  name="P_Name">
+                  <Input placeholder="请输入" style={{ width: 178 }} value={this.state.P_Name}
+              onChange={this.P_NameInputValue} />
+            </Form.Item>
           </Col>
-          <Col span={3} align="right">现居住地：</Col>
-          <Col span={5}><Input placeholder="请输入" style={{ width: 150 }} value={this.state.P_address}
-            onChange={this.P_addressInputValue} /></Col>
+          <Col span={7} offset={1}>
+            <Form.Item
+                  label="患者性别："
+                  name="sex">
+                  <Select defaultValue="" style={{ width: 170 }} onChange={this.sexInputValue}>
+                    <Option value="">全部</Option>
+                    <Option value="1">男</Option>
+                    <Option value="0">女</Option>
+                  </Select>
+            </Form.Item>
+          </Col>
+          <Col span={7} offset={1}>
+            <Form.Item
+                  label="现居住地："
+                  name="p_address">
+                  <Input placeholder="请输入" style={{ width: 175 }} value={this.state.P_address}
+            onChange={this.P_addressInputValue} />
+            </Form.Item>
+          </Col>
         </Row>
         <Row align='middle' className='marginT' style={{ marginBottom: 50 }}>
-          <Col span={3} align="right">病历填写程度：</Col>
-          <Col span={5}>
-            <Select defaultValue="全部" style={{ width: 150 }} onChange={this.medicalInputValue}>
-              <Option value="">全部</Option>
-              <Option value="1">已填写</Option>
-              <Option value="0">未填写</Option>
-            </Select>
+        <Col span={7}>
+            <Form.Item
+                  label="病历填写程度："
+                  name="medical">
+                  <Select defaultValue="全部" style={{ width: 150 }} onChange={this.medicalInputValue}>
+                    <Option value="">全部</Option>
+                    <Option value="1">已填写</Option>
+                    <Option value="0">未填写</Option>
+                  </Select>
+            </Form.Item>
           </Col>
-          <Col span={3} align="right">上次就诊时间：</Col>
-          <Col span={5}><DatePicker style={{ width: 150 }} onChange={this.clinicalTimeInputValue} placeholder="请选择" /></Col>
-          <Col span={2} offset={3}>
-            <Button >重置</Button>
+          <Col span={7} offset={1}>
+            <Form.Item
+                  label="上次就诊时间："
+                  name="clinicalTime">
+                  <DatePicker style={{ width: 150 }} onChange={this.clinicalTimeInputValue} placeholder="请选择" />
+            </Form.Item>
           </Col>
-          <Col span={2}>
-            <Button type="primary" onClick={this.handlePost}>搜索</Button>
+          <Col span={3} offset={1}>
+            <Form.Item >
+              <Button onClick={this.delSearch}>重置</Button>
+            </Form.Item>
+          </Col>
+          <Col span={4} offset={1}>
+            <Form.Item >
+              <Button type="primary" onClick={this.handlePost}>搜索</Button>
+            </Form.Item>
           </Col>
         </Row>
+        </Form>
         <Row>
           <Col span={5} align='left' className='title'>
             <span className='titleB'>患者列表</span>
