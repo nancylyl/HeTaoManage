@@ -27,10 +27,10 @@ import CaseDetail from './pages/patient/case/components/CaseDetail'
 import CaseLogDetail from './pages/patient/case/components/CaseLogDetail'
 // import Error from '../components/Error'
 //引入路由
-import { HashRouter as Router, Route, Redirect, Switch } from 'react-router-dom'
+import { BrowserRouter as Router, Route, Redirect, Switch } from 'react-router-dom'
 
 
-function App() {
+function App () {
   return (
     <div className="App">
       <Router>
