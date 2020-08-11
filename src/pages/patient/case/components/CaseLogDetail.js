@@ -11,9 +11,10 @@ export default class CaseLogDetail extends PureComponent {
     detail: []
   }
   componentDidMount() {
-    this.init()
     this.setState({
       id:this.props.match.params.id
+    },()=>{
+      this.init()
     })
   }
 
@@ -26,15 +27,15 @@ export default class CaseLogDetail extends PureComponent {
     })
       .then((res) => {
           console.log(res);
-        // const data = res.data;
-        //  console.log(data.data);
+        const data = res.data;
+         console.log(data.data);
 
-        // if (data.success) {
-        //   this.setState({
-        //     detail: data.data,
-        //     loaded: true
-        //   })
-        // }
+        if (data.success) {
+          this.setState({
+            detail: data.data,
+            loaded: true
+          })
+        }
 
       })
   }
