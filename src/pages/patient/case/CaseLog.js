@@ -25,8 +25,8 @@ export default class CaseLog extends PureComponent {
       method: "get",
       params: { 
         pid: UId, 
-        limit: 8,
-        page: 1
+        // limit: 8,
+        // page: 1
       },
       isDev : 1
     })
