@@ -13,22 +13,45 @@ class dealsInfoManage extends PureComponent {
     super();
     this.state = {
       loaded: false,
-      dealLists: []
+      dealLists: [],
+      num: ''
     }
   }
 
-  into() {
+  into(page,limit) {
     Axios({
       url: Api.deals.getDeals,
       params: {
-        limit: 10,
-        page: 1,
+        limit: limit,
+        page: page,
       },
       isDev: 1
     })
       .then((res) => {
         console.log(res)
-        console.log(res.data.data)
+        if (res.status== 200) {
+          this.setState({
+            dealLists: res.data.data,
+            loaded: true,
+            num: res.data.count
+          })
+        } else {
+        }
+      })
+  }
+  search(page,limit,val){
+    Axios({
+      url: Api.deals.searchDeals,
+      params: {
+        limit: limit,
+        page: page,
+        transactionName: val.transactionName,
+        transactionSerial: val.transactionSerial,
+      },
+      isDev: 1
+    })
+      .then((res) => {
+        console.log(res)
         if (res.status== 200) {
           this.setState({
             dealLists: res.data.data,
@@ -39,7 +62,7 @@ class dealsInfoManage extends PureComponent {
       })
   }
   componentDidMount() {
-    this.into();
+    this.into(0,5);
   }
 
 
@@ -83,16 +106,32 @@ class dealsInfoManage extends PureComponent {
         };
       }       
   }
-
+  getPageContent=(page,limit)=>{
+    console.log(page, limit);
+    this.into(page,limit);
+  }
   // 提交搜索信息
   onFinish = values => {
     console.log(values);
+    
+    this.search(0,5,values);
 
   };
   // 重置搜索框
   delSearch = () => {
     this.formRef.current.resetFields();
+    this.into();
   };
+  timestampToTime(timestamp) {
+    var date = new Date(timestamp);//时间戳为10位需*1000，时间戳为13位的话不需乘1000
+    let Y = date.getFullYear() + '-';
+    let M = (date.getMonth()+1 < 10 ? '0'+(date.getMonth()+1) : date.getMonth()+1) + '-';
+    let D = date.getDate() + ' ';
+    let h = date.getHours() + ':';
+    let m = date.getMinutes() + ':';
+    let s = date.getSeconds();
+    return Y+M+D+" "+h+m+s;
+}
   render() {
     const { dealLists } = this.state;
     const columns = [
@@ -121,6 +160,8 @@ class dealsInfoManage extends PureComponent {
         dataIndex: 'transactiontime',
         key: 'transactiontime',
         width: 180,
+        // render: (text) =>new Date(parseInt(text)).toLocaleString().replace(/:\d{1,2}$/,' ')
+        render: (text) => this.timestampToTime(text)
       },
       {
         title: '交易流水号',
@@ -146,22 +187,24 @@ class dealsInfoManage extends PureComponent {
           className={styles.search}
         >
           <Row justify="start" gutter={[10, 20]}>
-            <Col span={5}>
+            <Col span={8}>
               <Form.Item
                 label="用户姓名"
-                name="userName">
+                name="transactionName"
+                rules={[{ required: true, message: '请输入姓名!' }]}>
                 <Input placeholder="请输入" />
               </Form.Item>
             </Col>
-            <Col span={6}>
+            <Col span={8}>
               <Form.Item
                 label="交易流水号"
-                name="TransactionSerial"
+                name="transactionSerial"
+                rules={[{ required: true, message: '请输入流水号!' }]}
               >
                 <Input placeholder="请输入" />
               </Form.Item>
             </Col>
-            
+{/*             
             <Col span={9}>
               <Form.Item
                 label="交易时间"
@@ -178,10 +221,10 @@ class dealsInfoManage extends PureComponent {
                   format="YYYY-MM-DD HH:mm:ss"
                 />
               </Form.Item>
-            </Col>
-            <Col span={4}>
-              <Form.Item >
-                <Button onClick={this.delSearch} style={{marginRight: '10px'}}>重置</Button>
+            </Col> */}
+            <Col span={8}>
+              <Form.Item className={styles.btn}>
+                <Button onClick={this.delSearch} style={{marginRight: '30px'}}>重置</Button>
                 <Button type="primary" htmlType="submit">搜索</Button>
               </Form.Item>
             </Col>
@@ -191,13 +234,14 @@ class dealsInfoManage extends PureComponent {
         <div className={styles.dealList}>
           <div className={styles.listTitle}>
             <h1>交易列表</h1>
-            <span className={styles.allNum}>(共<span>{dealLists.length}</span>条记录)</span>
+            <span className={styles.allNum}>(共<span></span>条记录)</span>
             <Button type="primary">导出</Button>
           </div>
           {this.state.loaded && (
             <Row justify="start">
               <Col span={24} >
-                <Table columns={columns} dataSource={dealLists} bordered size="middle" rowKey="id" />
+                <Table columns={columns} dataSource={dealLists} bordered size="middle" rowKey="id" 
+                pagination={{ pageSize: 6,  total:this.state.num , onChange:this.getPageContent}}/>
               </Col>
             </Row>
           )}

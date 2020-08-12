@@ -4,6 +4,8 @@ export default {
     getCaseDetail: '/api/getCaseDetail',
     getMedicalRecord: '/api/getMedicalRecord',//就诊记录
     getCaseRecord: '/api/getCaseRecord',//发作次数
-    getCaseLog: '/api/getCaseLog',//发作日志
-    getCaseLogDetail: '/api/getCaseLogDetail'//发作日志详情
+    // getCaseLog: '/api/getCaseLog', //发作日志
+    getCaseLog: '/PatientLog/selectLog', //发作日志
+    // getCaseLogDetail: '/api/getCaseLogDetail', //发作日志详情
+    getCaseLogDetail: '/PatientLog/selectDetails',//发作日志详情
 }
