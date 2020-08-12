@@ -14,17 +14,31 @@ class dealsInfoManage extends PureComponent {
     this.state = {
       loaded: false,
       dealLists: [],
-      num: ''
+      num: '',
+      value: ''
     }
   }
 
-  into(page,limit) {
-    Axios({
-      url: Api.deals.getDeals,
-      params: {
+  into(page,limit,val) {
+    let url,data;
+    if (val=='') {
+      url = Api.deals.getDeals;
+      data={
         limit: limit,
         page: page,
-      },
+      }
+    }else{
+      url = Api.deals.searchDeals;
+      data={
+        limit: limit,
+        page: page,
+        transactionName: val.transactionName,
+        transactionSerial: val.transactionSerial,
+      }
+    }
+    Axios({
+      url: url,
+      params: data,
       isDev: 1
     })
       .then((res) => {
@@ -39,33 +53,9 @@ class dealsInfoManage extends PureComponent {
         }
       })
   }
-  search(page,limit,val){
-    Axios({
-      url: Api.deals.searchDeals,
-      params: {
-        limit: limit,
-        page: page,
-        transactionName: val.transactionName,
-        transactionSerial: val.transactionSerial,
-      },
-      isDev: 1
-    })
-      .then((res) => {
-        console.log(res)
-        if (res.status== 200) {
-          this.setState({
-            dealLists: res.data.data,
-            loaded: true,
-          })
-        } else {
-        }
-      })
-  }
   componentDidMount() {
-    this.into(0,10);
+    this.into(1,5,this.state.value);
   }
-
-
   range=(start, end)=> {
     const result = [];
     for (let i = start; i < end; i++) {
@@ -108,17 +98,26 @@ class dealsInfoManage extends PureComponent {
   }
   getPageContent=(page,limit)=>{
     console.log(page, limit);
-    this.into(page,limit);
+    this.into(1,5,this.state.value);
   }
   // 提交搜索信息
   onFinish = values => {    
-    this.search(0,10,values);
+    this.setState({
+      value:values
+    },()=>{
+      this.into(1,5,this.state.value);
+    })
   };
   // 重置搜索框
   delSearch = () => {
     this.formRef.current.resetFields();
-    this.into(0,10);
+    this.setState({
+      value:''
+    },()=>{
+      this.into(1,5,this.state.value);
+    })
   };
+  // 时间戳转换为yyyy-mm-dd hh:mm:ss格式
   timestampToTime(timestamp) {
     var date = new Date(timestamp);//时间戳为10位需*1000，时间戳为13位的话不需乘1000
     let Y = date.getFullYear() + '-';
@@ -239,7 +238,7 @@ class dealsInfoManage extends PureComponent {
             <Row justify="start">
               <Col span={24} >
                 <Table columns={columns} dataSource={dealLists} bordered size="middle" rowKey="id" 
-                pagination={{ pageSize: 10,  total:this.state.num , onChange:this.getPageContent}}/>
+                pagination={{ pageSize: 5, total:this.state.num , onChange:this.getPageContent}}/>
               </Col>
             </Row>
           )}

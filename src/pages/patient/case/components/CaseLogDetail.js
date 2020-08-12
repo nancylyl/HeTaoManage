@@ -40,8 +40,7 @@ export default class CaseLogDetail extends PureComponent {
   }
   getImges = (() => {
     const images = this.state.detail.logP;
-
-    return images.map((item, index) => <img src={item} key={index} style={{ width: '200px', height: '200px' }} />
+    return images.map((item, index) => <img src={item.pictureaddress} key={index} style={{ width: '200px', height: '200px' }} />
     )
 
   })
@@ -65,13 +64,13 @@ export default class CaseLogDetail extends PureComponent {
 
           <Row>
             <Col span={24} >
-              <div className={styles.contentDate}>纪录时间:{this.timestampToTime(detail.logtime)}</div>
+              <div className={styles.contentDate}>纪录时间:{this.timestampToTime(logtime)}</div>
             </Col>
           </Row>
           <Row>
             <Col span={24} className={styles.contenttitle}> 纪录内容
             <div className={styles.logContent}>
-                {detail.logdetails}
+                {logdetails}
               </div>
             </Col>
           </Row>
