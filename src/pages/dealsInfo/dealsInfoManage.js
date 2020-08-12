@@ -62,7 +62,7 @@ class dealsInfoManage extends PureComponent {
       })
   }
   componentDidMount() {
-    this.into(0,5);
+    this.into(0,10);
   }
 
 
@@ -111,16 +111,13 @@ class dealsInfoManage extends PureComponent {
     this.into(page,limit);
   }
   // 提交搜索信息
-  onFinish = values => {
-    console.log(values);
-    
-    this.search(0,5,values);
-
+  onFinish = values => {    
+    this.search(0,10,values);
   };
   // 重置搜索框
   delSearch = () => {
     this.formRef.current.resetFields();
-    this.into();
+    this.into(0,10);
   };
   timestampToTime(timestamp) {
     var date = new Date(timestamp);//时间戳为10位需*1000，时间戳为13位的话不需乘1000
@@ -191,7 +188,8 @@ class dealsInfoManage extends PureComponent {
               <Form.Item
                 label="用户姓名"
                 name="transactionName"
-                rules={[{ required: true, message: '请输入姓名!' }]}>
+                // rules={[{ required: true, message: '请输入姓名!' }]}
+                >
                 <Input placeholder="请输入" />
               </Form.Item>
             </Col>
@@ -199,7 +197,7 @@ class dealsInfoManage extends PureComponent {
               <Form.Item
                 label="交易流水号"
                 name="transactionSerial"
-                rules={[{ required: true, message: '请输入流水号!' }]}
+                // rules={[{ required: true, message: '请输入流水号!' }]}
               >
                 <Input placeholder="请输入" />
               </Form.Item>
@@ -241,7 +239,7 @@ class dealsInfoManage extends PureComponent {
             <Row justify="start">
               <Col span={24} >
                 <Table columns={columns} dataSource={dealLists} bordered size="middle" rowKey="id" 
-                pagination={{ pageSize: 6,  total:this.state.num , onChange:this.getPageContent}}/>
+                pagination={{ pageSize: 10,  total:this.state.num , onChange:this.getPageContent}}/>
               </Col>
             </Row>
           )}
