@@ -1,7 +1,8 @@
 import React, { PureComponent } from 'react'
-import {  Form, Input, DatePicker, Row, Col,  Button, Table } from 'antd';
+import {  Form, Input, DatePicker, Row, Col,  Button, Table, ConfigProvider  } from 'antd';
 import moment from 'moment';
 import locale from 'antd/lib/date-picker/locale/zh_CN';
+import zhCN from 'antd/es/locale/zh_CN';
 import styles from './dealInfo.module.scss'
 import Axios from '../../util/axios'
 import Api from '../../api/index'
@@ -15,7 +16,8 @@ class dealsInfoManage extends PureComponent {
       loaded: false,
       dealLists: [],
       num: '',
-      value: ''
+      value: '',
+      current: 1
     }
   }
 
@@ -98,26 +100,33 @@ class dealsInfoManage extends PureComponent {
   }
   getPageContent=(page,limit)=>{
     console.log(page, limit);
+    this.setState({
+      current: page
+    })
     this.into(1,5,this.state.value);
   }
   // 提交搜索信息
   onFinish = values => {    
     this.setState({
-      value:values
+      value:values,
+      current: 1
     },()=>{
       this.into(1,5,this.state.value);
     })
+    this.formRef.current.resetFields();
   };
   // 重置搜索框
   delSearch = () => {
     this.formRef.current.resetFields();
     this.setState({
-      value:''
+      value:'',
+      num: '',
+      current: 1
     },()=>{
       this.into(1,5,this.state.value);
     })
   };
-  // 时间戳转换为yyyy-mm-dd hh:mm:ss格式
+ // 时间戳转换为yyyy-mm-dd hh:mm:ss格式
   timestampToTime(timestamp) {
     var date = new Date(timestamp);//时间戳为10位需*1000，时间戳为13位的话不需乘1000
     let Y = date.getFullYear() + '-';
@@ -237,9 +246,12 @@ class dealsInfoManage extends PureComponent {
           {this.state.loaded && (
             <Row justify="start">
               <Col span={24} >
-                <Table columns={columns} dataSource={dealLists} bordered size="middle" rowKey="id" 
-                pagination={{ pageSize: 5, total:this.state.num , onChange:this.getPageContent}}/>
+                <ConfigProvider locale={zhCN}>
+                  <Table columns={columns} dataSource={dealLists} bordered size="middle" rowKey="id" 
+                  pagination={{ pageSize: 5, total:this.state.num,current:this.state.current, onChange:this.getPageContent, showQuickJumper : true}}/>
+                </ConfigProvider>
               </Col>
+              
             </Row>
           )}
         </div>

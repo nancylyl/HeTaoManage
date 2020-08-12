@@ -27,7 +27,7 @@ export default class CaseLogDetail extends PureComponent {
       isDev : 1
     })
       .then((res) => {
-          // console.log(res);
+          console.log(res);
         const data = res.data;
         if (res.status==200) {
           this.setState({
