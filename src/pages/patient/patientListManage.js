@@ -403,12 +403,12 @@ class patientListManage extends PureComponent {
       const onCreate = values => {
         console.log('Received values of form: ', values);
         testingAxios({
-          url: Api.patients.getpatientList,
+          url: Api.patients.addpatient,
           method:'POST',
           data: { // 这里的参数设置为URL参数（根据URL携带参数）
             tel:values.tel,
             P_Name:values.p_Name,
-            sex:values.sex,
+            sex:parseInt(values.sex),
             birthday:values.birthday._d,
             date:values.date._d,
             P_address:values.p_address,
@@ -548,8 +548,7 @@ class patientListManage extends PureComponent {
         <div>
           <a
             onClick={() => {  
-              
-              // this.editform(this.props.id)
+          
               setVisible(true);
             }}
           >
@@ -592,7 +591,7 @@ class patientListManage extends PureComponent {
                   label="患者性别："
                   name="sex">
                   <Select defaultValue="" style={{ width: 170 }} onChange={this.sexInputValue}>
-                    <Option value="">全部</Option>
+                    <Option value={-1}>全部</Option>
                     <Option value={1}>男</Option>
                     <Option value={0}>女</Option>
                   </Select>
@@ -649,7 +648,7 @@ class patientListManage extends PureComponent {
           </Col>
         </Row>
         {/* ------------------------------------列表显示部分----------------------------------------------- */}
-        <Table columns={columns} dataSource={this.state.dataSource} pagination={{ pageSize: 6,  total:this.state.num , onChange:this.getPageContent}} bordered rowKey="P_ID"></Table>
+        <Table columns={columns} dataSource={this.state.dataSource} pagination={{ pageSize: 6,  total:this.state.num , onChange:this.getPageContent}} bordered rowKey="p_ID"></Table>
       </div>
     )
   }
