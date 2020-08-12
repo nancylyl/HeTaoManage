@@ -61,15 +61,13 @@ const columns = [
     title: '操作',
     dataIndex: '操作',
     align: 'center',
-    render: () =>
+    render: (text, record) =>
         <Space size="middle">
-          <Link to={'/index/hospitalInfo/checkHospital'}>查看</Link>
-          <a>编辑</a>
+          <Link to={{pathname:'/index/hospitalInfo/checkHospital',state:record}}>查看</Link>
+          <CollectionsPage1/>
         </Space>,
   },
 ];
-
-
 
 //新增模态框
 const layout = {
@@ -183,6 +181,173 @@ const CollectionCreateForm = ({ visible, onCreate, onCancel }) => {
       </Modal>
   );
 };
+//新增组件
+const CollectionsPage = () => {
+  const [visible, setVisible] = useState(false);
+  const onCreate = values => {
+    console.log('获取到的值: ', values);
+    setVisible(false);
+  };
+  return (
+      <div>
+        <Button
+            type="primary"
+            onClick={() => {
+              setVisible(true);
+            }}
+        >
+          新增医院
+        </Button>
+        <CollectionCreateForm
+            visible={visible}
+            onCreate={onCreate}
+            onCancel={() => {
+              setVisible(false);
+            }}
+        />
+      </div>
+  );
+};
+
+//编辑模态框
+const layout1 = {
+  labelCol: { span: 6 },
+  wrapperCol: { span: 16 },
+};
+const CollectionCreateForm1 = ({ visible, onCreate, onCancel }) => {
+  const [form] = Form.useForm();
+  return (
+      <Modal
+          visible={visible}
+          title="编辑医院"
+          okText="确定"
+          cancelText="关闭"
+          onCancel={onCancel}
+          onOk={() => {
+            form
+                .validateFields()
+                .then(values => {
+                  form.resetFields();
+                  onCreate(values);
+                })
+                .catch(info => {
+                  console.log('Validate Failed:', info);
+                });
+          }}
+      >
+        <Form
+            form={form}
+            {...layout1}
+            layout="horizontal"
+            name="form_in_modal"
+            initialValues={{
+              modifier: 'public',
+            }}
+        >
+          <Form.Item name="hosName" label="医院名称" rules={[
+            {
+              required: true,
+              message: '内容不能为空',
+            },
+          ]}
+          >
+            <Input placeholder='请输入'/>
+          </Form.Item>
+          <Form.Item name="hosLevel" label="医院等级" rules={[
+            {
+              required: true,
+              message: '内容不能为空',
+            },
+          ]}>
+            <Input placeholder='请输入'/>
+          </Form.Item>
+          <Form.Item name="aliasName" label="医院别称" rules={[
+            {
+              required: true,
+              message: '内容不能为空',
+            },
+          ]}>
+            <Input placeholder='请输入'/>
+          </Form.Item>
+          <Form.Item name="hosNature" label="医院性质" rules={[
+            {
+              required: true,
+              message: '内容不能为空',
+            },
+          ]}>
+            <Input placeholder='请输入'/>
+          </Form.Item>
+          <Form.Item name="hosPhone" label="联系电话" rules={[
+            {
+              required: true,
+              message: '内容不能为空',
+            },
+          ]}>
+            <Input placeholder='请输入'/>
+          </Form.Item>
+          <Form.Item name="hosTel" label="服务热线" rules={[
+            {
+              required: true,
+              message: '内容不能为空',
+            },
+          ]}>
+            <Input placeholder='请输入'/>
+          </Form.Item>
+          <Form.Item name="linkman" label="医院联系人" rules={[
+            {
+              required: true,
+              message: '内容不能为空',
+            },
+          ]}>
+            <Input placeholder='请输入'/>
+          </Form.Item>
+          <Form.Item name="linkmanTel" label="联系人电话" rules={[
+            {
+              required: true,
+              message: '内容不能为空',
+            },
+          ]}>
+            <Input placeholder='请输入'/>
+          </Form.Item>
+          <Form.Item name="hosAddress" label="医院地址" rules={[
+            {
+              required: true,
+              message: '内容不能为空',
+            },
+          ]}>
+            <Input placeholder='请输入'/>
+          </Form.Item>
+        </Form>
+      </Modal>
+  );
+};
+//编辑组件
+const CollectionsPage1 = () => {
+  const [visible, setVisible] = useState(false);
+  const onCreate = values => {
+    console.log('获取到的值: ', values);
+    setVisible(false);
+  };
+  return (
+      <div>
+        <Button
+            type="link"
+            onClick={() => {
+              setVisible(true);
+            }}
+        >
+          编辑
+        </Button>
+        <CollectionCreateForm1
+            visible={visible}
+            onCreate={onCreate}
+            onCancel={() => {
+              setVisible(false);
+            }}
+        />
+      </div>
+  );
+};
 
 //查看模态框
 // const layout1 = {
@@ -250,34 +415,6 @@ const CollectionCreateForm = ({ visible, onCreate, onCancel }) => {
 //       </Modal>
 //   );
 // };
-
-//新增组件
-const CollectionsPage = () => {
-  const [visible, setVisible] = useState(false);
-  const onCreate = values => {
-    console.log('获取到的值: ', values);
-    setVisible(false);
-  };
-  return (
-      <div>
-        <Button
-            type="primary"
-            onClick={() => {
-              setVisible(true);
-            }}
-        >
-          新增医院
-        </Button>
-        <CollectionCreateForm
-            visible={visible}
-            onCreate={onCreate}
-            onCancel={() => {
-              setVisible(false);
-            }}
-        />
-      </div>
-  );
-};
 
 //查看组件
 // const CollectionsPage1 = () => {

@@ -11,7 +11,7 @@ export default class Index extends Component {
     logo: 'logo',
 
   }
-  onChange(date, dateString) {
+  onChange (date, dateString) {
     console.log(date, dateString);
   }
   onCollapse = (collapsed) => {
@@ -23,7 +23,7 @@ export default class Index extends Component {
     }
   }
 
-  render() {
+  render () {
     return (
       <Layout style={{ minHeight: '100vh' }}>
         <Sider
@@ -40,8 +40,12 @@ export default class Index extends Component {
           <Header className="site-layout-background" style={{ padding: 0 }} />
           <Content style={{ margin: '0 16px' }}>
             <div className='showUser'>
-              您好！Admin
-
+              您好！Admin &nbsp;&nbsp;&nbsp;&nbsp;&nbsp;
+              <a onClick={
+                () => {
+                  window.location.href = "/Login"
+                }
+              }>退出</a>
             </div>
             <div
               className="site-layout-background"

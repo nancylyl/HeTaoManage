@@ -15,7 +15,7 @@ class mapManage extends PureComponent {
   //   loaded: false
   // }
 
-  componentDidMount() {
+  componentDidMount () {
     this.search(1);
   }
 
@@ -34,14 +34,13 @@ class mapManage extends PureComponent {
 
         const data = res.data.data;/*  */
 
-
         this.initalECharts(data);
       })
       .finally(() => {
       })
 
   }
-  initalECharts(provienceData) {
+  initalECharts (provienceData) {
 
     echarts.registerMap('china', geoJson);
     for (const item of provienceData) {
@@ -128,7 +127,7 @@ class mapManage extends PureComponent {
         show: false, // 不显示提示标签
         // formatter: '{b}', // 提示标签格式
         //鼠标放地图的某一块，显示的提示框
-        formatter(params, ticket, callback) {
+        formatter (params, ticket, callback) {
           //    console.log(params)
           return `${params.name}<br/>我的患者：${params.data.InValue}人`
         },
@@ -194,7 +193,7 @@ class mapManage extends PureComponent {
           tooltip: {
             show: false, // 不显示提示标签
             // 显示提示的标签
-            formatter(name) {
+            formatter (name) {
               return `Legend ${name}`;
             }, // 提示标签格式
             backgroundColor: '#fff', // 提示标签背景颜色
@@ -248,12 +247,12 @@ class mapManage extends PureComponent {
       params.event.target.style.fill = '#d50000'
     });
 
-    myChart.on('click', params => {
-      this.props.history.push('/Dashboard/map2/' + params.name)
-    });
+    // myChart.on('click', params => {
+    //   this.props.history.push('/Dashboard/map2/' + params.name)
+    // });
   }
 
-  convertData(data) {
+  convertData (data) {
     const res = [];
     for (let i = 0; i < data.length; i++) {
       const geoCoord = geoCoordMap[data[i].name];
@@ -270,10 +269,10 @@ class mapManage extends PureComponent {
     return res;
   }
 
-  convert() {
+  convert () {
     return '1';
   }
-  render() {
+  render () {
     return (
       <div>
         <h2 style={{ fontSize: 30, color: 'orange', textAlign: 'center', backgroundColor: '#f8f8f8', paddingTop: 10, paddingBottom: 10 }}>全国范围内我的患者</h2>

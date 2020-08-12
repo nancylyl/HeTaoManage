@@ -30,7 +30,7 @@ import Error from './components/Error'
 import { BrowserRouter as Router, Route, Redirect, Switch } from 'react-router-dom'
 
 
-function App() {
+function App () {
   return (
     <div className="App">
       <Router>
@@ -40,7 +40,6 @@ function App() {
             exact
             //  render={() => <Redirect to={'/index/discuss'} />}
             render={() => <Redirect to={'/index/patient/map'} />}
-
 
           ></Route>
           <Route path="/Login" component={Login}></Route>
