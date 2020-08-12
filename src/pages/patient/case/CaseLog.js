@@ -25,14 +25,13 @@ export default class CaseLog extends PureComponent {
       method: "get",
       params: { 
         pid: UId, 
-        // limit: 8,
-        // page: 1
+        limit: 8,
+        page: 1
       },
       isDev : 1
     })
       .then((res) => {
-        console.log(res);
-        console.log(res.data.data);
+        // console.log(res);
         if (res.status==200) {
           this.setState({
             logList: res.data.data,
@@ -46,6 +45,7 @@ export default class CaseLog extends PureComponent {
   componentDidMount() {
     this.getDiscussList();
   }
+  // 时间戳转换为yyyy-mm-dd hh:mm:ss格式
   timestampToTime(timestamp) {
     var date = new Date(timestamp);//时间戳为10位需*1000，时间戳为13位的话不需乘1000
     let Y = date.getFullYear() + '-';

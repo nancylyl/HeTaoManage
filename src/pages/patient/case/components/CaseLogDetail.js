@@ -24,15 +24,14 @@ export default class CaseLogDetail extends PureComponent {
       params: { 
         gid: this.state.id, 
       },
+      isDev : 1
     })
       .then((res) => {
-          console.log(res);
+          // console.log(res);
         const data = res.data;
-         console.log(data.data);
-
-        if (data.success) {
+        if (res.status==200) {
           this.setState({
-            detail: data.data,
+            detail: data.data[0],
             loaded: true
           })
         }
@@ -40,28 +39,39 @@ export default class CaseLogDetail extends PureComponent {
       })
   }
   getImges = (() => {
-    const images = this.state.detail.images;
+    const images = this.state.detail.logP;
 
-    return images.map((item, index) => <img src={item.ImageUrl} key={index} style={{ width: '200px', height: '200px' }} />
+    return images.map((item, index) => <img src={item} key={index} style={{ width: '200px', height: '200px' }} />
     )
 
   })
+  // 时间戳转换为yyyy-mm-dd hh:mm:ss格式
+  timestampToTime(timestamp) {
+    var date = new Date(timestamp);//时间戳为10位需*1000，时间戳为13位的话不需乘1000
+    let Y = date.getFullYear() + '-';
+    let M = (date.getMonth()+1 < 10 ? '0'+(date.getMonth()+1) : date.getMonth()+1) + '-';
+    let D = date.getDate() + ' ';
+    let h = date.getHours() + ':';
+    let m = date.getMinutes() + ':';
+    let s = date.getSeconds();
+    return Y+M+D+" "+h+m+s;
+}
   render() {
     const { loaded, detail } = this.state
-    const { CreateTime, Content, images } = detail
+    const { logtime, logdetails, logP } = detail
     return (
       loaded && <div className={styles.logDetail}>
         <Card type="inner" title={<h1 className={styles.title}>病情日志信息</h1>}  >
 
           <Row>
             <Col span={24} >
-              <div className={styles.contentDate}>纪录时间:{CreateTime}</div>
+              <div className={styles.contentDate}>纪录时间:{this.timestampToTime(detail.logtime)}</div>
             </Col>
           </Row>
           <Row>
             <Col span={24} className={styles.contenttitle}> 纪录内容
             <div className={styles.logContent}>
-                {Content}
+                {detail.logdetails}
               </div>
             </Col>
           </Row>
