@@ -3,7 +3,7 @@ export default function testingAxios(config) {
   const instance = Axios.create({
     /* 1创建axios实例 */
     // baseURL: 'https://www.fastmock.site/mock/63908e19f8683a898abc0a03e1010b59',
-    baseURL: 'http://172.16.2.78:8080',
+    baseURL: 'http://172.16.2.78:8080/htr',
     timeout: 5000,
   })
   /* 2axios的拦截器 */
