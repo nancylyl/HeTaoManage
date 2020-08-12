@@ -25,7 +25,7 @@ import Addcase from './pages/patient/case/AddCase'
 import CaseBox from './pages/patient/case/CaseBox'
 import CaseDetail from './pages/patient/case/components/CaseDetail'
 import CaseLogDetail from './pages/patient/case/components/CaseLogDetail'
-import Error from './components/Error'
+// import Error from '../components/Error'
 //引入路由
 import { BrowserRouter as Router, Route, Redirect, Switch } from 'react-router-dom'
 

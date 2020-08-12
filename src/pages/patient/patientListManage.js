@@ -1,6 +1,7 @@
 import React, { PureComponent, useState } from 'react'
 import { Row, Col, Input, Select, DatePicker, Table, Button, Space, Pagination, Modal, Form, Radio, message, Cascader, } from 'antd';
 import testingAxios from '../../util/testingAxios'
+import Axios from '../../util/axios'
 import Api from '../../api/index'
 import { Link } from 'react-router-dom'
 
@@ -34,26 +35,28 @@ const tailLayout = {
 };
 
 class patientListManage extends PureComponent {
-  
+  formRef = React.createRef()
   state = {
     P_Name: "",//输入框输入值
     P_address: "",//输入框输入值
-    medical: 2,//病历填写程度框 默认全部：2
-    sex: 2,//性别多选框 默认全部：2
+    medical: "",//病历填写程度框 默认全部：2
+    sex: '',//性别多选框 默认全部：2
     clinicalTime: "",//上次就诊时间
     visible: false,
-    editvisible:false
+    editvisible:false,
+    bianji:{},
+    bianjiID:"",
   };
 
   //搜索功能所用方法
   P_NameInputValue = (event) => {
     this.setState({
-      P_Name: event.target.value,
+      p_Name: event.target.value,
     })
   };
   P_addressInputValue = (event) => {
     this.setState({
-      P_address: event.target.value
+      p_address: event.target.value
     })
   };
   medicalInputValue = (event) => {
@@ -73,8 +76,39 @@ class patientListManage extends PureComponent {
   };
   handlePost = () => {
     console.log(this.state);
-
+    testingAxios({
+      url: Api.patients.getpatientList, 
+      method:'POST',
+      data: { // 这里的参数设置为URL参数（根据URL携带参数）
+        page:1,
+        limit:6,
+        P_Name:this.state.p_Name,
+        sex:this.state.sex,
+        P_address:this.state.p_address,
+        medical:this.state.medical,
+        clinicalTime:this.state.clinicalTime
+      }  
+      })
+      .then((res) => {
+        console.log(res);
+        this.setState({
+          dataSource: res.data.data,
+          num : res.data.count
+        })
+        
+      })
     //在此做提交操作，比如发dispatch等
+  };
+  // 重置搜索框
+  delSearch = () => {
+    this.formRef.current.resetFields();
+    this.setState ({
+      p_Name: "",//输入框输入值
+      p_address: "",//输入框输入值
+      medical: "",//病历填写程度框 默认全部：2
+      sex: '',//性别多选框 默认全部：2
+      clinicalTime: "",//上次就诊时间
+    })
   };
   //-----------------------------------------------------
 
@@ -102,26 +136,25 @@ class patientListManage extends PureComponent {
   //-------------------------编辑部分-----------------------
 
   editform = (text) => {
-    console.log(text.P_ID)
+    console.log(text);
+    testingAxios({
+      url: Api.patients.getpatient, 
+      params: { // 这里的参数设置为URL参数（根据URL携带参数）
+        // P_ID:text.p_ID
+      }  
+      })
+      .then((res) => {
+        console.log(res);
+        this.setState({
+          editvisible: true,
+          bianji:res.data.data
+        });
+      })
     //获取当前点击 行 的id
-    this.setState({
-      editvisible: true,
-    });
-    let id = text.id;
-    // axios.get(`接口地址/${id}/edit`)  //根据自己公司后端配置的接口地址来 ，获取页面初始化数据
-    //     .then(res=>{
-    //         console.log(res)
-    //         this.setState({
-    //             list:res.data.data.advertisement    // 请在构造函数中 定义 list:{}
-    //         });
-    //         this.props.form.setFieldsValue({     // 双向绑定form 表单的数据
-    //             name:this.state.list.name,
-    //             sort:this.state.list.sort,
-    //             advertisement_node_id:this.state.list.advertisement_node_id,
-    //             photo_id:this.state.list.photo_id,
-    //             url:this.state.list.url,
-    //         })
-    //     })
+        // this.setState({
+        //   bianji:res.data.data
+        // })
+   console.log(this.state.bianji);
   };
   edithandleOk = values => {
     console.log(values);
@@ -148,6 +181,7 @@ class patientListManage extends PureComponent {
   };
 
   onReset = () => {
+    console.log(55555555555555555);
     this.formRef.current.resetFields();
   };
 
@@ -159,16 +193,22 @@ class patientListManage extends PureComponent {
     }
   }
 //----------------获取患者列表数据------------------
-  getpatientList = (page, limit) => {
+  getpatientList = (page, limit,P_Name,sex,P_address,medical,clinicalTime) => {
+    let data={  
+      page:page,
+      limit:limit,
+      P_Name:this.state.p_Name,
+      sex:this.state.sex,
+      P_address:this.state.p_address,
+      medical:this.state.medical,
+      clinicalTime:this.state.clinicalTime}
     testingAxios({
-      url: Api.patients.getpatientList,
-      params: { // 这里的参数设置为URL参数（根据URL携带参数）
-        page:page,
-        limit:limit
-      }  
+      url: Api.patients.getpatientList, 
+      method:'POST',
+      data:data
       })
       .then((res) => {
-        console.log(res.data.data);
+        console.log(res);
         this.setState({
           dataSource: res.data.data,
           num : res.data.count
@@ -177,7 +217,7 @@ class patientListManage extends PureComponent {
       })
   }
   componentDidMount() {
-    this.getpatientList(0,6);
+    this.getpatientList(1,6);
     
     //构造一些初始数据
   }
@@ -191,8 +231,8 @@ class patientListManage extends PureComponent {
     const columns = [
       {
         title: '患者姓名',
-        dataIndex: 'P_Name',
-        key: 'P_Name',
+        dataIndex: 'p_Name',
+        key: 'p_Name',
         align: 'center',
       },
       {
@@ -204,8 +244,8 @@ class patientListManage extends PureComponent {
       },
       {
         title: '现居住地址',
-        dataIndex: 'P_address',
-        key: 'P_address',
+        dataIndex: 'p_address',
+        key: 'p_address',
         align: 'center',
       },
       {
@@ -249,15 +289,16 @@ class patientListManage extends PureComponent {
       // },
       {
         title: '操作',
-        key: 'action',
+        dataIndex: 'p_ID',
+        key: 'p_ID',
         align: 'center',
         render: (text, record) => (
-
           <Space size="middle">
             <Link to={`/index/patient/CaseBox`}>查看</Link>
             {/* <a onClick={this.editform.bind(text, record)}>编辑</a> */}
-            <CollectionsPage2 onClick={this.editform.bind(text, record)}></CollectionsPage2>
-            <a>更换医生</a>
+           <CollectionsPage2 ></CollectionsPage2>
+            
+            <a onClick={this.editform.bind(text, record)}>更换医生</a>
             {record.medical > 0 ? '病历' : <Link to={"/index/patient/Addcase/0"}>新增病历</Link>}
           </Space>
         ),
@@ -307,7 +348,7 @@ class patientListManage extends PureComponent {
               <Input />
             </Form.Item>
             <Form.Item
-              name="P_Name"
+              name="p_Name"
               label="姓名"
               rules={[
                 {
@@ -339,33 +380,43 @@ class patientListManage extends PureComponent {
               <DatePicker placeholder="请选择出生日期" />
             </Form.Item>
             <Form.Item
-              label="发病年龄"
+              label="发病时间"
               rules={[{ required: true, message: "必填" }]}
-              name="onsetAge" >
-              <Select style={{ width: 120 }} placeholder="请选择发病年龄">
-                <Option value={""}>请选择</Option>
-                {
-                  options
-                }
-              </Select>
+              name="date">
+              <DatePicker style={{ width: 150 }} placeholder="请选择" />
             </Form.Item>
             <Form.Item label="现居住地"
               rules={[{ required: true, message: "必填" }]}
-              name="P_address" >
+              name="p_address" >
               <Cascader options={adoptions} placeholder="请选择居住地" />
             </Form.Item>
-            <Form.Item name="description" label="备注">
+            {/* <Form.Item name="description" label="备注">
               <TextArea rows={4} />
-            </Form.Item>
+            </Form.Item> */}
           </Form>
         </Modal>
       );
     };
     const CollectionsPage = () => {
       const [visible, setVisible] = useState(false);
-
+      // ------------------------新增框点击确认后传参------------------------------------
       const onCreate = values => {
         console.log('Received values of form: ', values);
+        testingAxios({
+          url: Api.patients.addpatient,
+          method:'POST',
+          data: { // 这里的参数设置为URL参数（根据URL携带参数）
+            tel:values.tel,
+            P_Name:values.p_Name,
+            sex:parseInt(values.sex),
+            birthday:values.birthday._d,
+            date:values.date._d,
+            P_address:values.p_address,
+          }  
+          })
+          .then((res) => {
+            console.log(res); 
+          })
         setVisible(false);
         message.success('操作成功');
       };
@@ -421,6 +472,7 @@ class patientListManage extends PureComponent {
             }}
           >
             <Form.Item
+              
               name="tel"
               label="手机号"
               rules={[
@@ -431,10 +483,10 @@ class patientListManage extends PureComponent {
                 },
               ]}
             >
-              <Input />
+              <Input defaultValue = "{this.state.bianji}" />
             </Form.Item>
             <Form.Item
-              name="P_Name"
+              name="p_Name"
               label="姓名"
               rules={[
                 {
@@ -466,24 +518,19 @@ class patientListManage extends PureComponent {
               <DatePicker placeholder="请选择出生日期" />
             </Form.Item>
             <Form.Item
-              label="发病年龄"
+              label="发病时间"
               rules={[{ required: true, message: "必填" }]}
-              name="onsetAge" >
-              <Select style={{ width: 120 }} placeholder="请选择发病年龄">
-                <Option value={""}>请选择</Option>
-                {
-                  options
-                }
-              </Select>
+              name="date" >
+               <DatePicker style={{ width: 150 }} placeholder="请选择" />
             </Form.Item>
             <Form.Item label="现居住地"
               rules={[{ required: true, message: "必填" }]}
-              name="P_address" >
+              name="p_address" >
               <Cascader options={adoptions} placeholder="请选择居住地" />
             </Form.Item>
-            <Form.Item name="description" label="备注">
+            {/* <Form.Item name="description" label="备注">
               <TextArea rows={4} />
-            </Form.Item>
+            </Form.Item> */}
           </Form>
         </Modal>
       );
@@ -500,8 +547,8 @@ class patientListManage extends PureComponent {
       return (
         <div>
           <a
-            type="primary"
-            onClick={() => {
+            onClick={() => {  
+          
               setVisible(true);
             }}
           >
@@ -509,8 +556,11 @@ class patientListManage extends PureComponent {
           </a>
           <CollectionCreateForm2
             visible={visible}
-            onCreate={onCreate}
+            onCreate={() => {
+              onCreate();
+            }}
             onCancel={() => {
+              console.log(this.props);
               setVisible(false);
             }}
           />
@@ -520,128 +570,77 @@ class patientListManage extends PureComponent {
     return (
       <div>
         {/* ---------------------------------编辑部分模态框---------------------------------------------------- */}
-        <Modal
-              title="编辑患者"
-              visible={this.state.editvisible}
-              onOk={this.edithandleOk}
-              onCancel={this.edithandleCancel}
-            >
-              <Form {...layout} ref={this.formRef} name="control-ref" onFinish={this.onFinish}>
-                  <Form.Item
-                  name="tel"
-                  label="手机号"
-                  rules={[
-                    {
-                      required: true,
-                      pattern: new RegExp(/^((\+)?86|((\+)?86)?)0?1[3458]\d{9}$/),
-                      message: '请输入正确的手机号',
-                    },
-                  ]}
-                >
-                  <Input />
-                </Form.Item>
-                <Form.Item
-                  name="P_Name"
-                  label="姓名"
-                  rules={[
-                    {
-                      required: true,
-                      pattern: new RegExp(/\S/),
-                      message: '请填写姓名',
-                    },
-                  ]}
-                >
-                  <Input />
-                </Form.Item>
-                <Form.Item name="sex" label="性别" rules={[
-                  {
-                    required: true,
-                    message: '请选择性别',
-                  },
-                ]} className="collection-create-form_last-form-item">
-                  <Radio.Group>
-                    <Radio value="1">男</Radio>
-                    <Radio value="0">女</Radio>
-                  </Radio.Group>
-                </Form.Item>
-                <Form.Item name="birthday" label="出生日期" rules={[
-                  {
-                    required: true,
-                    message: '请选择出生日期',
-                  },
-                ]}>
-                  <DatePicker placeholder="请选择出生日期" />
-                </Form.Item>
-                <Form.Item
-                  label="发病年龄"
-                  rules={[{ required: true, message: "必填" }]}
-                  name="onsetAge" >
-                  <Select style={{ width: 120 }} placeholder="请选择发病年龄">
-                    <Option value={""}>请选择</Option>
-                    {
-                      options
-                    }
-                  </Select>
-                </Form.Item>
-                <Form.Item label="现居住地"
-                  rules={[{ required: true, message: "必填" }]}
-                  name="P_address" >
-                  <Cascader options={adoptions} placeholder="请选择居住地" />
-                </Form.Item>
-                <Form.Item name="description" label="备注">
-                  <TextArea rows={4} />
-                </Form.Item>
-                
-              </Form>
-              <Form.Item {...tailLayout}>
-                  <Button type="primary" htmlType="submit">
-                    Submit
-                  </Button>
-                  <Button htmlType="button" onClick={this.onReset}>
-                    Reset
-                  </Button>
-                </Form.Item>
-            </Modal>
+        
  {/* ---------------------------------搜索部分---------------------------------------------------- */}
+        <Form
+          name="patient"
+          initialValues={{ remember: true }}
+          ref={this.formRef}
+        >           
         <Row align='middle' justify='start'>
-          <Col span={3} align="right">患者姓名：</Col>
-          <Col span={5} ><Input placeholder="请输入" style={{ width: 150 }} value={this.state.P_Name}
-            onChange={this.P_NameInputValue}
-          /></Col>
-          <Col span={3} align="right">患者性别：</Col>
-          <Col span={5}>
-            <Select defaultValue="2" style={{ width: 150 }} onChange={this.sexInputValue}>
-              <Option value="2">全部</Option>
-              <Option value="1">男</Option>
-              <Option value="0">女</Option>
-            </Select>
+          <Col span={7}>
+            <Form.Item
+                  label="患者姓名"
+                  name="P_Name">
+                  <Input placeholder="请输入" style={{ width: 178 }} value={this.state.P_Name}
+              onChange={this.P_NameInputValue} />
+            </Form.Item>
           </Col>
-          <Col span={3} align="right">现居住地：</Col>
-          <Col span={5}><Input placeholder="请输入" style={{ width: 150 }} value={this.state.P_address}
-            onChange={this.P_addressInputValue} /></Col>
+          <Col span={7} offset={1}>
+            <Form.Item
+                  label="患者性别："
+                  name="sex">
+                  <Select defaultValue="" style={{ width: 170 }} onChange={this.sexInputValue}>
+                    <Option value={-1}>全部</Option>
+                    <Option value={1}>男</Option>
+                    <Option value={0}>女</Option>
+                  </Select>
+            </Form.Item>
+          </Col>
+          <Col span={7} offset={1}>
+            <Form.Item
+                  label="现居住地："
+                  name="p_address">
+                  <Input placeholder="请输入" style={{ width: 175 }} value={this.state.P_address}
+            onChange={this.P_addressInputValue} />
+            </Form.Item>
+          </Col>
         </Row>
         <Row align='middle' className='marginT' style={{ marginBottom: 50 }}>
-          <Col span={3} align="right">病历填写程度：</Col>
-          <Col span={5}>
-            <Select defaultValue="全部" style={{ width: 150 }} onChange={this.medicalInputValue}>
-              <Option value="2">全部</Option>
-              <Option value="1">已填写</Option>
-              <Option value="0">未填写</Option>
-            </Select>
+        <Col span={7}>
+            <Form.Item
+                  label="病历填写程度："
+                  name="medical">
+                  <Select defaultValue="全部" style={{ width: 150 }} onChange={this.medicalInputValue}>
+                    <Option value="">全部</Option>
+                    <Option value={1}>已填写</Option>
+                    <Option value={0}>未填写</Option>
+                  </Select>
+            </Form.Item>
           </Col>
-          <Col span={3} align="right">上次就诊时间：</Col>
-          <Col span={5}><DatePicker style={{ width: 150 }} onChange={this.clinicalTimeInputValue} placeholder="请选择" /></Col>
-          <Col span={2} offset={3}>
-            <Button >重置</Button>
+          <Col span={7} offset={1}>
+            <Form.Item
+                  label="上次就诊时间："
+                  name="clinicalTime">
+                  <DatePicker style={{ width: 150 }} onChange={this.clinicalTimeInputValue} placeholder="请选择" />
+            </Form.Item>
           </Col>
-          <Col span={2}>
-            <Button type="primary" onClick={this.handlePost}>搜索</Button>
+          <Col span={3} offset={1}>
+            <Form.Item >
+              <Button onClick={this.delSearch}>重置</Button>
+            </Form.Item>
+          </Col>
+          <Col span={4} offset={1}>
+            <Form.Item >
+              <Button type="primary" onClick={this.handlePost}>搜索</Button>
+            </Form.Item>
           </Col>
         </Row>
+        </Form>
         <Row>
           <Col span={5} align='left' className='title'>
             <span className='titleB'>患者列表</span>
-            <span className='titleS'>（共90条记录）</span>
+                  <span className='titleS'>（共{this.state.num}条记录）</span>
           </Col>
           {/* -------------------------------新增患者部分------------------------------------ */}
           <Col span={2} align='right' offset={16} className='marginT'>
@@ -649,7 +648,7 @@ class patientListManage extends PureComponent {
           </Col>
         </Row>
         {/* ------------------------------------列表显示部分----------------------------------------------- */}
-        <Table columns={columns} dataSource={this.state.dataSource} pagination={{ pageSize: 6,  total:this.state.num , onChange:this.getPageContent}} bordered rowKey="P_ID"></Table>
+        <Table columns={columns} dataSource={this.state.dataSource} pagination={{ pageSize: 6,  total:this.state.num , onChange:this.getPageContent}} bordered rowKey="p_ID"></Table>
       </div>
     )
   }
