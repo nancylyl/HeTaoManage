@@ -22,6 +22,7 @@ import bannerManage from './pages/banner/bannerManage'
 import rechargeManage from './pages/recharge/rechargeManage'
 
 import Addcase from './pages/patient/case/AddCase'
+
 import CaseBox from './pages/patient/case/CaseBox'
 import CaseDetail from './pages/patient/case/components/CaseDetail'
 import CaseLogDetail from './pages/patient/case/components/CaseLogDetail'

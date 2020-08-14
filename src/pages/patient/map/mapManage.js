@@ -11,9 +11,11 @@ import Api from '../../../api/index'
 import { Button, Tooltip } from 'antd';
 import { SearchOutlined } from '@ant-design/icons';
 class mapManage extends PureComponent {
-  // state = {
-  //   loaded: false
-  // }
+  state = {
+    loaded: false,
+    count: 0,
+    countWeek: 0
+  }
 
   componentDidMount () {
     this.search(1);
@@ -28,19 +30,24 @@ class mapManage extends PureComponent {
       url = Api.map.getAllMyPatient
     }
     Axios({
+      isDev: 1,
       url: url
     })
       .then((res) => {
-
+        // console.log("3333");
+        console.log(res);
         const data = res.data.data;/*  */
-
-        this.initalECharts(data);
+        this.setState({
+          count: res.data.count,
+          countWeek: res.data.countWeek
+        })
+        this.initalECharts(data, key);
       })
       .finally(() => {
       })
 
   }
-  initalECharts (provienceData) {
+  initalECharts (provienceData, key) {
 
     echarts.registerMap('china', geoJson);
     for (const item of provienceData) {
@@ -129,7 +136,13 @@ class mapManage extends PureComponent {
         //鼠标放地图的某一块，显示的提示框
         formatter (params, ticket, callback) {
           //    console.log(params)
-          return `${params.name}<br/>我的患者：${params.data.InValue}人`
+          let value;
+          if (key == 2) {
+            value = params.data.inValueWeek;
+          } else {
+            value = params.data.invalue;
+          }
+          return `${params.name}<br/>我的患者：${value}人`
         },
         backgroundColor: '#ff7f50', // 提示标签背景颜色
         textStyle: { color: '#fff' } // 提示标签字体颜色
@@ -273,17 +286,18 @@ class mapManage extends PureComponent {
     return '1';
   }
   render () {
+    const { count, countWeek } = this.state
     return (
       <div>
         <h2 style={{ fontSize: 30, color: 'orange', textAlign: 'center', backgroundColor: '#f8f8f8', paddingTop: 10, paddingBottom: 10 }}>全国范围内我的患者</h2>
 
         <h4 className={styles.subtile}>
-          全国所有患:10000  <Button type="primary" icon={<SearchOutlined />} onClick={() => {
+          全国所有患:{count}  <Button type="primary" icon={<SearchOutlined />} onClick={() => {
             return this.search(1)
           }}>查看</Button>
         </h4>
         <h4 className={styles.subtile}>
-          本周新增患者：80  <Button type="primary" icon={<SearchOutlined />} onClick={() => {
+          本周新增患者：{countWeek} <Button type="primary" icon={<SearchOutlined />} onClick={() => {
             return this.search(2)
           }}>查看</Button>
         </h4>

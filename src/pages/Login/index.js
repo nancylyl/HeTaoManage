@@ -68,8 +68,9 @@ class Login extends PureComponent {
     //   isShow:true
     // })
     // this.props.user.login(values).then((data) => {
-    //     this.props.history.push('./index')
-    //   })
+    //   console.log(data);
+    //   this.props.history.push('./index')
+    // })
     //   .catch((err) => {
     //     message.error(err)
     //   })

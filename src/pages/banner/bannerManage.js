@@ -1,5 +1,5 @@
 import React, { PureComponent, useState } from 'react'
-import { Row, Col, Input, Select, DatePicker, Table, Button, Space, Pagination, Modal, Form, Radio, message, Cascader,Upload } from 'antd';
+import { Row, Col, Input, Select, DatePicker, Table, Button, Space, Pagination, Modal, Form, Radio, message, Cascader, Upload } from 'antd';
 import { UploadOutlined } from '@ant-design/icons';
 import testingAxios from '../../util/testingAxios'
 
@@ -12,7 +12,7 @@ const options = new Array(80).fill('null').map((item, index) => <Option key={ind
 ////////////////////////
 const props1 = {
   action: 'https://www.mocky.io/v2/5cc8019d300000980a055e76',
-  onChange({ file, fileList }) {
+  onChange ({ file, fileList }) {
     if (file.status !== 'uploading') {
       console.log(file, fileList);
     }
@@ -58,14 +58,14 @@ const tailLayout = {
 };
 
 class bannerListManage extends PureComponent {
-  
+
   state = {
-   
-   
+
+
     sex: 2,//性别多选框 默认全部：2
     clinicalTime: "",//上次就诊时间
     visible: false,
-    editvisible:false
+    editvisible: false
   };
 
   //搜索功能所用方法
@@ -149,28 +149,28 @@ class bannerListManage extends PureComponent {
 
     }
   }
-//----------------获取banner列表数据------------------
+  //----------------获取banner列表数据------------------
   getbannerList = (page, limit) => {
     testingAxios('https://www.fastmock.site/mock/63908e19f8683a898abc0a03e1010b59/api/bannerManage')
       .then((res) => {
         console.log(res.data.data);
         this.setState({
           dataSource: res.data.data.bannerInfo,
-          num : res.data.count
+          num: res.data.count
         })
-        
+
       })
   }
-  componentDidMount() {
-    this.getbannerList(0,6);
-    
+  componentDidMount () {
+    this.getbannerList(0, 6);
+
     //构造一些初始数据
   }
-  getPageContent=(page,limit)=>{
+  getPageContent = (page, limit) => {
     console.log(page, limit);
     this.getbannerList(page, limit)
-}
-  render() {
+  }
+  render () {
     const style = { background: '#0092ff', padding: '8px 0' };
     // ----------------------banner列表展示部分------------------------------
     const columns = [
@@ -185,15 +185,15 @@ class bannerListManage extends PureComponent {
         dataIndex: 'active',
         key: 'active',
         align: 'center',
-        render(text) {
-          if(text==0){
+        render (text) {
+          if (text == 0) {
             return "患教活动"
-          }else if(text==1){
+          } else if (text == 1) {
             return "病历探讨"
-          }else if(text==2){
+          } else if (text == 2) {
             return "h5活动"
           }
-          
+
         },
       },
       {
@@ -207,15 +207,15 @@ class bannerListManage extends PureComponent {
         dataIndex: 'exhibition_End',
         key: 'exhibition_End',
         align: 'center',
-        render(text) {
-          if(text==0){
+        render (text) {
+          if (text == 0) {
             return "医生端"
-          }else if(text==1){
+          } else if (text == 1) {
             return "患者端"
-          }else if(text==2){
+          } else if (text == 2) {
             return "医生，患者端"
           }
-          
+
         },
       },
       {
@@ -223,22 +223,22 @@ class bannerListManage extends PureComponent {
         dataIndex: 'Creation_Time',
         key: 'Creation_Time',
         align: 'center',
-       
+
       },
       {
         title: '状态',
         dataIndex: 'banner_State',
         key: 'banner_State',
         align: 'center',
-        render(text) {
-          if(text==0){
+        render (text) {
+          if (text == 0) {
             return "已发布"
-          }else if(text==1){
+          } else if (text == 1) {
             return "未发布"
-          }else if(text==2){
+          } else if (text == 2) {
             return "下架"
           }
-          
+
         },
       },
       {
@@ -246,10 +246,10 @@ class bannerListManage extends PureComponent {
         key: 'action',
         align: 'center',
         render: () =>
-        <Space size="middle">
-          <a>查看</a>
+          <Space size="middle">
+            <a>查看</a>zzz
           <a>编辑</a>
-        </Space>,
+          </Space>,
       },
     ]
     // ----------------------------------------新增轮播-----------------------------------------
@@ -282,8 +282,8 @@ class bannerListManage extends PureComponent {
               modifier: 'public',
             }}
           >
-        
-        
+
+
             <Form.Item name="active" label="活动类型" rules={[
               {
                 required: true,
@@ -294,7 +294,7 @@ class bannerListManage extends PureComponent {
                 <Radio value="0">患教活动</Radio>
                 <Radio value="1">病历探讨</Radio>
                 <Radio value="2">h5活动</Radio>
-                
+
               </Radio.Group>
             </Form.Item>
             <Form.Item name="banner_State" label="状态" rules={[
@@ -306,7 +306,7 @@ class bannerListManage extends PureComponent {
               <Radio.Group>
                 <Radio value="0">发布</Radio>
                 <Radio value="2">下架</Radio>
-                
+
               </Radio.Group>
             </Form.Item>
             <Form.Item name="exhibition_End" label="展示端口" rules={[
@@ -319,7 +319,7 @@ class bannerListManage extends PureComponent {
                 <Radio value="0">医生端</Radio>
                 <Radio value="1">患者端</Radio>
                 <Radio value="2">医生，患者端</Radio>
-                
+
               </Radio.Group>
             </Form.Item>
             <Form.Item name="banner_Loacl" label="轮播位置" rules={[
@@ -334,18 +334,18 @@ class bannerListManage extends PureComponent {
                 <Radio value="3">3</Radio>
                 <Radio value="4">4</Radio>
                 <Radio value="5">5</Radio>
-                
+
               </Radio.Group>
             </Form.Item>
             {/* //////文件上传////// */}
             <Upload {...props1}>
-            <Button>
-              <UploadOutlined /> 请选择你要上传的图片
+              <Button>
+                <UploadOutlined /> 请选择你要上传的图片
             </Button>
-             </Upload>
-             {/* //////文件上传////// */}
-        
-           
+            </Upload>
+            {/* //////文件上传////// */}
+
+
             <Form.Item name="description" label="备注">
               <TextArea rows={4} />
             </Form.Item>
@@ -382,15 +382,15 @@ class bannerListManage extends PureComponent {
         </div>
       );
     };
- 
+
     return (
       <div>
- {/* ---------------------------------搜索部分---------------------------------------------------- */}
-     
+        {/* ---------------------------------搜索部分---------------------------------------------------- */}
+
         <Row align='middle' className='marginT' style={{ marginBottom: 50 }}>
           <Col span={3} align="right">活动类型：&nbsp;</Col>
           <Col span={5}>
-            <Select  style={{ width: 150 }} onChange={this.activeInputValue}>
+            <Select style={{ width: 150 }} onChange={this.activeInputValue}>
               <Option value="0">患教活动</Option>
               <Option value="1">病历探讨</Option>
               <Option value="2">h5活动</Option>
@@ -416,7 +416,7 @@ class bannerListManage extends PureComponent {
           </Col>
         </Row>
         {/* ------------------------------------列表显示部分----------------------------------------------- */}
-        <Table columns={columns} dataSource={this.state.dataSource} pagination={{ pageSize: 10,  total:this.state.num , onChange:this.getPageContent}} bordered rowKey="P_ID"></Table>
+        <Table columns={columns} dataSource={this.state.dataSource} pagination={{ pageSize: 10, total: this.state.num, onChange: this.getPageContent }} bordered rowKey="P_ID"></Table>
       </div>
     )
   }

@@ -77,14 +77,14 @@ export default class Addcase extends PureComponent {
   }
 
 
-  componentDidMount() {
+  componentDidMount () {
     const { type } = this.state;
     const { match: { params: { id } } } = this.props;
     type === 'edit' && this.getCaseDetail(id)
   }
 
   //弹出层菜单
-  renderTypeMenu(childs) {
+  renderTypeMenu (childs) {
     let menuArr = childs.map((item) => {
       return (
         <Menu.Item key={item.key} type={item.type} title={item.value}>
@@ -128,7 +128,7 @@ export default class Addcase extends PureComponent {
   }
 
 
-  renderTypeContent(type, key) {
+  renderTypeContent (type, key) {
     if (this.state.typeLoaded) {
       let menueAll = this.state.diagnosticTypeList[0].childs;
       let menuArr = menueAll.map((item) => {
@@ -227,8 +227,8 @@ export default class Addcase extends PureComponent {
       }
     })
       .then((res) => {
-        //  console.log(res)
-        message.info("添加成功！");
+        console.log(res)
+        message.info("操作成功！");
 
       })
       .finally(() => {
@@ -590,8 +590,8 @@ export default class Addcase extends PureComponent {
   }
 
   renderCheckedDetail = (tabs) => {
-    return tabs && tabs.map(item => {
-      return <div className={styles.selectedDetail} key={item.value}>
+    return tabs && tabs.map((item, index) => {
+      return <div key={index} className={styles.selectedDetail} key={item.value}>
         <div className={styles.detailTabsTitle}>
           {item.title}
         </div>
@@ -622,7 +622,7 @@ export default class Addcase extends PureComponent {
     })
   }
 
-  render() {
+  render () {
     const { initFormData, visibleModalName, type, initDataLoaded, shadowModalData } = this.state;
     const { modal, selectedTabs } = this.getModalDataModal(false);
     let tabs = [];

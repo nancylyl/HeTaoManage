@@ -22,8 +22,10 @@ export default class userStore {
         url: Api.user.userLogin,
         data: { Account: '15328189934', PassWord: 1234 },
         method: 'post',
+        isDev: 1
       })
         .then((res) => {
+          console.log(res);
           if (res.data.success) {
             this.user.data = res.data.data
             this.user.loaded = true
