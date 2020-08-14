@@ -1,7 +1,8 @@
 import React, { PureComponent } from 'react'
-import {  Form, Input, DatePicker, Row, Col,  Button, Table } from 'antd';
+import {  Form, Input, DatePicker, Row, Col,  Button, Table, ConfigProvider  } from 'antd';
 import moment from 'moment';
 import locale from 'antd/lib/date-picker/locale/zh_CN';
+import zhCN from 'antd/es/locale/zh_CN';
 import styles from './dealInfo.module.scss'
 import Axios from '../../util/axios'
 import Api from '../../api/index'
@@ -14,17 +15,32 @@ class dealsInfoManage extends PureComponent {
     this.state = {
       loaded: false,
       dealLists: [],
-      num: ''
+      num: '',
+      value: '',
+      current: 1
     }
   }
 
-  into(page,limit) {
-    Axios({
-      url: Api.deals.getDeals,
-      params: {
+  into(page,limit,val) {
+    let url,data;
+    if (val=='') {
+      url = Api.deals.getDeals;
+      data={
         limit: limit,
         page: page,
-      },
+      }
+    }else{
+      url = Api.deals.searchDeals;
+      data={
+        limit: limit,
+        page: page,
+        transactionName: val.transactionName,
+        transactionSerial: val.transactionSerial,
+      }
+    }
+    Axios({
+      url: url,
+      params: data,
       isDev: 1
     })
       .then((res) => {
@@ -39,33 +55,9 @@ class dealsInfoManage extends PureComponent {
         }
       })
   }
-  search(page,limit,val){
-    Axios({
-      url: Api.deals.searchDeals,
-      params: {
-        limit: limit,
-        page: page,
-        transactionName: val.transactionName,
-        transactionSerial: val.transactionSerial,
-      },
-      isDev: 1
-    })
-      .then((res) => {
-        console.log(res)
-        if (res.status== 200) {
-          this.setState({
-            dealLists: res.data.data,
-            loaded: true,
-          })
-        } else {
-        }
-      })
-  }
   componentDidMount() {
-    this.into(0,5);
+    this.into(1,5,this.state.value);
   }
-
-
   range=(start, end)=> {
     const result = [];
     for (let i = start; i < end; i++) {
@@ -108,20 +100,33 @@ class dealsInfoManage extends PureComponent {
   }
   getPageContent=(page,limit)=>{
     console.log(page, limit);
-    this.into(page,limit);
+    this.setState({
+      current: page
+    })
+    this.into(1,5,this.state.value);
   }
   // 提交搜索信息
-  onFinish = values => {
-    console.log(values);
-    
-    this.search(0,5,values);
-
+  onFinish = values => {    
+    this.setState({
+      value:values,
+      current: 1
+    },()=>{
+      this.into(1,5,this.state.value);
+    })
+    this.formRef.current.resetFields();
   };
   // 重置搜索框
   delSearch = () => {
     this.formRef.current.resetFields();
-    this.into();
+    this.setState({
+      value:'',
+      num: '',
+      current: 1
+    },()=>{
+      this.into(1,5,this.state.value);
+    })
   };
+ // 时间戳转换为yyyy-mm-dd hh:mm:ss格式
   timestampToTime(timestamp) {
     var date = new Date(timestamp);//时间戳为10位需*1000，时间戳为13位的话不需乘1000
     let Y = date.getFullYear() + '-';
@@ -191,7 +196,8 @@ class dealsInfoManage extends PureComponent {
               <Form.Item
                 label="用户姓名"
                 name="transactionName"
-                rules={[{ required: true, message: '请输入姓名!' }]}>
+                // rules={[{ required: true, message: '请输入姓名!' }]}
+                >
                 <Input placeholder="请输入" />
               </Form.Item>
             </Col>
@@ -199,7 +205,7 @@ class dealsInfoManage extends PureComponent {
               <Form.Item
                 label="交易流水号"
                 name="transactionSerial"
-                rules={[{ required: true, message: '请输入流水号!' }]}
+                // rules={[{ required: true, message: '请输入流水号!' }]}
               >
                 <Input placeholder="请输入" />
               </Form.Item>
@@ -240,9 +246,12 @@ class dealsInfoManage extends PureComponent {
           {this.state.loaded && (
             <Row justify="start">
               <Col span={24} >
-                <Table columns={columns} dataSource={dealLists} bordered size="middle" rowKey="id" 
-                pagination={{ pageSize: 6,  total:this.state.num , onChange:this.getPageContent}}/>
+                <ConfigProvider locale={zhCN}>
+                  <Table columns={columns} dataSource={dealLists} bordered size="middle" rowKey="id" 
+                  pagination={{ pageSize: 5, total:this.state.num,current:this.state.current, onChange:this.getPageContent, showQuickJumper : true}}/>
+                </ConfigProvider>
               </Col>
+              
             </Row>
           )}
         </div>

@@ -31,7 +31,7 @@ export default class CaseLog extends PureComponent {
       isDev : 1
     })
       .then((res) => {
-        // console.log(res);
+        console.log(res);
         if (res.status==200) {
           this.setState({
             logList: res.data.data,
