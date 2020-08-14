@@ -42,9 +42,9 @@ export default function axios (config) {
     },
     (err) => {
       console.log(err);
-      // window.loading(false)
+      window.loading(false)
       //  request("/index/error")
-      // window.location.href = "/index/error"
+      window.location.href = "/index/error"
 
     }
   )
