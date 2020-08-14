@@ -9,6 +9,7 @@ import patients from './patient'
 import addCase from './case'
 import map from './map'
 import transaction from './transaction'
+import banner from './banner'
 export default {
   user,
   home,
@@ -21,4 +22,5 @@ export default {
   doctor,
   transaction,
   deals,
+  banner
 }
